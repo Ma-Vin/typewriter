@@ -17,6 +17,14 @@ func AssertNil(actual any, t *testing.T, objectName string) {
 	}
 }
 
+func AssertTrue(actual bool, t *testing.T, objectName string) {
+	AssertEquals(true, actual, t, objectName)
+}
+
+func AssertFalse(actual bool, t *testing.T, objectName string) {
+	AssertEquals(false, actual, t, objectName)
+}
+
 func AssertEquals(expected any, actual any, t *testing.T, objectName string) {
 	AssertNotNil(actual, t, objectName)
 	if expected != actual {
