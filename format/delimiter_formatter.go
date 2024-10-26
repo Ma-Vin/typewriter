@@ -9,19 +9,24 @@ import (
 
 // Formatter which append given parameter with a delimter. Since name the of the parameter meter will not be contained, the keys of customValues at FormatCustom neither.
 type DelimiterFormatter struct {
-	Delimiter string
+	delimiter string
+}
+
+// Creates a new formater with a given delimiter
+func CreateDelimiterFormatter(delimiter string) DelimiterFormatter {
+	return DelimiterFormatter{delimiter}
 }
 
 func (d DelimiterFormatter) Format(timestamp time.Time, severity int, message string) string {
-	return concatWithDelimiter(&d.Delimiter, formatTimeToString(&timestamp), severityTextMap[severity], message)
+	return concatWithDelimiter(&d.delimiter, formatTimeToString(&timestamp), severityTextMap[severity], message)
 }
 
 func (d DelimiterFormatter) FormatWithCorrelation(timestamp time.Time, severity int, correlationId string, message string) string {
-	return concatWithDelimiter(&d.Delimiter, formatTimeToString(&timestamp), severityTextMap[severity], correlationId, message)
+	return concatWithDelimiter(&d.delimiter, formatTimeToString(&timestamp), severityTextMap[severity], correlationId, message)
 }
 
 func (d DelimiterFormatter) FormatCustom(timestamp time.Time, severity int, message string, customValues map[string]any) string {
-	return concatWithDelimiter(&d.Delimiter, formatTimeToString(&timestamp), severityTextMap[severity], message, formatMapToString(&customValues, &d.Delimiter))
+	return concatWithDelimiter(&d.delimiter, formatTimeToString(&timestamp), severityTextMap[severity], message, formatMapToString(&customValues, &d.delimiter))
 }
 
 func concatWithDelimiter(delimiter *string, args ...string) string {
