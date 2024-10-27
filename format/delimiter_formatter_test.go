@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ma-vin/typewriter"
+	"github.com/ma-vin/typewriter/constants"
 	testutil "github.com/ma-vin/typewriter/util"
 )
 
@@ -16,11 +16,11 @@ var testTimeText = testTime.Local().Format(time.RFC3339)
 
 func TestFormat(t *testing.T) {
 	expectedResults := map[int]string{
-		typewriter.DEBUG_SEVERITY:       testTimeText + " - DEBUG - Testmessage",
-		typewriter.INFORMATION_SEVERITY: testTimeText + " - INFO  - Testmessage",
-		typewriter.WARNING_SEVERITY:     testTimeText + " - WARN  - Testmessage",
-		typewriter.ERROR_SEVERITY:       testTimeText + " - ERROR - Testmessage",
-		typewriter.FATAL_SEVERITY:       testTimeText + " - FATAL - Testmessage",
+		constants.DEBUG_SEVERITY:       testTimeText + " - DEBUG - Testmessage",
+		constants.INFORMATION_SEVERITY: testTimeText + " - INFO  - Testmessage",
+		constants.WARNING_SEVERITY:     testTimeText + " - WARN  - Testmessage",
+		constants.ERROR_SEVERITY:       testTimeText + " - ERROR - Testmessage",
+		constants.FATAL_SEVERITY:       testTimeText + " - FATAL - Testmessage",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -30,11 +30,11 @@ func TestFormat(t *testing.T) {
 
 func TestFormatCorrelation(t *testing.T) {
 	expectedResults := map[int]string{
-		typewriter.DEBUG_SEVERITY:       testTimeText + " - DEBUG - someCorrelationId - Testmessage",
-		typewriter.INFORMATION_SEVERITY: testTimeText + " - INFO  - someCorrelationId - Testmessage",
-		typewriter.WARNING_SEVERITY:     testTimeText + " - WARN  - someCorrelationId - Testmessage",
-		typewriter.ERROR_SEVERITY:       testTimeText + " - ERROR - someCorrelationId - Testmessage",
-		typewriter.FATAL_SEVERITY:       testTimeText + " - FATAL - someCorrelationId - Testmessage",
+		constants.DEBUG_SEVERITY:       testTimeText + " - DEBUG - someCorrelationId - Testmessage",
+		constants.INFORMATION_SEVERITY: testTimeText + " - INFO  - someCorrelationId - Testmessage",
+		constants.WARNING_SEVERITY:     testTimeText + " - WARN  - someCorrelationId - Testmessage",
+		constants.ERROR_SEVERITY:       testTimeText + " - ERROR - someCorrelationId - Testmessage",
+		constants.FATAL_SEVERITY:       testTimeText + " - FATAL - someCorrelationId - Testmessage",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -50,11 +50,11 @@ func TestFormatCustom(t *testing.T) {
 	}
 
 	expectedResults := map[int]string{
-		typewriter.DEBUG_SEVERITY:       testTimeText + " - DEBUG - Testmessage - abc - 1 - true",
-		typewriter.INFORMATION_SEVERITY: testTimeText + " - INFO  - Testmessage - abc - 1 - true",
-		typewriter.WARNING_SEVERITY:     testTimeText + " - WARN  - Testmessage - abc - 1 - true",
-		typewriter.ERROR_SEVERITY:       testTimeText + " - ERROR - Testmessage - abc - 1 - true",
-		typewriter.FATAL_SEVERITY:       testTimeText + " - FATAL - Testmessage - abc - 1 - true",
+		constants.DEBUG_SEVERITY:       testTimeText + " - DEBUG - Testmessage - abc - 1 - true",
+		constants.INFORMATION_SEVERITY: testTimeText + " - INFO  - Testmessage - abc - 1 - true",
+		constants.WARNING_SEVERITY:     testTimeText + " - WARN  - Testmessage - abc - 1 - true",
+		constants.ERROR_SEVERITY:       testTimeText + " - ERROR - Testmessage - abc - 1 - true",
+		constants.FATAL_SEVERITY:       testTimeText + " - FATAL - Testmessage - abc - 1 - true",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {

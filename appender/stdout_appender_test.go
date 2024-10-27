@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ma-vin/typewriter"
+	"github.com/ma-vin/typewriter/constants"
 	"github.com/ma-vin/typewriter/format"
 	testutil "github.com/ma-vin/typewriter/util"
 )
@@ -26,7 +26,7 @@ func TestWrite(t *testing.T) {
 	appender := CreateStandardOutputAppender(format.CreateDelimiterFormatter(" - "))
 	appender.writer = buf
 
-	appender.Write(testTime, typewriter.INFORMATION_SEVERITY, "Testmessage")
+	appender.Write(testTime, constants.INFORMATION_SEVERITY, "Testmessage")
 
 	testutil.AssertEquals(testTimeText+" - INFO  - Testmessage", strings.TrimSpace(buf.String()), t, "Write")
 }
@@ -36,7 +36,7 @@ func TestWriteWithCorrelation(t *testing.T) {
 	appender := CreateStandardOutputAppender(format.CreateDelimiterFormatter(" - "))
 	appender.writer = buf
 
-	appender.WriteWithCorrelation(testTime, typewriter.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
+	appender.WriteWithCorrelation(testTime, constants.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
 
 	testutil.AssertEquals(testTimeText+" - INFO  - someCorrelationId - Testmessage", strings.TrimSpace(buf.String()), t, "WriteWithCorrelation")
 }
@@ -52,7 +52,7 @@ func TestWriteCustom(t *testing.T) {
 		"second": 1,
 	}
 
-	appender.WriteCustom(testTime, typewriter.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	appender.WriteCustom(testTime, constants.INFORMATION_SEVERITY, "Testmessage", customProperties)
 
 	testutil.AssertEquals(testTimeText+" - INFO  - Testmessage - abc - 1 - true", strings.TrimSpace(buf.String()), t, "WriteCustom")
 }

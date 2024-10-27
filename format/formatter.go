@@ -3,7 +3,7 @@ package format
 import (
 	"time"
 
-	"github.com/ma-vin/typewriter"
+	"github.com/ma-vin/typewriter/constants"
 )
 
 const (
@@ -24,9 +24,9 @@ type Formatter interface {
 }
 
 var severityTextMap = map[int]string{
-	typewriter.DEBUG_SEVERITY:       DEBUG_PREFIX,
-	typewriter.INFORMATION_SEVERITY: INFORMATION_PREFIX,
-	typewriter.WARNING_SEVERITY:     WARNING_PREFIX,
-	typewriter.ERROR_SEVERITY:       ERROR_PREFIX,
-	typewriter.FATAL_SEVERITY:       FATAL_PREFIX,
+	constants.DEBUG_SEVERITY:       DEBUG_PREFIX,
+	constants.INFORMATION_SEVERITY: INFORMATION_PREFIX,
+	constants.WARNING_SEVERITY:     WARNING_PREFIX,
+	constants.ERROR_SEVERITY:       ERROR_PREFIX,
+	constants.FATAL_SEVERITY:       FATAL_PREFIX,
 }
