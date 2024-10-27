@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -36,6 +37,13 @@ func AssertNotEquals(notExpected any, actual any, t *testing.T, objectName strin
 	AssertNotNil(actual, t, objectName)
 	if notExpected == actual {
 		t.Errorf("Element %s equals the unexpected. unexpected: '%v' actual: '%v'", objectName, notExpected, actual)
+	}
+}
+
+func AssertHasSuffix(expected string, actual string, t *testing.T, objectName string) {
+	AssertNotNil(actual, t, objectName)
+	if !strings.HasSuffix(actual, expected) {
+		t.Errorf("Element %s is not as expected. expected suffix: '%v' actual: '%v'", objectName, expected, actual)
 	}
 }
 

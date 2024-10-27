@@ -15,6 +15,7 @@ var testTime = time.Date(2024, time.October, 1, 13, 20, 0, 0, time.UTC)
 var testTimeText = testTime.Local().Format(time.RFC3339)
 
 func TestFormat(t *testing.T) {
+	delimiterFormatterMockTime = &testTime
 	expectedResults := map[int]string{
 		constants.DEBUG_SEVERITY:       testTimeText + " - DEBUG - Testmessage",
 		constants.INFORMATION_SEVERITY: testTimeText + " - INFO  - Testmessage",
@@ -24,11 +25,12 @@ func TestFormat(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, formatter.Format(testTime, severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expexpectedMessage, formatter.Format(severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestFormatCorrelation(t *testing.T) {
+	delimiterFormatterMockTime = &testTime
 	expectedResults := map[int]string{
 		constants.DEBUG_SEVERITY:       testTimeText + " - DEBUG - someCorrelationId - Testmessage",
 		constants.INFORMATION_SEVERITY: testTimeText + " - INFO  - someCorrelationId - Testmessage",
@@ -38,11 +40,12 @@ func TestFormatCorrelation(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, formatter.FormatWithCorrelation(testTime, severity, "someCorrelationId", "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expexpectedMessage, formatter.FormatWithCorrelation(severity, "someCorrelationId", "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestFormatCustom(t *testing.T) {
+	delimiterFormatterMockTime = &testTime
 	customProperties := map[string]any{
 		"first":  "abc",
 		"third":  true,
@@ -58,6 +61,6 @@ func TestFormatCustom(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, formatter.FormatCustom(testTime, severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expexpectedMessage, formatter.FormatCustom(severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }

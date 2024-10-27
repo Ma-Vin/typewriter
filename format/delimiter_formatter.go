@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var delimiterFormatterMockTime *time.Time = nil
+
 // Formatter which append given parameter with a delimter. Since name the of the parameter meter will not be contained, the keys of customValues at FormatCustom neither.
 type DelimiterFormatter struct {
 	delimiter string
@@ -17,16 +19,16 @@ func CreateDelimiterFormatter(delimiter string) Formatter {
 	return DelimiterFormatter{delimiter}
 }
 
-func (d DelimiterFormatter) Format(timestamp time.Time, severity int, message string) string {
-	return concatWithDelimiter(&d.delimiter, formatTimeToString(&timestamp), severityTextMap[severity], message)
+func (d DelimiterFormatter) Format(severity int, message string) string {
+	return concatWithDelimiter(&d.delimiter, getNowAsString(), severityTextMap[severity], message)
 }
 
-func (d DelimiterFormatter) FormatWithCorrelation(timestamp time.Time, severity int, correlationId string, message string) string {
-	return concatWithDelimiter(&d.delimiter, formatTimeToString(&timestamp), severityTextMap[severity], correlationId, message)
+func (d DelimiterFormatter) FormatWithCorrelation(severity int, correlationId string, message string) string {
+	return concatWithDelimiter(&d.delimiter, getNowAsString(), severityTextMap[severity], correlationId, message)
 }
 
-func (d DelimiterFormatter) FormatCustom(timestamp time.Time, severity int, message string, customValues map[string]any) string {
-	return concatWithDelimiter(&d.delimiter, formatTimeToString(&timestamp), severityTextMap[severity], message, formatMapToString(&customValues, &d.delimiter))
+func (d DelimiterFormatter) FormatCustom(severity int, message string, customValues map[string]any) string {
+	return concatWithDelimiter(&d.delimiter, getNowAsString(), severityTextMap[severity], message, formatMapToString(&customValues, &d.delimiter))
 }
 
 func concatWithDelimiter(delimiter *string, args ...string) string {
@@ -41,8 +43,12 @@ func concatWithDelimiter(delimiter *string, args ...string) string {
 	return sb.String()
 }
 
-func formatTimeToString(timestamp *time.Time) string {
-	return timestamp.Local().Format(time.RFC3339)
+func getNowAsString() string {
+	timeToFormat := time.Now()
+	if delimiterFormatterMockTime != nil {
+		timeToFormat = *delimiterFormatterMockTime
+	}
+	return timeToFormat.Local().Format(time.RFC3339)
 }
 
 func formatMapToString(customValues *map[string]any, delimiter *string) string {
