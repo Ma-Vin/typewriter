@@ -10,7 +10,8 @@ import (
 )
 
 var testDelimiterFormatter = format.CreateDelimiterFormatter(" - ")
-var testCommonLogger = CreateCommonLogger(appender.CreateStandardOutputAppender(&testDelimiterFormatter))
+var testStandardOutputAppender = appender.CreateStandardOutputAppender(&testDelimiterFormatter)
+var testCommonLogger = CreateCommonLogger(&testStandardOutputAppender)
 
 func TestEnableDebugSeverityCommonLogger(t *testing.T) {
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "DEBUG")

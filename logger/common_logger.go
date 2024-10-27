@@ -18,10 +18,10 @@ type CommonLogger struct {
 	warningEnabled     bool
 	errorEnabled       bool
 	fatalEnabled       bool
-	appender           appender.Appender
+	appender           *appender.Appender
 }
 
-func CreateCommonLogger(appender appender.Appender) CommonLogger {
+func CreateCommonLogger(appender *appender.Appender) CommonLogger {
 	result := CommonLogger{appender: appender}
 	determineSeverityFromEnv(&result)
 	return result

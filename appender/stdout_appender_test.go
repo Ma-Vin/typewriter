@@ -18,14 +18,14 @@ var testTimeText = testTime.Local().Format(time.RFC3339)
 var testDelimiterFormatter = format.CreateDelimiterFormatter(" - ")
 
 func TestDefaultIsStdOut(t *testing.T) {
-	appender := CreateStandardOutputAppender(&testDelimiterFormatter)
+	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 
 	testutil.AssertEquals(os.Stdout, appender.writer, t, "default output")
 }
 
 func TestWrite(t *testing.T) {
 	buf := new(bytes.Buffer)
-	appender := CreateStandardOutputAppender(&testDelimiterFormatter)
+	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
 	appender.Write(testTime, constants.INFORMATION_SEVERITY, "Testmessage")
@@ -35,7 +35,7 @@ func TestWrite(t *testing.T) {
 
 func TestWriteWithCorrelation(t *testing.T) {
 	buf := new(bytes.Buffer)
-	appender := CreateStandardOutputAppender(&testDelimiterFormatter)
+	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
 	appender.WriteWithCorrelation(testTime, constants.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
@@ -45,7 +45,7 @@ func TestWriteWithCorrelation(t *testing.T) {
 
 func TestWriteCustom(t *testing.T) {
 	buf := new(bytes.Buffer)
-	appender := CreateStandardOutputAppender(&testDelimiterFormatter)
+	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
 	customProperties := map[string]any{

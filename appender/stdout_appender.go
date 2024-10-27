@@ -15,7 +15,7 @@ type StandardOutputAppender struct {
 	writer    io.Writer
 }
 
-func CreateStandardOutputAppender(formatter *format.Formatter) StandardOutputAppender {
+func CreateStandardOutputAppender(formatter *format.Formatter) Appender {
 	return StandardOutputAppender{formatter, os.Stdout}
 }
 
