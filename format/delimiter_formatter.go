@@ -13,7 +13,7 @@ type DelimiterFormatter struct {
 }
 
 // Creates a new formater with a given delimiter
-func CreateDelimiterFormatter(delimiter string) DelimiterFormatter {
+func CreateDelimiterFormatter(delimiter string) Formatter {
 	return DelimiterFormatter{delimiter}
 }
 

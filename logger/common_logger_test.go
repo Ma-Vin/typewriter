@@ -9,7 +9,8 @@ import (
 	testutil "github.com/ma-vin/typewriter/util"
 )
 
-var testCommonLogger = CreateCommonLogger(appender.CreateStandardOutputAppender(format.CreateDelimiterFormatter(" - ")))
+var testDelimiterFormatter = format.CreateDelimiterFormatter(" - ")
+var testCommonLogger = CreateCommonLogger(appender.CreateStandardOutputAppender(&testDelimiterFormatter))
 
 func TestEnableDebugSeverityCommonLogger(t *testing.T) {
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "DEBUG")
