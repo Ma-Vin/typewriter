@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/ma-vin/typewriter/constants"
-	testutil "github.com/ma-vin/typewriter/util"
+	"github.com/ma-vin/typewriter/testutil"
 )
 
 var formatter Formatter = CreateDelimiterFormatter(" - ")

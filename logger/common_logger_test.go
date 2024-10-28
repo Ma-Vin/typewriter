@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/ma-vin/typewriter/appender"
-	testutil "github.com/ma-vin/typewriter/util"
+	"github.com/ma-vin/typewriter/testutil"
 )
 
 type TestAppender struct {

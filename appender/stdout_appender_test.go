@@ -8,7 +8,7 @@ import (
 
 	"github.com/ma-vin/typewriter/constants"
 	"github.com/ma-vin/typewriter/format"
-	testutil "github.com/ma-vin/typewriter/util"
+	"github.com/ma-vin/typewriter/testutil"
 )
 
 var testDelimiterFormatter = format.CreateDelimiterFormatter(" - ")
