@@ -34,7 +34,12 @@ func CreateCommonLogger(appender *appender.Appender) CommonLogger {
 
 // determines the default severity level from environment variable and activates different log levels
 func determineSeverityFromEnv(l *CommonLogger) {
-	switch strings.ToUpper(strings.TrimSpace(os.Getenv(DEFAULT_LOG_LEVEL_ENV_NAME))) {
+	determineSeverity(strings.ToUpper(strings.TrimSpace(os.Getenv(DEFAULT_LOG_LEVEL_ENV_NAME))), l)
+}
+
+// determines the severity level from a given variable and activates different log levels
+func determineSeverity(severityLevel string, l *CommonLogger) {
+	switch severityLevel {
 	case "DEBUG":
 		determineSeverityByLevel(l, constants.DEBUG_SEVERITY)
 	case "INFO":
