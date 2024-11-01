@@ -8,6 +8,8 @@ import (
 )
 
 func TestCreatePackageLoggers(t *testing.T) {
+	os.Clearenv()
+
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "DEBUG")
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME+"_"+"first", "info")
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME+"_"+"SECOND", "WARN")
