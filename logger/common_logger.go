@@ -393,7 +393,7 @@ func panicOrMock(message string) {
 		panicMockActivated = true
 		return
 	}
-	panicOrMock(message)
+	panic(message)
 }
 
 func exitOrMock(code int) {
