@@ -9,10 +9,6 @@ import (
 	"github.com/ma-vin/typewriter/constants"
 )
 
-const (
-	DEFAULT_LOG_LEVEL_ENV_NAME = "TYPEWRITER_DEFAULT_LOG_LEVEL"
-)
-
 type CommonLogger struct {
 	debugEnabled       bool
 	informationEnabled bool
