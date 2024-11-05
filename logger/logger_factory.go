@@ -134,19 +134,12 @@ func getConfig() *overallConfig {
 		createFormatterConfigFromEnv(&relevantEnvKeyValues)
 		createAppenderConfigFromEnv(&relevantEnvKeyValues)
 		createLoggerConfigFromEnv(&relevantEnvKeyValues)
-	} else {
-		createDefaultConfig()
 	}
+
+	completeConfig()
 
 	configInitialized = true
 	return &config
-}
-
-// creates a default configuration
-func createDefaultConfig() {
-	config.formatter = []formatterConfig{formatterConfig{formatterType: FORMATTER_DELIMITER, isDefault: true, packageName: "", delimiter: DEFAULT_DELIMITER}}
-	config.appender = []appenderConfig{appenderConfig{appenderType: APPENDER_STDOUT, isDefault: true, packageName: ""}}
-	config.logger = []loggerConfig{loggerConfig{isDefault: true, packageName: "", severity: constants.ERROR_SEVERITY}}
 }
 
 // Determines a reduced slice of key-value pairs, which only contains relevant keys and non empty values
@@ -299,5 +292,157 @@ func printHint(isNotSupported bool, isUnkown bool, propertyName string, property
 	}
 	if isUnkown {
 		fmt.Println("Unkown", objectType, propertyName, "for logger at env variable", propertyEnvName)
+	}
+}
+
+// creates default configs if missing and adds package specfic copies of defaults if at least one of the other config types exists as package variant
+func completeConfig() {
+	completeDefaults()
+
+	completeAppenderConfigPackageForward()
+	completeFormatterConfigPackageForward()
+
+	completeAppenderConfigPackageBackward()
+	completeLoggerConfigPackageBackward()
+}
+
+// creates default configs if missing
+func completeDefaults() {
+	found := false
+
+	for _, fc := range config.formatter {
+		if fc.isDefault {
+			found = true
+			break
+		}
+	}
+	if !found {
+		config.formatter = append(config.formatter, formatterConfig{formatterType: FORMATTER_DELIMITER, isDefault: true, packageName: "", delimiter: DEFAULT_DELIMITER})
+	}
+
+	for _, ac := range config.appender {
+		if ac.isDefault {
+			found = true
+			break
+		}
+	}
+	if !found {
+		config.appender = append(config.appender, appenderConfig{appenderType: APPENDER_STDOUT, isDefault: true, packageName: ""})
+	}
+
+	for _, lc := range config.logger {
+		if lc.isDefault {
+			found = true
+			break
+		}
+	}
+	if !found {
+		config.logger = append(config.logger, loggerConfig{isDefault: true, packageName: "", severity: constants.ERROR_SEVERITY})
+	}
+}
+
+// creates appender configs if there exists a logger package variant
+func completeAppenderConfigPackageForward() {
+	for _, lc := range config.logger {
+		if lc.isDefault {
+			continue
+		}
+		createAppenderConfigIfNecessary(&lc.packageName)
+	}
+}
+
+// creates appender configs if there exists a formatter package variant
+func completeAppenderConfigPackageBackward() {
+	for _, fc := range config.formatter {
+		if fc.isDefault {
+			continue
+		}
+		createAppenderConfigIfNecessary(&fc.packageName)
+	}
+}
+
+// creates an appender config if it does not exists for a given package name
+func createAppenderConfigIfNecessary(packageName *string) {
+	found := false
+	for _, ac := range config.appender {
+		if ac.packageName == *packageName {
+			found = true
+			break
+		}
+	}
+	if !found {
+		for _, ac := range config.appender {
+			if ac.isDefault {
+				acp := ac
+				acp.isDefault = false
+				acp.packageName = *packageName
+				config.appender = append(config.appender, acp)
+				break
+			}
+		}
+	}
+}
+
+// creates formatter configs if there exists a appender package variant
+func completeFormatterConfigPackageForward() {
+	for _, ac := range config.appender {
+		if ac.isDefault {
+			continue
+		}
+		createFormatterConfigIfNecessary(&ac.packageName)
+	}
+}
+
+// creates an formatter config if it does not exists for a given package name
+func createFormatterConfigIfNecessary(packageName *string) {
+	found := false
+	for _, fc := range config.formatter {
+		if fc.packageName == *packageName {
+			found = true
+			break
+		}
+	}
+	if !found {
+		for _, fc := range config.formatter {
+			if fc.isDefault {
+				fcp := fc
+				fcp.isDefault = false
+				fcp.packageName = *packageName
+				config.formatter = append(config.formatter, fcp)
+				break
+			}
+		}
+	}
+}
+
+// creates logger configs if there exists a appender package variant
+func completeLoggerConfigPackageBackward() {
+	for _, ac := range config.appender {
+		if ac.isDefault {
+			continue
+		}
+		createLoggerConfigIfNecessary(&ac.packageName)
+	}
+}
+
+// creates an logger config if it does not exists for a given package name
+func createLoggerConfigIfNecessary(packageName *string) {
+	found := false
+	for _, lc := range config.logger {
+		if lc.packageName == *packageName {
+			found = true
+			break
+		}
+	}
+	if !found {
+		for _, lc := range config.logger {
+			if lc.isDefault {
+				lcp := lc
+				lcp.isDefault = false
+				lcp.packageName = *packageName
+				config.logger = append(config.logger, lcp)
+				break
+			}
+		}
 	}
 }

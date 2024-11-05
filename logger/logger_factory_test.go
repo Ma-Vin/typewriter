@@ -209,15 +209,23 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyLevel(t *testing.T) {
 	testutil.AssertEquals(packageNameUpper, result.logger[1].packageName, t, "result.logger[1].packageName")
 	testutil.AssertEquals(constants.DEBUG_SEVERITY, result.logger[1].severity, t, "result.logger[1].severity")
 
-	testutil.AssertEquals(1, len(result.appender), t, "len(result.appender)")
+	testutil.AssertEquals(2, len(result.appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
 	testutil.AssertEquals("", result.appender[0].packageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[0].appenderType, t, "result.appender[0].appenderType")
+	testutil.AssertFalse(result.appender[1].isDefault, t, "result.appender[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.appender[1].packageName, t, "result.appender[1].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[1].appenderType, t, "result.appender[1].appenderType")
 
-	testutil.AssertEquals(1, len(result.formatter), t, "len(result.formatter)")
+	testutil.AssertEquals(2, len(result.formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
 	testutil.AssertEquals("", result.formatter[0].packageName, t, "result.formatter[0].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[0].formatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[0].delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertFalse(result.formatter[1].isDefault, t, "result.formatter[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.formatter[1].packageName, t, "result.formatter[1].packageName")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[1].formatterType, t, "result.formatter[1].formatterType")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
 }
 
 func TestGetConfigCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
@@ -229,10 +237,13 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 
 	result := getConfig()
 
-	testutil.AssertEquals(1, len(result.logger), t, "len(result.logger)")
+	testutil.AssertEquals(2, len(result.logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.logger[0].isDefault, t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.logger[0].packageName, t, "result.logger[0].packageName")
 	testutil.AssertEquals(constants.ERROR_SEVERITY, result.logger[0].severity, t, "result.logger[0].severity")
+	testutil.AssertFalse(result.logger[1].isDefault, t, "result.logger[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.logger[1].packageName, t, "result.logger[1].packageName")
+	testutil.AssertEquals(constants.ERROR_SEVERITY, result.logger[1].severity, t, "result.logger[1].severity")
 
 	testutil.AssertEquals(2, len(result.appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
@@ -242,11 +253,15 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	testutil.AssertEquals(packageNameUpper, result.appender[1].packageName, t, "result.appender[1].packageName")
 	testutil.AssertEquals(APPENDER_STDOUT, result.appender[1].appenderType, t, "result.appender[1].appenderType")
 
-	testutil.AssertEquals(1, len(result.formatter), t, "len(result.formatter)")
+	testutil.AssertEquals(2, len(result.formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
 	testutil.AssertEquals("", result.formatter[0].packageName, t, "result.formatter[0].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[0].formatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[0].delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertFalse(result.formatter[1].isDefault, t, "result.formatter[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.formatter[1].packageName, t, "result.formatter[1].packageName")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[1].formatterType, t, "result.formatter[1].formatterType")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
 }
 
 func TestGetConfigCreateFromEnvPackagePartialOnlyFromatter(t *testing.T) {
@@ -258,15 +273,21 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyFromatter(t *testing.T) {
 
 	result := getConfig()
 
-	testutil.AssertEquals(1, len(result.logger), t, "len(result.logger)")
+	testutil.AssertEquals(2, len(result.logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.logger[0].isDefault, t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.logger[0].packageName, t, "result.logger[0].packageName")
 	testutil.AssertEquals(constants.ERROR_SEVERITY, result.logger[0].severity, t, "result.logger[0].severity")
+	testutil.AssertFalse(result.logger[1].isDefault, t, "result.logger[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.logger[1].packageName, t, "result.logger[1].packageName")
+	testutil.AssertEquals(constants.ERROR_SEVERITY, result.logger[1].severity, t, "result.logger[1].severity")
 
-	testutil.AssertEquals(1, len(result.appender), t, "len(result.appender)")
+	testutil.AssertEquals(2, len(result.appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
 	testutil.AssertEquals("", result.appender[0].packageName, t, "result.appender[0].packageName")
 	testutil.AssertEquals(APPENDER_STDOUT, result.appender[0].appenderType, t, "result.appender[0].appenderType")
+	testutil.AssertFalse(result.appender[1].isDefault, t, "result.appender[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.appender[1].packageName, t, "result.appender[1].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[1].appenderType, t, "result.appender[1].appenderType")
 
 	testutil.AssertEquals(2, len(result.formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
@@ -289,15 +310,21 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyFromatterWithParamter(t *testin
 
 	result := getConfig()
 
-	testutil.AssertEquals(1, len(result.logger), t, "len(result.logger)")
+	testutil.AssertEquals(2, len(result.logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.logger[0].isDefault, t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.logger[0].packageName, t, "result.logger[0].packageName")
 	testutil.AssertEquals(constants.ERROR_SEVERITY, result.logger[0].severity, t, "result.logger[0].severity")
+	testutil.AssertFalse(result.logger[1].isDefault, t, "result.logger[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.logger[1].packageName, t, "result.logger[1].packageName")
+	testutil.AssertEquals(constants.ERROR_SEVERITY, result.logger[1].severity, t, "result.logger[1].severity")
 
-	testutil.AssertEquals(1, len(result.appender), t, "len(result.appender)")
+	testutil.AssertEquals(2, len(result.appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
 	testutil.AssertEquals("", result.appender[0].packageName, t, "result.appender[0].packageName")
 	testutil.AssertEquals(APPENDER_STDOUT, result.appender[0].appenderType, t, "result.appender[0].appenderType")
+	testutil.AssertFalse(result.appender[1].isDefault, t, "result.appender[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.appender[1].packageName, t, "result.appender[1].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[1].appenderType, t, "result.appender[1].appenderType")
 
 	testutil.AssertEquals(2, len(result.formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
