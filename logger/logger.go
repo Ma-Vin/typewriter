@@ -128,7 +128,7 @@ type Logger interface {
 
 	// Logs a message together with a correlation id if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprint].
-	ErrorWWithCorrelationAndPanic(correlationId string, args ...any)
+	ErrorWithCorrelationAndPanic(correlationId string, args ...any)
 
 	// Logs a message together with custom values if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprint].
