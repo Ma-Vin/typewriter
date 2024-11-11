@@ -233,3 +233,8 @@ type Logger interface {
 	// Indicator whether fatal level is enabled or not
 	IsFatalEnabled() bool
 }
+
+// Returns a pointer to the main logger which provides all methods of the Logger interface
+func Log() Logger {
+	return getLoggers()
+}
