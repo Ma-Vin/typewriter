@@ -3,7 +3,6 @@ package logger
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/constants"
@@ -22,37 +21,10 @@ var mockPanicAndExitAtCommonLogger = false
 var panicMockActivated = false
 var exitMockAcitvated = false
 
-func CreateCommonLogger(appender *appender.Appender) CommonLogger {
+func CreateCommonLogger(appender *appender.Appender, severity int) CommonLogger {
 	result := CommonLogger{appender: appender}
-	determineSeverityFromEnv(&result)
+	determineSeverityByLevel(&result, severity)
 	return result
-}
-
-// determines the default severity level from environment variable and activates different log levels
-func determineSeverityFromEnv(l *CommonLogger) {
-	determineSeverity(strings.ToUpper(strings.TrimSpace(os.Getenv(DEFAULT_LOG_LEVEL_ENV_NAME))), l)
-}
-
-// determines the severity level from a given variable and activates different log levels
-func determineSeverity(severityLevel string, l *CommonLogger) {
-	switch severityLevel {
-	case "DEBUG":
-		determineSeverityByLevel(l, constants.DEBUG_SEVERITY)
-	case "INFO":
-		determineSeverityByLevel(l, constants.INFORMATION_SEVERITY)
-	case "INFORMATION":
-		determineSeverityByLevel(l, constants.INFORMATION_SEVERITY)
-	case "WARN":
-		determineSeverityByLevel(l, constants.WARNING_SEVERITY)
-	case "WARNING":
-		determineSeverityByLevel(l, constants.WARNING_SEVERITY)
-	case "ERROR":
-		determineSeverityByLevel(l, constants.ERROR_SEVERITY)
-	case "FATAL":
-		determineSeverityByLevel(l, constants.FATAL_SEVERITY)
-	default:
-		determineSeverityByLevel(l, constants.OFF_SEVERITY)
-	}
 }
 
 // activates different log levels

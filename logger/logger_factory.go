@@ -5,7 +5,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/format"
 )
 
 const (
@@ -52,6 +54,7 @@ type loggerConfig struct {
 	isDefault   bool
 	packageName string
 	severity    int
+	logger      *CommonLogger
 }
 
 // config of an appender
@@ -59,6 +62,7 @@ type appenderConfig struct {
 	appenderType string
 	isDefault    bool
 	packageName  string
+	appender     *appender.Appender
 }
 
 // config of a formatter
@@ -67,6 +71,7 @@ type formatterConfig struct {
 	isDefault     bool
 	packageName   string
 	delimiter     string
+	formatter     *format.Formatter
 }
 
 var configInitialized = false
@@ -80,6 +85,169 @@ var severityLevelMap = map[string]int{
 	LOG_LEVEL_WARNING:     constants.WARNING_SEVERITY,
 	LOG_LEVEL_ERROR:       constants.ERROR_SEVERITY,
 	LOG_LEVEL_FATAL:       constants.FATAL_SEVERITY,
+}
+
+var loggersInitialized = false
+var mLogger MainLogger
+var cLoggers []CommonLogger
+var appenders []appender.Appender
+var formatters []format.Formatter
+
+// returns the main logger. If not initialized, a new one will be created from config
+func getLoggers() *MainLogger {
+	if loggersInitialized {
+		return &mLogger
+	}
+
+	getConfig()
+	if !configInitialized {
+		return nil
+	}
+
+	createFormatters()
+	createAppenders()
+	createCommonLoggers()
+	createMainLogger()
+
+	return &mLogger
+}
+
+// Creates the all relevant fromatters from config elements
+func createFormatters() {
+	for i, fc1 := range config.formatter {
+		alreadyCreated := false
+
+		for _, fc2 := range config.formatter {
+			if fc2.formatter != nil && formatterConfigEquals(&fc1, &fc2) {
+				config.formatter[i].formatter = fc2.formatter
+				alreadyCreated = true
+				break
+			}
+		}
+
+		if alreadyCreated {
+			continue
+		}
+
+		switch fc1.formatterType {
+		case FORMATTER_DELIMITER:
+			formatters = append(formatters, format.CreateDelimiterFormatter(fc1.delimiter))
+			config.formatter[i].formatter = &formatters[len(formatters)-1]
+		case FORMATTER_JSON:
+			// not supported yet
+		default:
+			// not relevant: handled at config load
+		}
+	}
+}
+
+// Creates the all relevant appenders from config elements
+func createAppenders() {
+	for i, ac1 := range config.appender {
+		alreadyCreated := false
+
+		for _, ac2 := range config.appender {
+			if ac2.appender != nil && appenderConfigEquals(&ac2, &ac1) &&
+				formatterConfigEquals(getFormatterConfigForPackage(&ac2.packageName), getFormatterConfigForPackage(&ac1.packageName)) {
+
+				config.appender[i].appender = ac2.appender
+				alreadyCreated = true
+				break
+			}
+		}
+
+		if alreadyCreated {
+			continue
+		}
+
+		switch ac1.appenderType {
+		case APPENDER_STDOUT:
+			appenders = append(appenders, appender.CreateStandardOutputAppender(getFormatterConfigForPackage(&ac1.packageName).formatter))
+			config.appender[i].appender = &appenders[len(appenders)-1]
+		case APPENDER_FILE:
+			// not supported yet
+		default:
+			// not relevant: handled at config load
+		}
+	}
+}
+
+// Creates the all relevant common logger from config elements
+func createCommonLoggers() {
+	for i, lc1 := range config.logger {
+		alreadyCreated := false
+
+		for _, lc2 := range config.logger {
+			if lc2.logger != nil && loggerConfigEquals(&lc2, &lc1) &&
+				appenderConfigEquals(getAppenderConfigForPackage(&lc2.packageName), getAppenderConfigForPackage(&lc1.packageName)) &&
+				formatterConfigEquals(getFormatterConfigForPackage(&lc2.packageName), getFormatterConfigForPackage(&lc1.packageName)) {
+
+				config.logger[i].logger = lc2.logger
+				alreadyCreated = true
+				break
+
+			}
+		}
+
+		if alreadyCreated {
+			continue
+		}
+
+		cLoggers = append(cLoggers, CreateCommonLogger(getAppenderConfigForPackage(&lc1.packageName).appender, lc1.severity))
+		config.logger[i].logger = &cLoggers[len(cLoggers)-1]
+	}
+}
+
+// Creates the main logger from config elements
+func createMainLogger() {
+	mLogger = MainLogger{}
+	mLogger.existPackageLogger = len(config.logger) > 1
+	mLogger.packageLoggers = make(map[string]*CommonLogger, len(config.logger)-1)
+
+	for _, lc := range config.logger {
+		if lc.isDefault {
+			mLogger.commonLogger = lc.logger
+		} else {
+			mLogger.packageLoggers[lc.packageName] = lc.logger
+		}
+	}
+
+	loggersInitialized = true
+}
+
+// Checks whether two formatter config equals without regarding pointers to formatter or package
+func formatterConfigEquals(fc1 *formatterConfig, fc2 *formatterConfig) bool {
+	return fc1.formatterType == fc2.formatterType && fc1.delimiter == fc2.delimiter
+}
+
+// Checks whether two appender config equals without regarding pointers to appender or package
+func appenderConfigEquals(ac1 *appenderConfig, ac2 *appenderConfig) bool {
+	return ac1.appenderType == ac2.appenderType
+}
+
+// Checks whether two logger config equals without regarding pointers to logger or package
+func loggerConfigEquals(lc1 *loggerConfig, lc2 *loggerConfig) bool {
+	return lc1.severity == lc2.severity
+}
+
+// returns a pointer to the formatter config for a given package
+func getFormatterConfigForPackage(packageName *string) *formatterConfig {
+	for i, fc := range config.formatter {
+		if fc.packageName == *packageName {
+			return &config.formatter[i]
+		}
+	}
+	return nil
+}
+
+// returns a pointer to the appender config for a given package
+func getAppenderConfigForPackage(packageName *string) *appenderConfig {
+	for i, ac := range config.appender {
+		if ac.packageName == *packageName {
+			return &config.appender[i]
+		}
+	}
+	return nil
 }
 
 // Checks whether the environment variable of the config is empty or not

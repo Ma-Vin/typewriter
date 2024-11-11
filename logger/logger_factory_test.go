@@ -2,6 +2,7 @@ package logger
 
 import (
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -101,6 +102,30 @@ func TestGetConfigCreateFromEnvDefault(t *testing.T) {
 	testutil.AssertEquals(":", result.formatter[0].delimiter, t, "result.formatter[0].delimiter")
 }
 
+func TestGetLoggersCreateFromEnvDefault(t *testing.T) {
+	os.Clearenv()
+	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
+	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, FORMATTER_DELIMITER)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME, ":")
+	configInitialized = false
+	loggersInitialized = false
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.commonLogger, t, "commonLogger")
+	testutil.AssertFalse(result.commonLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertTrue(result.commonLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertTrue(result.commonLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.commonLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.commonLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
+	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.commonLogger.appender).Name(), t, "commonLogger.appender.Name")
+
+	testutil.AssertFalse(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
+}
+
 func TestGetConfigCreateFromEnvDefaultNotSupportedYet(t *testing.T) {
 	os.Clearenv()
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
@@ -192,6 +217,41 @@ func TestGetConfigCreateFromEnvPackage(t *testing.T) {
 	testutil.AssertEquals("_", result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
 }
 
+func TestGetLoggersCreateFromEnvPackage(t *testing.T) {
+	packageName := "testPackage"
+	packageNameUpper := strings.ToUpper(packageName)
+	os.Clearenv()
+	os.Setenv(PACKAGE_LOG_LEVEL_ENV_NAME+packageName, LOG_LEVEL_DEBUG)
+	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_STDOUT)
+	os.Setenv(PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, FORMATTER_DELIMITER)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName, "_")
+	configInitialized = false
+	loggersInitialized = false
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.commonLogger, t, "commonLogger")
+	testutil.AssertFalse(result.commonLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertFalse(result.commonLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertFalse(result.commonLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.commonLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.commonLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
+
+	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
+	testutil.AssertNotNil(result.packageLoggers[packageNameUpper], t, "packageLoggers[lowerPackageName]")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].debugEnabled, t, "packageLoggers[lowerPackageName].debugEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].informationEnabled, t, "packageLoggers[lowerPackageName].informationEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].warningEnabled, t, "packageLoggers[lowerPackageName].warningEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].errorEnabled, t, "packageLoggers[lowerPackageName].errorEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].fatalEnabled, t, "packageLoggers[lowerPackageName].fatalEnabled")
+	testutil.AssertNotNil(result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender")
+	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.packageLoggers[packageNameUpper].appender).Name(), t, "packageLoggers[lowerPackageName].appender.Name")
+
+	testutil.AssertNotEquals(result.commonLogger.appender, result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender.")
+}
+
 func TestGetConfigCreateFromEnvPackagePartialOnlyLevel(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
@@ -228,6 +288,37 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyLevel(t *testing.T) {
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
 }
 
+func TestGetLoggersCreateFromEnvPackagePartialOnlyLevel(t *testing.T) {
+	packageName := "testPackage"
+	packageNameUpper := strings.ToUpper(packageName)
+	os.Clearenv()
+	os.Setenv(PACKAGE_LOG_LEVEL_ENV_NAME+packageName, LOG_LEVEL_DEBUG)
+	configInitialized = false
+	loggersInitialized = false
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.commonLogger, t, "commonLogger")
+	testutil.AssertFalse(result.commonLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertFalse(result.commonLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertFalse(result.commonLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.commonLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.commonLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
+
+	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
+	testutil.AssertNotNil(result.packageLoggers[packageNameUpper], t, "packageLoggers[lowerPackageName]")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].debugEnabled, t, "packageLoggers[lowerPackageName].debugEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].informationEnabled, t, "packageLoggers[lowerPackageName].informationEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].warningEnabled, t, "packageLoggers[lowerPackageName].warningEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].errorEnabled, t, "packageLoggers[lowerPackageName].errorEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].fatalEnabled, t, "packageLoggers[lowerPackageName].fatalEnabled")
+	testutil.AssertNotNil(result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender")
+
+	testutil.AssertEquals(result.commonLogger.appender, result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender.")
+}
+
 func TestGetConfigCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
@@ -262,6 +353,38 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	testutil.AssertEquals(packageNameUpper, result.formatter[1].packageName, t, "result.formatter[1].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[1].formatterType, t, "result.formatter[1].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
+}
+
+func TestGetLoggersCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
+	packageName := "testPackage"
+	packageNameUpper := strings.ToUpper(packageName)
+	os.Clearenv()
+	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_STDOUT)
+	configInitialized = false
+	loggersInitialized = false
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.commonLogger, t, "commonLogger")
+	testutil.AssertFalse(result.commonLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertFalse(result.commonLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertFalse(result.commonLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.commonLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.commonLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
+
+	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
+	testutil.AssertNotNil(result.packageLoggers[packageNameUpper], t, "packageLoggers[lowerPackageName]")
+	testutil.AssertFalse(result.packageLoggers[packageNameUpper].debugEnabled, t, "packageLoggers[lowerPackageName].debugEnabled")
+	testutil.AssertFalse(result.packageLoggers[packageNameUpper].informationEnabled, t, "packageLoggers[lowerPackageName].informationEnabled")
+	testutil.AssertFalse(result.packageLoggers[packageNameUpper].warningEnabled, t, "packageLoggers[lowerPackageName].warningEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].errorEnabled, t, "packageLoggers[lowerPackageName].errorEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].fatalEnabled, t, "packageLoggers[lowerPackageName].fatalEnabled")
+	testutil.AssertNotNil(result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender")
+
+	// should be changed, when an other appender is available
+	testutil.AssertEquals(result.commonLogger.appender, result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender.")
 }
 
 func TestGetConfigCreateFromEnvPackagePartialOnlyFromatter(t *testing.T) {
@@ -335,4 +458,36 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyFromatterWithParamter(t *testin
 	testutil.AssertEquals(packageNameUpper, result.formatter[1].packageName, t, "result.formatter[1].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[1].formatterType, t, "result.formatter[1].formatterType")
 	testutil.AssertEquals("_", result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
+}
+
+func TestGetLoggersCreateFromEnvPackagePartialOnlyFromatterWithParamter(t *testing.T) {
+	packageName := "testPackage"
+	packageNameUpper := strings.ToUpper(packageName)
+	os.Clearenv()
+	os.Setenv(PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, FORMATTER_DELIMITER)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName, "_")
+	configInitialized = false
+	loggersInitialized = false
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.commonLogger, t, "commonLogger")
+	testutil.AssertFalse(result.commonLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertFalse(result.commonLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertFalse(result.commonLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.commonLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.commonLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
+
+	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
+	testutil.AssertNotNil(result.packageLoggers[packageNameUpper], t, "packageLoggers[lowerPackageName]")
+	testutil.AssertFalse(result.packageLoggers[packageNameUpper].debugEnabled, t, "packageLoggers[lowerPackageName].debugEnabled")
+	testutil.AssertFalse(result.packageLoggers[packageNameUpper].informationEnabled, t, "packageLoggers[lowerPackageName].informationEnabled")
+	testutil.AssertFalse(result.packageLoggers[packageNameUpper].warningEnabled, t, "packageLoggers[lowerPackageName].warningEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].errorEnabled, t, "packageLoggers[lowerPackageName].errorEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageNameUpper].fatalEnabled, t, "packageLoggers[lowerPackageName].fatalEnabled")
+	testutil.AssertNotNil(result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender")
+
+	testutil.AssertNotEquals(result.commonLogger.appender, result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender.")
 }

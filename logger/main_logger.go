@@ -14,7 +14,7 @@ type MainLogger struct {
 // Determines which logger is relevant. If der exists a logger for a package equal to the callers package, this logger will be return, else the commonlogger.
 func determineLogger(l *MainLogger) *CommonLogger {
 	if l.existPackageLogger {
-		pc, _, _, ok := runtime.Caller(1)
+		pc, _, _, ok := runtime.Caller(2)
 		if !ok {
 			return l.commonLogger
 		}
@@ -38,9 +38,9 @@ func determinePackageName(functionName string) string {
 	}
 	packageEnd := strings.Index(functionNameSuffix, ".")
 	if packageEnd > -1 {
-		return functionNameSuffix[:packageEnd]
+		return strings.ToUpper(functionNameSuffix[:packageEnd])
 	}
-	return functionNameSuffix
+	return strings.ToUpper(functionNameSuffix)
 
 }
 

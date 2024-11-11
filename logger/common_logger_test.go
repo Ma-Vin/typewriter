@@ -2,10 +2,10 @@ package logger
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/ma-vin/typewriter/appender"
+	"github.com/ma-vin/typewriter/constants"
 	"github.com/ma-vin/typewriter/testutil"
 )
 
@@ -26,21 +26,18 @@ func (s TestAppender) WriteCustom(severity int, message string, customValues map
 }
 
 var testCommonLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
-var testCommonLogger = CreateCommonLogger(&testCommonLoggerAppender)
+var testCommonLogger = CreateCommonLogger(&testCommonLoggerAppender, constants.OFF_SEVERITY)
 
 func initTestCommonLogger(envLogLevel string) {
 	*testCommonLoggerAppender.(TestAppender).content = []string{}
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, envLogLevel)
-	determineSeverityFromEnv(&testCommonLogger)
+	determineSeverityByLevel(&testCommonLogger, severityLevelMap[envLogLevel])
 	mockPanicAndExitAtCommonLogger = true
 	panicMockActivated = false
 	exitMockAcitvated = false
 }
 
 func TestEnableDebugSeverityCommonLogger(t *testing.T) {
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "DEBUG")
-
-	determineSeverityFromEnv(&testCommonLogger)
+	determineSeverityByLevel(&testCommonLogger, constants.DEBUG_SEVERITY)
 
 	testutil.AssertTrue(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertTrue(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -50,21 +47,7 @@ func TestEnableDebugSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableInformationSeverityCommonLogger(t *testing.T) {
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "INFORMATION")
-
-	determineSeverityFromEnv(&testCommonLogger)
-
-	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
-	testutil.AssertTrue(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
-	testutil.AssertTrue(testCommonLogger.IsWarningEnabled(), t, "IsWarningEnabled")
-	testutil.AssertTrue(testCommonLogger.IsErrorEnabled(), t, "IsErrorEnabled")
-	testutil.AssertTrue(testCommonLogger.IsFatalEnabled(), t, "IsFatalEnabled")
-}
-
-func TestEnableInfoSeverityCommonLogger(t *testing.T) {
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "INFO")
-
-	determineSeverityFromEnv(&testCommonLogger)
+	determineSeverityByLevel(&testCommonLogger, constants.INFORMATION_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertTrue(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -74,21 +57,7 @@ func TestEnableInfoSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableWarningSeverityCommonLogger(t *testing.T) {
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "WARNING")
-
-	determineSeverityFromEnv(&testCommonLogger)
-
-	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
-	testutil.AssertFalse(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
-	testutil.AssertTrue(testCommonLogger.IsWarningEnabled(), t, "IsWarningEnabled")
-	testutil.AssertTrue(testCommonLogger.IsErrorEnabled(), t, "IsErrorEnabled")
-	testutil.AssertTrue(testCommonLogger.IsFatalEnabled(), t, "IsFatalEnabled")
-}
-
-func TestEnableWarnSeverityCommonLogger(t *testing.T) {
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "WARN")
-
-	determineSeverityFromEnv(&testCommonLogger)
+	determineSeverityByLevel(&testCommonLogger, constants.WARNING_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertFalse(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -98,9 +67,7 @@ func TestEnableWarnSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableErrorSeverityCommonLogger(t *testing.T) {
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "ERROR")
-
-	determineSeverityFromEnv(&testCommonLogger)
+	determineSeverityByLevel(&testCommonLogger, constants.ERROR_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertFalse(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -110,9 +77,7 @@ func TestEnableErrorSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableFatalSeverityCommonLogger(t *testing.T) {
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, "FATAL")
-
-	determineSeverityFromEnv(&testCommonLogger)
+	determineSeverityByLevel(&testCommonLogger, constants.FATAL_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertFalse(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -122,9 +87,7 @@ func TestEnableFatalSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableOffSeverityCommonLogger(t *testing.T) {
-	os.Unsetenv(DEFAULT_LOG_LEVEL_ENV_NAME)
-
-	determineSeverityFromEnv(&testCommonLogger)
+	determineSeverityByLevel(&testCommonLogger, constants.OFF_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertFalse(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")

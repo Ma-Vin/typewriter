@@ -2,6 +2,7 @@ package logger
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/ma-vin/typewriter/appender"
@@ -12,7 +13,7 @@ var testMainCommonLoggerAppender appender.Appender = TestAppender{content: &[]st
 var testMainPackageLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
 
 var testMainCommonLogger CommonLogger
-var testMainPackageLogger map[string]*CommonLogger
+var testMainPackageLogger CommonLogger
 var mainLogger MainLogger
 
 func clearMainLoggerTestEnv() {
@@ -26,11 +27,8 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 	*testMainCommonLoggerAppender.(TestAppender).content = []string{}
 	*testMainPackageLoggerAppender.(TestAppender).content = []string{}
 
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, envCommonLogLevel)
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME+"_"+packageName, envPackageLogLevel)
-
-	testMainCommonLogger = CreateCommonLogger(&testMainCommonLoggerAppender)
-	testMainPackageLogger = CreatePackageLoggers(&testMainPackageLoggerAppender)
+	testMainCommonLogger = CreateCommonLogger(&testMainCommonLoggerAppender, severityLevelMap[envCommonLogLevel])
+	testMainPackageLogger = CreateCommonLogger(&testMainPackageLoggerAppender, severityLevelMap[envPackageLogLevel])
 
 	mockPanicAndExitAtCommonLogger = true
 	panicMockActivated = false
@@ -39,7 +37,7 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 	mainLogger = MainLogger{
 		commonLogger:       &testMainCommonLogger,
 		existPackageLogger: true,
-		packageLoggers:     testMainPackageLogger,
+		packageLoggers:     map[string]*CommonLogger{strings.ToUpper(packageName): &testMainPackageLogger},
 	}
 }
 
