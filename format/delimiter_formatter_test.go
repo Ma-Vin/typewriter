@@ -9,43 +9,43 @@ import (
 	"github.com/ma-vin/typewriter/testutil"
 )
 
-var formatter Formatter = CreateDelimiterFormatter(" - ")
+var delimiterFormatter Formatter = CreateDelimiterFormatter(" - ")
 
-var testTime = time.Date(2024, time.October, 1, 13, 20, 0, 0, time.UTC)
-var testTimeText = testTime.Local().Format(time.RFC3339)
+var delimiterFormatTestTime = time.Date(2024, time.October, 1, 13, 20, 0, 0, time.UTC)
+var delimiterFormatTestTimeText = delimiterFormatTestTime.Local().Format(time.RFC3339)
 
-func TestFormat(t *testing.T) {
-	delimiterFormatterMockTime = &testTime
+func TestDelimiterFormat(t *testing.T) {
+	formatterMockTime = &delimiterFormatTestTime
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       testTimeText + " - DEBUG - Testmessage",
-		constants.INFORMATION_SEVERITY: testTimeText + " - INFO  - Testmessage",
-		constants.WARNING_SEVERITY:     testTimeText + " - WARN  - Testmessage",
-		constants.ERROR_SEVERITY:       testTimeText + " - ERROR - Testmessage",
-		constants.FATAL_SEVERITY:       testTimeText + " - FATAL - Testmessage",
+		constants.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - Testmessage",
+		constants.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - Testmessage",
+		constants.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - Testmessage",
+		constants.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - Testmessage",
+		constants.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - Testmessage",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, formatter.Format(severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expexpectedMessage, delimiterFormatter.Format(severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
-func TestFormatCorrelation(t *testing.T) {
-	delimiterFormatterMockTime = &testTime
+func TestDelimiterFormatCorrelation(t *testing.T) {
+	formatterMockTime = &delimiterFormatTestTime
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       testTimeText + " - DEBUG - someCorrelationId - Testmessage",
-		constants.INFORMATION_SEVERITY: testTimeText + " - INFO  - someCorrelationId - Testmessage",
-		constants.WARNING_SEVERITY:     testTimeText + " - WARN  - someCorrelationId - Testmessage",
-		constants.ERROR_SEVERITY:       testTimeText + " - ERROR - someCorrelationId - Testmessage",
-		constants.FATAL_SEVERITY:       testTimeText + " - FATAL - someCorrelationId - Testmessage",
+		constants.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - someCorrelationId - Testmessage",
+		constants.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - someCorrelationId - Testmessage",
+		constants.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - someCorrelationId - Testmessage",
+		constants.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - someCorrelationId - Testmessage",
+		constants.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - someCorrelationId - Testmessage",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, formatter.FormatWithCorrelation(severity, "someCorrelationId", "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expexpectedMessage, delimiterFormatter.FormatWithCorrelation(severity, "someCorrelationId", "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
-func TestFormatCustom(t *testing.T) {
-	delimiterFormatterMockTime = &testTime
+func TestDelimiterFormatCustom(t *testing.T) {
+	formatterMockTime = &delimiterFormatTestTime
 	customProperties := map[string]any{
 		"first":  "abc",
 		"third":  true,
@@ -53,14 +53,14 @@ func TestFormatCustom(t *testing.T) {
 	}
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       testTimeText + " - DEBUG - Testmessage - abc - 1 - true",
-		constants.INFORMATION_SEVERITY: testTimeText + " - INFO  - Testmessage - abc - 1 - true",
-		constants.WARNING_SEVERITY:     testTimeText + " - WARN  - Testmessage - abc - 1 - true",
-		constants.ERROR_SEVERITY:       testTimeText + " - ERROR - Testmessage - abc - 1 - true",
-		constants.FATAL_SEVERITY:       testTimeText + " - FATAL - Testmessage - abc - 1 - true",
+		constants.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - Testmessage - abc - 1 - true",
+		constants.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - Testmessage - abc - 1 - true",
+		constants.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - Testmessage - abc - 1 - true",
+		constants.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - Testmessage - abc - 1 - true",
+		constants.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - Testmessage - abc - 1 - true",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, formatter.FormatCustom(severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expexpectedMessage, delimiterFormatter.FormatCustom(severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
