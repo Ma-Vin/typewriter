@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/constants"
@@ -34,12 +35,17 @@ const (
 	LOG_LEVEL_FATAL       = "FATAL"
 
 	FORMATTER_DELIMITER = "DELIMITER"
+	FORMATTER_TEMPLATE  = "TEMPLATE"
 	FORMATTER_JSON      = "JSON"
 
 	APPENDER_STDOUT = "STDOUT"
 	APPENDER_FILE   = "FILE"
 
-	DEFAULT_DELIMITER = " - "
+	DEFAULT_DELIMITER            = " - "
+	DEFAULT_TEMPLATE             = "[%s] %s: %s"
+	DEFAULT_CORRELATION_TEMPLATE = "[%s] %s %s: %s"
+	DEFAULT_CUSTOM_TEMPLATE      = DEFAULT_TEMPLATE
+	DEFAULT_TIME_LAYOUT          = time.RFC3339
 )
 
 // root config element
@@ -67,11 +73,15 @@ type appenderConfig struct {
 
 // config of a formatter
 type formatterConfig struct {
-	formatterType string
-	isDefault     bool
-	packageName   string
-	delimiter     string
-	formatter     *format.Formatter
+	formatterType         string
+	isDefault             bool
+	packageName           string
+	delimiter             string
+	template              string
+	correlationIdTemplate string
+	customTemplate        string
+	timeLayout            string
+	formatter             *format.Formatter
 }
 
 var configInitialized = false
@@ -132,6 +142,9 @@ func createFormatters() {
 		switch fc1.formatterType {
 		case FORMATTER_DELIMITER:
 			formatters = append(formatters, format.CreateDelimiterFormatter(fc1.delimiter))
+			config.formatter[i].formatter = &formatters[len(formatters)-1]
+		case FORMATTER_TEMPLATE:
+			formatters = append(formatters, format.CreateTemplateFormatter(fc1.template, fc1.correlationIdTemplate, fc1.customTemplate, fc1.timeLayout))
 			config.formatter[i].formatter = &formatters[len(formatters)-1]
 		case FORMATTER_JSON:
 			// not supported yet
@@ -319,11 +332,12 @@ func determineRelevantEnvKeyValues() map[string]string {
 		PACKAGE_LOG_FORMATTER_ENV_NAME, PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME}
 
 	for _, envEntry := range os.Environ() {
-		keyValue := strings.SplitN(strings.ToUpper(envEntry), "=", 2)
+		keyValue := strings.SplitN(envEntry, "=", 2)
 		if len(keyValue) == 2 && strings.TrimSpace(keyValue[1]) != "" {
+			key := strings.ToUpper(keyValue[0])
 			for _, keyPrefix := range relevantKeyPrefixes {
-				if strings.HasPrefix(keyValue[0], keyPrefix) {
-					result[keyValue[0]] = strings.ToUpper(strings.TrimSpace(keyValue[1]))
+				if strings.HasPrefix(key, keyPrefix) {
+					result[key] = strings.TrimSpace(keyValue[1])
 					break
 				}
 			}
@@ -404,6 +418,12 @@ func configureFormatterFromEnv(relevantEnvKeyValues *map[string]string, formatte
 	case FORMATTER_DELIMITER:
 		formatterConfig.formatterType = formatterName
 		formatterConfig.delimiter = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey, DEFAULT_DELIMITER)
+	case FORMATTER_TEMPLATE:
+		formatterConfig.formatterType = formatterName
+		formatterConfig.template = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_1", DEFAULT_TEMPLATE)
+		formatterConfig.correlationIdTemplate = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_2", DEFAULT_CORRELATION_TEMPLATE)
+		formatterConfig.customTemplate = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_3", DEFAULT_CUSTOM_TEMPLATE)
+		formatterConfig.timeLayout = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_4", DEFAULT_TIME_LAYOUT)
 	case FORMATTER_JSON:
 		// not supported yet
 		printHint(true, false, formatterName, formatterEnvKey, "formatter")

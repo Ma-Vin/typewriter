@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ma-vin/typewriter/constants"
 	"github.com/ma-vin/typewriter/testutil"
@@ -75,7 +76,7 @@ func TestGetConfigCreateFromFile(t *testing.T) {
 	testutil.AssertNil(result, t, "result")
 }
 
-func TestGetConfigCreateFromEnvDefault(t *testing.T) {
+func TestGetConfigCreateFromEnvDefaultDelimiter(t *testing.T) {
 	os.Clearenv()
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
 	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
@@ -102,7 +103,96 @@ func TestGetConfigCreateFromEnvDefault(t *testing.T) {
 	testutil.AssertEquals(":", result.formatter[0].delimiter, t, "result.formatter[0].delimiter")
 }
 
-func TestGetLoggersCreateFromEnvDefault(t *testing.T) {
+func TestGetConfigCreateFromEnvDefaultTemplate(t *testing.T) {
+	os.Clearenv()
+	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
+	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, FORMATTER_TEMPLATE)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_1", "time: %s severity: %s message: %s")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_2", "time: %s severity: %s correlation: %s message: %s")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_4", time.RFC1123Z)
+	configInitialized = false
+
+	result := getConfig()
+
+	testutil.AssertEquals(1, len(result.logger), t, "len(result.logger)")
+	testutil.AssertTrue(result.logger[0].isDefault, t, "result.logger[0].isDefault")
+	testutil.AssertEquals("", result.logger[0].packageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals(constants.INFORMATION_SEVERITY, result.logger[0].severity, t, "result.logger[0].severity")
+
+	testutil.AssertEquals(1, len(result.appender), t, "len(result.appender)")
+	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
+	testutil.AssertEquals("", result.appender[0].packageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[0].appenderType, t, "result.appender[0].appenderType")
+
+	testutil.AssertEquals(1, len(result.formatter), t, "len(result.formatter)")
+	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
+	testutil.AssertEquals("", result.formatter[0].packageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals(FORMATTER_TEMPLATE, result.formatter[0].formatterType, t, "result.formatter[0].formatterType")
+	testutil.AssertEquals("time: %s severity: %s message: %s", result.formatter[0].template, t, "result.formatter[0].template")
+	testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.formatter[0].correlationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
+	testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.formatter[0].customTemplate, t, "result.formatter[0].customTemplate")
+	testutil.AssertEquals(time.RFC1123Z, result.formatter[0].timeLayout, t, "result.formatter[0].timeLayout")
+}
+
+func TestGetConfigCreateFromEnvDefaultTemplateWithoutParameter(t *testing.T) {
+	os.Clearenv()
+	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
+	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, FORMATTER_TEMPLATE)
+	configInitialized = false
+
+	result := getConfig()
+
+	testutil.AssertEquals(1, len(result.logger), t, "len(result.logger)")
+	testutil.AssertTrue(result.logger[0].isDefault, t, "result.logger[0].isDefault")
+	testutil.AssertEquals("", result.logger[0].packageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals(constants.INFORMATION_SEVERITY, result.logger[0].severity, t, "result.logger[0].severity")
+
+	testutil.AssertEquals(1, len(result.appender), t, "len(result.appender)")
+	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
+	testutil.AssertEquals("", result.appender[0].packageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[0].appenderType, t, "result.appender[0].appenderType")
+
+	testutil.AssertEquals(1, len(result.formatter), t, "len(result.formatter)")
+	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
+	testutil.AssertEquals("", result.formatter[0].packageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals(FORMATTER_TEMPLATE, result.formatter[0].formatterType, t, "result.formatter[0].formatterType")
+	testutil.AssertEquals("[%s] %s: %s", result.formatter[0].template, t, "result.formatter[0].template")
+	testutil.AssertEquals("[%s] %s %s: %s", result.formatter[0].correlationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
+	testutil.AssertEquals("[%s] %s: %s", result.formatter[0].customTemplate, t, "result.formatter[0].customTemplate")
+	testutil.AssertEquals(time.RFC3339, result.formatter[0].timeLayout, t, "result.formatter[0].timeLayout")
+}
+
+func TestGetLoggersCreateFromEnvDefaultDelimiter(t *testing.T) {
+	os.Clearenv()
+	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
+	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, FORMATTER_TEMPLATE)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_1", "time: %s severity: %s message: %s")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_2", "time: %s severity: %s correlation: %s message: %s")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_4", time.RFC1123Z)
+	configInitialized = false
+	loggersInitialized = false
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.commonLogger, t, "commonLogger")
+	testutil.AssertFalse(result.commonLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertTrue(result.commonLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertTrue(result.commonLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.commonLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.commonLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
+	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.commonLogger.appender).Name(), t, "commonLogger.appender.Name")
+
+	testutil.AssertFalse(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
+}
+
+func TestGetLoggersCreateFromEnvDefaultTEmplate(t *testing.T) {
 	os.Clearenv()
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
 	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
@@ -178,7 +268,7 @@ func TestGetConfigCreateFromEnvDefaultUnkown(t *testing.T) {
 	testutil.AssertEquals("", result.formatter[0].delimiter, t, "result.formatter[0].delimiter")
 }
 
-func TestGetConfigCreateFromEnvPackage(t *testing.T) {
+func TestGetConfigCreateFromEnvPackageDelimiter(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
@@ -215,6 +305,51 @@ func TestGetConfigCreateFromEnvPackage(t *testing.T) {
 	testutil.AssertEquals(packageNameUpper, result.formatter[1].packageName, t, "result.formatter[1].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[1].formatterType, t, "result.formatter[1].formatterType")
 	testutil.AssertEquals("_", result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
+}
+
+func TestGetConfigCreateFromEnvPackageTemplate(t *testing.T) {
+	packageName := "testPackage"
+	packageNameUpper := strings.ToUpper(packageName)
+	os.Clearenv()
+	os.Setenv(PACKAGE_LOG_LEVEL_ENV_NAME+packageName, LOG_LEVEL_DEBUG)
+	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_STDOUT)
+	os.Setenv(PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, FORMATTER_TEMPLATE)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_1", "time: %s severity: %s message: %s")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_2", "time: %s severity: %s correlation: %s message: %s")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_4", time.RFC1123Z)
+	configInitialized = false
+
+	result := getConfig()
+
+	testutil.AssertEquals(2, len(result.logger), t, "len(result.logger)")
+	testutil.AssertTrue(result.logger[0].isDefault, t, "result.logger[0].isDefault")
+	testutil.AssertEquals("", result.logger[0].packageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals(constants.ERROR_SEVERITY, result.logger[0].severity, t, "result.logger[0].severity")
+	testutil.AssertFalse(result.logger[1].isDefault, t, "result.logger[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.logger[1].packageName, t, "result.logger[1].packageName")
+	testutil.AssertEquals(constants.DEBUG_SEVERITY, result.logger[1].severity, t, "result.logger[1].severity")
+
+	testutil.AssertEquals(2, len(result.appender), t, "len(result.appender)")
+	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
+	testutil.AssertEquals("", result.appender[0].packageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[0].appenderType, t, "result.appender[0].appenderType")
+	testutil.AssertFalse(result.appender[1].isDefault, t, "result.appender[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.appender[1].packageName, t, "result.appender[1].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[1].appenderType, t, "result.appender[1].appenderType")
+
+	testutil.AssertEquals(2, len(result.formatter), t, "len(result.formatter)")
+	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
+	testutil.AssertEquals("", result.formatter[0].packageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[0].formatterType, t, "result.formatter[0].formatterType")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[0].delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertFalse(result.formatter[1].isDefault, t, "result.formatter[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.formatter[1].packageName, t, "result.formatter[1].packageName")
+	testutil.AssertEquals(FORMATTER_TEMPLATE, result.formatter[1].formatterType, t, "result.formatter[1].formatterType")
+	testutil.AssertEquals("time: %s severity: %s message: %s", result.formatter[1].template, t, "result.formatter[1].template")
+	testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.formatter[1].correlationIdTemplate, t, "result.formatter[1].correlationIdTemplate")
+	testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.formatter[1].customTemplate, t, "result.formatter[1].customTemplate")
+	testutil.AssertEquals(time.RFC1123Z, result.formatter[1].timeLayout, t, "result.formatter[1].timeLayout")
 }
 
 func TestGetLoggersCreateFromEnvPackage(t *testing.T) {
@@ -423,7 +558,7 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyFromatter(t *testing.T) {
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
 }
 
-func TestGetConfigCreateFromEnvPackagePartialOnlyFromatterWithParamter(t *testing.T) {
+func TestGetConfigCreateFromEnvPackagePartialOnlyFromatterWithParamterDelimiter(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
