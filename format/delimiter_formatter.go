@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-var delimiterFormatterMockTime *time.Time = nil
-
 // Formatter which append given parameter with a delimter. Since name the of the parameter meter will not be contained, the keys of customValues at FormatCustom neither.
 type DelimiterFormatter struct {
 	delimiter string
@@ -44,11 +42,7 @@ func concatWithDelimiter(delimiter *string, args ...string) string {
 }
 
 func getNowAsString() string {
-	timeToFormat := time.Now()
-	if delimiterFormatterMockTime != nil {
-		timeToFormat = *delimiterFormatterMockTime
-	}
-	return timeToFormat.Local().Format(time.RFC3339)
+	return getNowAsStringFromLayout(time.RFC3339)
 }
 
 func formatMapToString(customValues *map[string]any, delimiter *string) string {
