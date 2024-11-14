@@ -31,6 +31,16 @@ type TemplateFormatter struct {
 
 var formatterMockTime *time.Time = nil
 
+// Creates a new formater with a given delimiter
+func CreateTemplateFormatter(template string, correlationIdTemplate string, customTemplate string, timeLayout string) Formatter {
+	return TemplateFormatter{
+		template:              template,
+		correlationIdTemplate: correlationIdTemplate,
+		customTemplate:        customTemplate,
+		timeLayout:            timeLayout,
+	}
+}
+
 func (t TemplateFormatter) Format(severity int, message string) string {
 	return formatValues(t.template, getNowAsStringFromLayout(t.timeLayout), severityTextMap[severity], message)
 }

@@ -9,19 +9,17 @@ import (
 	"github.com/ma-vin/typewriter/testutil"
 )
 
-var templateFormatter Formatter = TemplateFormatter{
-	template:              "time: %s severity: %s message: %s",
-	correlationIdTemplate: "time: %s severity: %s correlation: %s message: %s",
-	customTemplate:        "time: %s severity: %s message: %s %s: %s %s: %d %s: %t",
-	timeLayout:            time.RFC1123Z,
-}
+var templateFormatter Formatter = CreateTemplateFormatter(
+	"time: %s severity: %s message: %s",
+	"time: %s severity: %s correlation: %s message: %s",
+	"time: %s severity: %s message: %s %s: %s %s: %d %s: %t",
+	time.RFC1123Z)
 
-var templateFormatterOrder Formatter = TemplateFormatter{
-	template:              "severity: %[2]s message: %[3]s time: %[1]s",
-	correlationIdTemplate: "severity: %[2]s correlation: %[3]s message: %[4]s time: %[1]s",
-	customTemplate:        "severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s",
-	timeLayout:            time.RFC1123Z,
-}
+var templateFormatterOrder Formatter = CreateTemplateFormatter(
+	"severity: %[2]s message: %[3]s time: %[1]s",
+	"severity: %[2]s correlation: %[3]s message: %[4]s time: %[1]s",
+	"severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s",
+	time.RFC1123Z)
 
 var templateFormatTestTime = time.Date(2024, time.November, 1, 20, 15, 0, 0, time.UTC)
 var templateFormatTestTimeText = templateFormatTestTime.Local().Format(time.RFC1123Z)
