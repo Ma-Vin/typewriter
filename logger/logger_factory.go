@@ -230,7 +230,10 @@ func createMainLogger() {
 
 // Checks whether two formatter config equals without regarding pointers to formatter or package
 func formatterConfigEquals(fc1 *formatterConfig, fc2 *formatterConfig) bool {
-	return fc1.formatterType == fc2.formatterType && fc1.delimiter == fc2.delimiter
+	return fc1.formatterType == fc2.formatterType &&
+		fc1.delimiter == fc2.delimiter &&
+		fc1.template == fc2.template && fc1.correlationIdTemplate == fc2.correlationIdTemplate && fc1.customTemplate == fc2.customTemplate &&
+		fc1.timeLayout == fc2.timeLayout
 }
 
 // Checks whether two appender config equals without regarding pointers to appender or package
