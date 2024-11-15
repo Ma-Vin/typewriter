@@ -7,11 +7,13 @@ import (
 )
 
 const (
-	DEBUG_PREFIX       string = "DEBUG"
-	INFORMATION_PREFIX string = "INFO "
-	WARNING_PREFIX     string = "WARN "
-	ERROR_PREFIX       string = "ERROR"
-	FATAL_PREFIX       string = "FATAL"
+	DEBUG_PREFIX            string = "DEBUG"
+	INFORMATION_TRIM_PREFIX string = "INFO"
+	INFORMATION_PREFIX      string = INFORMATION_TRIM_PREFIX + " "
+	WARNING_TRIM_PREFIX     string = "WARN"
+	WARNING_PREFIX          string = WARNING_TRIM_PREFIX + " "
+	ERROR_PREFIX            string = "ERROR"
+	FATAL_PREFIX            string = "FATAL"
 )
 
 type Formatter interface {
@@ -27,6 +29,14 @@ var severityTextMap = map[int]string{
 	constants.DEBUG_SEVERITY:       DEBUG_PREFIX,
 	constants.INFORMATION_SEVERITY: INFORMATION_PREFIX,
 	constants.WARNING_SEVERITY:     WARNING_PREFIX,
+	constants.ERROR_SEVERITY:       ERROR_PREFIX,
+	constants.FATAL_SEVERITY:       FATAL_PREFIX,
+}
+
+var severityTrimTextMap = map[int]string{
+	constants.DEBUG_SEVERITY:       DEBUG_PREFIX,
+	constants.INFORMATION_SEVERITY: INFORMATION_TRIM_PREFIX,
+	constants.WARNING_SEVERITY:     WARNING_TRIM_PREFIX,
 	constants.ERROR_SEVERITY:       ERROR_PREFIX,
 	constants.FATAL_SEVERITY:       FATAL_PREFIX,
 }
