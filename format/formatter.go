@@ -1,6 +1,10 @@
 package format
 
-import "github.com/ma-vin/typewriter/constants"
+import (
+	"time"
+
+	"github.com/ma-vin/typewriter/constants"
+)
 
 const (
 	DEBUG_PREFIX       string = "DEBUG"
@@ -25,4 +29,18 @@ var severityTextMap = map[int]string{
 	constants.WARNING_SEVERITY:     WARNING_PREFIX,
 	constants.ERROR_SEVERITY:       ERROR_PREFIX,
 	constants.FATAL_SEVERITY:       FATAL_PREFIX,
+}
+
+var formatterMockTime *time.Time = nil
+
+func getNowAsStringFromLayout(template string) string {
+	timeToFormat := time.Now()
+	if formatterMockTime != nil {
+		timeToFormat = *formatterMockTime
+	}
+	return timeToFormat.Local().Format(template)
+}
+
+func getNowAsStringDefaultLayout() string {
+	return getNowAsStringFromLayout(time.RFC3339)
 }

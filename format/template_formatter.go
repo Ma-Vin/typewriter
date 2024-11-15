@@ -3,7 +3,6 @@ package format
 import (
 	"fmt"
 	"sort"
-	"time"
 )
 
 // Formatter which uses given different templates for Format, FormatWithCorrelation and FormatCustom
@@ -28,8 +27,6 @@ type TemplateFormatter struct {
 	customTemplate        string
 	timeLayout            string
 }
-
-var formatterMockTime *time.Time = nil
 
 // Creates a new formater with a given delimiter
 func CreateTemplateFormatter(template string, correlationIdTemplate string, customTemplate string, timeLayout string) Formatter {
@@ -62,14 +59,6 @@ func (t TemplateFormatter) FormatCustom(severity int, message string, customValu
 
 func formatValues(template string, args ...any) string {
 	return fmt.Sprintf(template, args...)
-}
-
-func getNowAsStringFromLayout(template string) string {
-	timeToFormat := time.Now()
-	if formatterMockTime != nil {
-		timeToFormat = *formatterMockTime
-	}
-	return timeToFormat.Local().Format(template)
 }
 
 func appendCustomValues(args []any, customValues *map[string]any) []any {
