@@ -28,7 +28,7 @@ type TemplateFormatter struct {
 	timeLayout            string
 }
 
-// Creates a new formater with a given delimiter
+// Creates a new formater with given templates and time layout
 func CreateTemplateFormatter(template string, correlationIdTemplate string, customTemplate string, timeLayout string) Formatter {
 	return TemplateFormatter{
 		template:              template,
