@@ -9,21 +9,21 @@ type JsonFormatter struct {
 	timeKey                  string
 	severityKey              string
 	messageKey               string
-	correleationKey          string
+	correlationKey           string
 	customValuesKey          string
 	timeLayout               string
 	customValuesAsSubElement bool
 }
 
 // Creates a new formater with given key names and time layout
-func CreateJsonFormatter(timeKey string, severityKey string, messageKey string, correleationKey string,
+func CreateJsonFormatter(timeKey string, severityKey string, messageKey string, correlationKey string,
 	customValuesKey string, timeLayout string, customValuesAsSubElement bool) Formatter {
 
 	return JsonFormatter{
 		timeKey:                  timeKey,
 		severityKey:              severityKey,
 		messageKey:               messageKey,
-		correleationKey:          correleationKey,
+		correlationKey:           correlationKey,
 		customValuesKey:          customValuesKey,
 		timeLayout:               timeLayout,
 		customValuesAsSubElement: customValuesAsSubElement,
@@ -41,7 +41,7 @@ func (j JsonFormatter) FormatWithCorrelation(severity int, correlationId string,
 	return fmt.Sprintf("{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\" }",
 		j.timeKey, getNowAsStringFromLayout(j.timeLayout),
 		j.severityKey, severityTrimTextMap[severity],
-		j.correleationKey, correlationId,
+		j.correlationKey, correlationId,
 		j.messageKey, message)
 }
 

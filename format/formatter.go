@@ -19,7 +19,7 @@ const (
 type Formatter interface {
 	// Formats the given parameter to a string to log
 	Format(severity int, message string) string
-	// Formats the given default parameter and a correleation id to a string to log
+	// Formats the given default parameter and a correlation id to a string to log
 	FormatWithCorrelation(severity int, correlationId string, message string) string
 	// Formats the given parameter to a string to log and he customValues will be added at the end
 	FormatCustom(severity int, message string, customValues map[string]any) string
