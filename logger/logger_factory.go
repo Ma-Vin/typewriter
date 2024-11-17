@@ -41,11 +41,17 @@ const (
 	APPENDER_STDOUT = "STDOUT"
 	APPENDER_FILE   = "FILE"
 
-	DEFAULT_DELIMITER            = " - "
-	DEFAULT_TEMPLATE             = "[%s] %s: %s"
-	DEFAULT_CORRELATION_TEMPLATE = "[%s] %s %s: %s"
-	DEFAULT_CUSTOM_TEMPLATE      = DEFAULT_TEMPLATE
-	DEFAULT_TIME_LAYOUT          = time.RFC3339
+	DEFAULT_DELIMITER             = " - "
+	DEFAULT_TEMPLATE              = "[%s] %s: %s"
+	DEFAULT_CORRELATION_TEMPLATE  = "[%s] %s %s: %s"
+	DEFAULT_CUSTOM_TEMPLATE       = DEFAULT_TEMPLATE
+	DEFAULT_TIME_KEY              = "time"
+	DEFAULT_SEVERITY_KEY          = "severity"
+	DEFAULT_MESSAGE_KEY           = "message"
+	DEFAULT_CORRELATION_KEY       = "correlation"
+	DEFAULT_CUSTOM_VALUES_KEY     = "custom"
+	DEFAULT_CUSTOM_AS_SUB_ELEMENT = "false"
+	DEFAULT_TIME_LAYOUT           = time.RFC3339
 )
 
 // root config element
@@ -73,15 +79,21 @@ type appenderConfig struct {
 
 // config of a formatter
 type formatterConfig struct {
-	formatterType         string
-	isDefault             bool
-	packageName           string
-	delimiter             string
-	template              string
-	correlationIdTemplate string
-	customTemplate        string
-	timeLayout            string
-	formatter             *format.Formatter
+	formatterType            string
+	isDefault                bool
+	packageName              string
+	delimiter                string
+	template                 string
+	correlationIdTemplate    string
+	customTemplate           string
+	timeKey                  string
+	severityKey              string
+	messageKey               string
+	correlationKey           string
+	customValuesKey          string
+	customValuesAsSubElement bool
+	timeLayout               string
+	formatter                *format.Formatter
 }
 
 var configInitialized = false
@@ -141,17 +153,26 @@ func createFormatters() {
 
 		switch fc1.formatterType {
 		case FORMATTER_DELIMITER:
-			formatters = append(formatters, format.CreateDelimiterFormatter(fc1.delimiter))
-			config.formatter[i].formatter = &formatters[len(formatters)-1]
+			appendFormatter(format.CreateDelimiterFormatter(fc1.delimiter))
+			setLastFormatter(i)
 		case FORMATTER_TEMPLATE:
-			formatters = append(formatters, format.CreateTemplateFormatter(fc1.template, fc1.correlationIdTemplate, fc1.customTemplate, fc1.timeLayout))
-			config.formatter[i].formatter = &formatters[len(formatters)-1]
+			appendFormatter(format.CreateTemplateFormatter(fc1.template, fc1.correlationIdTemplate, fc1.customTemplate, fc1.timeLayout))
+			setLastFormatter(i)
 		case FORMATTER_JSON:
-			// not supported yet
+			appendFormatter(format.CreateJsonFormatter(fc1.timeKey, fc1.severityKey, fc1.messageKey, fc1.correlationKey, fc1.customValuesKey, fc1.timeLayout, fc1.customValuesAsSubElement))
+			setLastFormatter(i)
 		default:
 			// not relevant: handled at config load
 		}
 	}
+}
+
+func appendFormatter(formatter format.Formatter) {
+	formatters = append(formatters, formatter)
+}
+
+func setLastFormatter(index int) {
+	config.formatter[index].formatter = &formatters[len(formatters)-1]
 }
 
 // Creates the all relevant appenders from config elements
@@ -428,8 +449,14 @@ func configureFormatterFromEnv(relevantEnvKeyValues *map[string]string, formatte
 		formatterConfig.customTemplate = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_3", DEFAULT_CUSTOM_TEMPLATE)
 		formatterConfig.timeLayout = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_4", DEFAULT_TIME_LAYOUT)
 	case FORMATTER_JSON:
-		// not supported yet
-		printHint(true, false, formatterName, formatterEnvKey, "formatter")
+		formatterConfig.formatterType = formatterName
+		formatterConfig.timeKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_1", DEFAULT_TIME_KEY)
+		formatterConfig.severityKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_2", DEFAULT_SEVERITY_KEY)
+		formatterConfig.correlationKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_3", DEFAULT_CORRELATION_KEY)
+		formatterConfig.messageKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_4", DEFAULT_MESSAGE_KEY)
+		formatterConfig.customValuesKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_5", DEFAULT_CUSTOM_VALUES_KEY)
+		formatterConfig.customValuesAsSubElement = strings.ToLower(getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_6", DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true"
+		formatterConfig.timeLayout = getValueFromMapOrDefault(relevantEnvKeyValues, formatterPackageEnvKey+"_7", DEFAULT_TIME_LAYOUT)
 	default:
 		printHint(false, true, formatterName, formatterEnvKey, "formatter")
 	}
