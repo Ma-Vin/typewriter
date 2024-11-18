@@ -29,3 +29,7 @@ func (s StandardOutputAppender) WriteWithCorrelation(severity int, correlationId
 func (s StandardOutputAppender) WriteCustom(severity int, message string, customValues map[string]any) {
 	fmt.Fprintln(s.writer, (*s.formatter).FormatCustom(severity, message, customValues))
 }
+
+func (s StandardOutputAppender) Close() {
+	// Nothing to do. closing os.Stdout may cause errors elsewhere: See documentation of os.Stdout
+}

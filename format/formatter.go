@@ -51,6 +51,11 @@ func getNowAsStringFromLayout(template string) string {
 	return timeToFormat.Local().Format(template)
 }
 
+// Sets constant mock time. If this parameter is nil [time.Now] will be calculated
+func SetFormatterMockTime(mockTime *time.Time) {
+	formatterMockTime = mockTime
+}
+
 func getNowAsStringDefaultLayout() string {
 	return getNowAsStringFromLayout(time.RFC3339)
 }

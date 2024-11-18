@@ -25,6 +25,8 @@ func (s TestAppender) WriteCustom(severity int, message string, customValues map
 	*s.content = append(*s.content, fmt.Sprint(severity, customValues, message))
 }
 
+func (s TestAppender) Close() {}
+
 var testCommonLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
 var testCommonLogger = CreateCommonLogger(&testCommonLoggerAppender, constants.OFF_SEVERITY)
 
