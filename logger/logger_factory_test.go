@@ -40,15 +40,15 @@ func TestGetConfigCreateNoEnv(t *testing.T) {
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[0].delimiter, t, "result.formatter[0].delimiter")
 }
 
-func TestGetConfigExistingFromEnv(t *testing.T) {
+func TestGetConfigExistingFromNoEnv(t *testing.T) {
 	os.Clearenv()
 	configInitialized = false
 
-	result := getConfig()
+	getConfig()
 
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_DEBUG)
 
-	result = getConfig()
+	result := getConfig()
 
 	testutil.AssertNotNil(result, t, "result")
 
