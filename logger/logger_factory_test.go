@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/constants"
 	"github.com/ma-vin/typewriter/testutil"
 )
@@ -240,7 +241,36 @@ func TestGetConfigCreateFromEnvDefaultJsonWithoutParameter(t *testing.T) {
 	testutil.AssertEquals(time.RFC3339, result.formatter[0].timeLayout, t, "result.formatter[0].timeLayout")
 }
 
-func TestGetConfigCreateFromEnvDefaultNotSupportedYet(t *testing.T) {
+func TestGetConfigCreateFromEnvDefaultFileAppender(t *testing.T) {
+	logFilePath := "pathToLogFile"
+	appender.SkipFileCreationForTest = true
+	os.Clearenv()
+	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_FILE)
+	os.Setenv(DEFAULT_LOG_APPENDER_PARAMETER_ENV_NAME, logFilePath)
+	configInitialized = false
+
+	result := getConfig()
+
+	testutil.AssertEquals(1, len(result.logger), t, "len(result.logger)")
+	testutil.AssertTrue(result.logger[0].isDefault, t, "result.logger[0].isDefault")
+	testutil.AssertEquals("", result.logger[0].packageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals(constants.INFORMATION_SEVERITY, result.logger[0].severity, t, "result.logger[0].severity")
+
+	testutil.AssertEquals(1, len(result.appender), t, "len(result.appender)")
+	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
+	testutil.AssertEquals("", result.appender[0].packageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals(APPENDER_FILE, result.appender[0].appenderType, t, "result.appender[0].appenderType")
+	testutil.AssertEquals(logFilePath, result.appender[0].pathToLogFile, t, "result.appender[0].pathToLogFile")
+
+	testutil.AssertEquals(1, len(result.formatter), t, "len(result.formatter)")
+	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
+	testutil.AssertEquals("", result.formatter[0].packageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[0].delimiter, t, "result.formatter[0].delimiter")
+}
+
+func TestGetConfigCreateFromEnvDefaultFileAppenderMissingPath(t *testing.T) {
+	appender.SkipFileCreationForTest = true
 	os.Clearenv()
 	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
 	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_FILE)
@@ -256,7 +286,7 @@ func TestGetConfigCreateFromEnvDefaultNotSupportedYet(t *testing.T) {
 	testutil.AssertEquals(1, len(result.appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
 	testutil.AssertEquals("", result.appender[0].packageName, t, "result.appender[0].packageName")
-	testutil.AssertEquals("", result.appender[0].appenderType, t, "result.appender[0].appenderType")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[0].appenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
@@ -574,6 +604,45 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyFromatterWithParamterDelimiter(
 	testutil.AssertEquals("_", result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
 }
 
+func TestGetConfigCreateFromEnvPackageFileAppender(t *testing.T) {
+	appender.SkipFileCreationForTest = true
+	packageName := "testPackage"
+	logFilePath := "pathToLogFile"
+	packageNameUpper := strings.ToUpper(packageName)
+	os.Clearenv()
+	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_FILE)
+	os.Setenv(PACKAGE_LOG_APPENDER_PARAMETER_ENV_NAME+packageName, logFilePath)
+	configInitialized = false
+
+	result := getConfig()
+
+	testutil.AssertEquals(2, len(result.logger), t, "len(result.logger)")
+	testutil.AssertTrue(result.logger[0].isDefault, t, "result.logger[0].isDefault")
+	testutil.AssertEquals("", result.logger[0].packageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals(constants.ERROR_SEVERITY, result.logger[0].severity, t, "result.logger[0].severity")
+	testutil.AssertFalse(result.logger[1].isDefault, t, "result.logger[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.logger[1].packageName, t, "result.logger[1].packageName")
+	testutil.AssertEquals(constants.ERROR_SEVERITY, result.logger[1].severity, t, "result.logger[1].severity")
+
+	testutil.AssertEquals(2, len(result.appender), t, "len(result.appender)")
+	testutil.AssertTrue(result.appender[0].isDefault, t, "result.appender[0].isDefault")
+	testutil.AssertEquals("", result.appender[0].packageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.appender[0].appenderType, t, "result.appender[0].appenderType")
+	testutil.AssertFalse(result.appender[1].isDefault, t, "result.appender[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.appender[1].packageName, t, "result.appender[1].packageName")
+	testutil.AssertEquals(APPENDER_FILE, result.appender[1].appenderType, t, "result.appender[1].appenderType")
+
+	testutil.AssertEquals(2, len(result.formatter), t, "len(result.formatter)")
+	testutil.AssertTrue(result.formatter[0].isDefault, t, "result.formatter[0].isDefault")
+	testutil.AssertEquals("", result.formatter[0].packageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[0].formatterType, t, "result.formatter[0].formatterType")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[0].delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertFalse(result.formatter[1].isDefault, t, "result.formatter[1].isDefault")
+	testutil.AssertEquals(packageNameUpper, result.formatter[1].packageName, t, "result.formatter[1].packageName")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.formatter[1].formatterType, t, "result.formatter[1].formatterType")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.formatter[1].delimiter, t, "result.formatter[1].delimiter")
+}
+
 //
 // Get Loggers
 //
@@ -659,6 +728,31 @@ func TestGetLoggersCreateFromEnvDefaulJson(t *testing.T) {
 	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
 }
 
+func TestGetLoggersCreateFromEnvDefaultFileAppender(t *testing.T) {
+	appender.SkipFileCreationForTest = true
+	logFilePath := "pathToLogFile"
+	os.Clearenv()
+	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_FILE)
+	os.Setenv(DEFAULT_LOG_APPENDER_PARAMETER_ENV_NAME, logFilePath)
+	configInitialized = false
+	loggersInitialized = false
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.commonLogger, t, "commonLogger")
+	testutil.AssertFalse(result.commonLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertTrue(result.commonLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertTrue(result.commonLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.commonLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.commonLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
+	testutil.AssertEquals("FileAppender", reflect.TypeOf(*result.commonLogger.appender).Name(), t, "commonLogger.appender.Name")
+
+	testutil.AssertFalse(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
+}
+
 //
 // Get Loggers with packages
 //
@@ -730,10 +824,13 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyLevel(t *testing.T) {
 }
 
 func TestGetLoggersCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
+	appender.SkipFileCreationForTest = true
 	packageName := "testPackage"
+	logFilePath := "pathToLogFile"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_STDOUT)
+	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_FILE)
+	os.Setenv(PACKAGE_LOG_APPENDER_PARAMETER_ENV_NAME+packageName, logFilePath)
 	configInitialized = false
 	loggersInitialized = false
 
@@ -757,8 +854,7 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	testutil.AssertTrue(result.packageLoggers[packageNameUpper].fatalEnabled, t, "packageLoggers[lowerPackageName].fatalEnabled")
 	testutil.AssertNotNil(result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender")
 
-	// should be changed, when an other appender is available
-	testutil.AssertEquals(result.commonLogger.appender, result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender.")
+	testutil.AssertNotEquals(result.commonLogger.appender, result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender.")
 }
 
 func TestGetLoggersCreateFromEnvPackagePartialOnlyFromatterWithParamter(t *testing.T) {

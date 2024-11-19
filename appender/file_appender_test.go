@@ -18,6 +18,7 @@ var jsonFormatTestTime = time.Date(2024, time.November, 18, 16, 00, 0, 0, time.U
 var jsonFormatTestTimeText = jsonFormatTestTime.Local().Format(time.RFC3339Nano)
 
 func getAppenderTestLogFile(testCase string) string {
+	SkipFileCreationForTest = false
 	_, filename, _, _ := runtime.Caller(0)
 	result := strings.Replace(filename, ".go", "_"+testCase+"_scratch.log", 1)
 	os.Create(result)

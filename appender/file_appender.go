@@ -16,8 +16,14 @@ type FileAppender struct {
 	mu            *sync.Mutex
 }
 
+var SkipFileCreationForTest = false
+
 func CreateFileAppender(pathToLogFile string, formatter *format.Formatter) Appender {
-	file, err := os.OpenFile(pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	var file *os.File = nil
+	var err error = nil
+	if !SkipFileCreationForTest {
+		file, err = os.OpenFile(pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	}
 	if err != nil {
 		fmt.Printf("Fail to create file appender, use stdout instead: %s", err)
 		fmt.Println()
