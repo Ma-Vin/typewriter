@@ -12,7 +12,7 @@ type MainLogger struct {
 }
 
 // Determines which logger is relevant. If der exists a logger for a package equal to the callers package, this logger will be return, else the commonlogger.
-func determineLogger(l *MainLogger) *CommonLogger {
+func (l *MainLogger) determineLogger() *CommonLogger {
 	if l.existPackageLogger {
 		pc, _, _, ok := runtime.Caller(2)
 		if !ok {
@@ -45,237 +45,237 @@ func determinePackageName(functionName string) string {
 }
 
 func (l MainLogger) Debug(args ...any) {
-	determineLogger(&l).Debug(args...)
+	l.determineLogger().Debug(args...)
 }
 
 func (l MainLogger) DebugWithCorrelation(correlationId string, args ...any) {
-	determineLogger(&l).DebugWithCorrelation(correlationId, args...)
+	l.determineLogger().DebugWithCorrelation(correlationId, args...)
 }
 
 func (l MainLogger) DebugCustom(customValues map[string]any, args ...any) {
-	determineLogger(&l).DebugCustom(customValues, args...)
+	l.determineLogger().DebugCustom(customValues, args...)
 }
 
 func (l MainLogger) Debugf(format string, args ...any) {
-	determineLogger(&l).Debugf(format, args...)
+	l.determineLogger().Debugf(format, args...)
 }
 
 func (l MainLogger) DebugWithCorrelationf(correlationId string, format string, args ...any) {
-	determineLogger(&l).DebugWithCorrelationf(correlationId, format, args...)
+	l.determineLogger().DebugWithCorrelationf(correlationId, format, args...)
 }
 
 func (l MainLogger) DebugCustomf(customValues map[string]any, format string, args ...any) {
-	determineLogger(&l).DebugCustomf(customValues, format, args...)
+	l.determineLogger().DebugCustomf(customValues, format, args...)
 }
 
 func (l MainLogger) Information(args ...any) {
-	determineLogger(&l).Information(args...)
+	l.determineLogger().Information(args...)
 }
 
 func (l MainLogger) InformationWithCorrelation(correlationId string, args ...any) {
-	determineLogger(&l).InformationWithCorrelation(correlationId, args...)
+	l.determineLogger().InformationWithCorrelation(correlationId, args...)
 }
 
 func (l MainLogger) InformationCustom(customValues map[string]any, args ...any) {
-	determineLogger(&l).InformationCustom(customValues, args...)
+	l.determineLogger().InformationCustom(customValues, args...)
 }
 
 func (l MainLogger) Informationf(format string, args ...any) {
-	determineLogger(&l).Informationf(format, args...)
+	l.determineLogger().Informationf(format, args...)
 }
 
 func (l MainLogger) InformationWithCorrelationf(correlationId string, format string, args ...any) {
-	determineLogger(&l).InformationWithCorrelationf(correlationId, format, args...)
+	l.determineLogger().InformationWithCorrelationf(correlationId, format, args...)
 }
 
 func (l MainLogger) InformationCustomf(customValues map[string]any, format string, args ...any) {
-	determineLogger(&l).InformationCustomf(customValues, format, args...)
+	l.determineLogger().InformationCustomf(customValues, format, args...)
 }
 
 func (l MainLogger) Warning(args ...any) {
-	determineLogger(&l).Warning(args...)
+	l.determineLogger().Warning(args...)
 }
 
 func (l MainLogger) WarningWithCorrelation(correlationId string, args ...any) {
-	determineLogger(&l).WarningWithCorrelation(correlationId, args...)
+	l.determineLogger().WarningWithCorrelation(correlationId, args...)
 }
 
 func (l MainLogger) WarningCustom(customValues map[string]any, args ...any) {
-	determineLogger(&l).WarningCustom(customValues, args...)
+	l.determineLogger().WarningCustom(customValues, args...)
 }
 
 func (l MainLogger) Warningf(format string, args ...any) {
-	determineLogger(&l).Warningf(format, args...)
+	l.determineLogger().Warningf(format, args...)
 }
 
 func (l MainLogger) WarningWithCorrelationf(correlationId string, format string, args ...any) {
-	determineLogger(&l).WarningWithCorrelationf(correlationId, format, args...)
+	l.determineLogger().WarningWithCorrelationf(correlationId, format, args...)
 }
 
 func (l MainLogger) WarningCustomf(customValues map[string]any, format string, args ...any) {
-	determineLogger(&l).WarningCustomf(customValues, format, args...)
+	l.determineLogger().WarningCustomf(customValues, format, args...)
 }
 
 func (l MainLogger) WarningWithPanic(args ...any) {
-	determineLogger(&l).WarningWithPanic(args...)
+	l.determineLogger().WarningWithPanic(args...)
 }
 
 func (l MainLogger) WarningWithCorrelationAndPanic(correlationId string, args ...any) {
-	determineLogger(&l).WarningWithCorrelationAndPanic(correlationId, args...)
+	l.determineLogger().WarningWithCorrelationAndPanic(correlationId, args...)
 }
 
 func (l MainLogger) WarningCustomWithPanic(customValues map[string]any, args ...any) {
-	determineLogger(&l).WarningCustomWithPanic(customValues, args...)
+	l.determineLogger().WarningCustomWithPanic(customValues, args...)
 }
 
 func (l MainLogger) WarningWithPanicf(format string, args ...any) {
-	determineLogger(&l).WarningWithPanicf(format, args...)
+	l.determineLogger().WarningWithPanicf(format, args...)
 }
 
 func (l MainLogger) WarningWithCorrelationAndPanicf(correlationId string, format string, args ...any) {
-	determineLogger(&l).WarningWithCorrelationAndPanicf(correlationId, format, args...)
+	l.determineLogger().WarningWithCorrelationAndPanicf(correlationId, format, args...)
 }
 
 func (l MainLogger) WarningCustomWithPanicf(customValues map[string]any, format string, args ...any) {
-	determineLogger(&l).WarningCustomWithPanicf(customValues, format, args...)
+	l.determineLogger().WarningCustomWithPanicf(customValues, format, args...)
 }
 
 func (l MainLogger) Error(args ...any) {
-	determineLogger(&l).Error(args...)
+	l.determineLogger().Error(args...)
 }
 
 func (l MainLogger) ErrorWithCorrelation(correlationId string, args ...any) {
-	determineLogger(&l).ErrorWithCorrelation(correlationId, args...)
+	l.determineLogger().ErrorWithCorrelation(correlationId, args...)
 }
 
 func (l MainLogger) ErrorCustom(customValues map[string]any, args ...any) {
-	determineLogger(&l).ErrorCustom(customValues, args...)
+	l.determineLogger().ErrorCustom(customValues, args...)
 }
 
 func (l MainLogger) Errorf(format string, args ...any) {
-	determineLogger(&l).Errorf(format, args...)
+	l.determineLogger().Errorf(format, args...)
 }
 
 func (l MainLogger) ErrorWithCorrelationf(correlationId string, format string, args ...any) {
-	determineLogger(&l).ErrorWithCorrelationf(correlationId, format, args...)
+	l.determineLogger().ErrorWithCorrelationf(correlationId, format, args...)
 }
 
 func (l MainLogger) ErrorCustomf(customValues map[string]any, format string, args ...any) {
-	determineLogger(&l).ErrorCustomf(customValues, format, args...)
+	l.determineLogger().ErrorCustomf(customValues, format, args...)
 }
 
 func (l MainLogger) ErrorWithPanic(args ...any) {
-	determineLogger(&l).ErrorWithPanic(args...)
+	l.determineLogger().ErrorWithPanic(args...)
 }
 
 func (l MainLogger) ErrorWithCorrelationAndPanic(correlationId string, args ...any) {
-	determineLogger(&l).ErrorWithCorrelationAndPanic(correlationId, args...)
+	l.determineLogger().ErrorWithCorrelationAndPanic(correlationId, args...)
 }
 
 func (l MainLogger) ErrorCustomWithPanic(customValues map[string]any, args ...any) {
-	determineLogger(&l).ErrorCustomWithPanic(customValues, args...)
+	l.determineLogger().ErrorCustomWithPanic(customValues, args...)
 }
 
 func (l MainLogger) ErrorWithPanicf(format string, args ...any) {
-	determineLogger(&l).ErrorWithPanicf(format, args...)
+	l.determineLogger().ErrorWithPanicf(format, args...)
 }
 
 func (l MainLogger) ErrorWithCorrelationAndPanicf(correlationId string, format string, args ...any) {
-	determineLogger(&l).ErrorWithCorrelationAndPanicf(correlationId, format, args...)
+	l.determineLogger().ErrorWithCorrelationAndPanicf(correlationId, format, args...)
 }
 
 func (l MainLogger) ErrorCustomWithPanicf(customValues map[string]any, format string, args ...any) {
-	determineLogger(&l).ErrorCustomWithPanicf(customValues, format, args...)
+	l.determineLogger().ErrorCustomWithPanicf(customValues, format, args...)
 }
 
 func (l MainLogger) Fatal(args ...any) {
-	determineLogger(&l).Fatal(args...)
+	l.determineLogger().Fatal(args...)
 }
 
 func (l MainLogger) FatalWithCorrelation(correlationId string, args ...any) {
-	determineLogger(&l).FatalWithCorrelation(correlationId, args...)
+	l.determineLogger().FatalWithCorrelation(correlationId, args...)
 }
 
 func (l MainLogger) FatalCustom(customValues map[string]any, args ...any) {
-	determineLogger(&l).FatalCustom(customValues, args...)
+	l.determineLogger().FatalCustom(customValues, args...)
 }
 
 func (l MainLogger) Fatalf(format string, args ...any) {
-	determineLogger(&l).Fatalf(format, args...)
+	l.determineLogger().Fatalf(format, args...)
 }
 
 func (l MainLogger) FatalWithCorrelationf(correlationId string, format string, args ...any) {
-	determineLogger(&l).FatalWithCorrelationf(correlationId, format, args...)
+	l.determineLogger().FatalWithCorrelationf(correlationId, format, args...)
 }
 
 func (l MainLogger) FatalCustomf(customValues map[string]any, format string, args ...any) {
-	determineLogger(&l).FatalCustomf(customValues, format, args...)
+	l.determineLogger().FatalCustomf(customValues, format, args...)
 }
 
 func (l MainLogger) FatalWithPanic(args ...any) {
-	determineLogger(&l).FatalWithPanic(args...)
+	l.determineLogger().FatalWithPanic(args...)
 }
 
 func (l MainLogger) FatalWithCorrelationAndPanic(correlationId string, args ...any) {
-	determineLogger(&l).FatalWithCorrelationAndPanic(correlationId, args...)
+	l.determineLogger().FatalWithCorrelationAndPanic(correlationId, args...)
 }
 
 func (l MainLogger) FatalCustomWithPanic(customValues map[string]any, args ...any) {
-	determineLogger(&l).FatalCustomWithPanic(customValues, args...)
+	l.determineLogger().FatalCustomWithPanic(customValues, args...)
 }
 
 func (l MainLogger) FatalWithPanicf(format string, args ...any) {
-	determineLogger(&l).FatalWithPanicf(format, args...)
+	l.determineLogger().FatalWithPanicf(format, args...)
 }
 
 func (l MainLogger) FatalWithCorrelationAndPanicf(correlationId string, format string, args ...any) {
-	determineLogger(&l).FatalWithCorrelationAndPanicf(correlationId, format, args...)
+	l.determineLogger().FatalWithCorrelationAndPanicf(correlationId, format, args...)
 }
 
 func (l MainLogger) FatalCustomWithPanicf(customValues map[string]any, format string, args ...any) {
-	determineLogger(&l).FatalCustomWithPanicf(customValues, format, args...)
+	l.determineLogger().FatalCustomWithPanicf(customValues, format, args...)
 }
 
 func (l MainLogger) FatalWithExit(args ...any) {
-	determineLogger(&l).FatalWithExit(args...)
+	l.determineLogger().FatalWithExit(args...)
 }
 
 func (l MainLogger) FatalWithCorrelationAndExit(correlationId string, args ...any) {
-	determineLogger(&l).FatalWithCorrelationAndExit(correlationId, args...)
+	l.determineLogger().FatalWithCorrelationAndExit(correlationId, args...)
 }
 
 func (l MainLogger) FatalCustomWithExit(customValues map[string]any, args ...any) {
-	determineLogger(&l).FatalCustomWithExit(customValues, args...)
+	l.determineLogger().FatalCustomWithExit(customValues, args...)
 }
 
 func (l MainLogger) FatalWithExitf(format string, args ...any) {
-	determineLogger(&l).FatalWithExitf(format, args...)
+	l.determineLogger().FatalWithExitf(format, args...)
 }
 
 func (l MainLogger) FatalWithCorrelationAndExitf(correlationId string, format string, args ...any) {
-	determineLogger(&l).FatalWithCorrelationAndExitf(correlationId, format, args...)
+	l.determineLogger().FatalWithCorrelationAndExitf(correlationId, format, args...)
 }
 
 func (l MainLogger) FatalCustomWithExitf(customValues map[string]any, format string, args ...any) {
-	determineLogger(&l).FatalCustomWithExitf(customValues, format, args...)
+	l.determineLogger().FatalCustomWithExitf(customValues, format, args...)
 }
 
 func (l MainLogger) IsDebugEnabled() bool {
-	return determineLogger(&l).IsDebugEnabled()
+	return l.determineLogger().IsDebugEnabled()
 }
 
 func (l MainLogger) IsInformationEnabled() bool {
-	return determineLogger(&l).IsInformationEnabled()
+	return l.determineLogger().IsInformationEnabled()
 }
 
 func (l MainLogger) IsWarningEnabled() bool {
-	return determineLogger(&l).IsWarningEnabled()
+	return l.determineLogger().IsWarningEnabled()
 }
 
 func (l MainLogger) IsErrorEnabled() bool {
-	return determineLogger(&l).IsErrorEnabled()
+	return l.determineLogger().IsErrorEnabled()
 }
 
 func (l MainLogger) IsFatalEnabled() bool {
-	return determineLogger(&l).IsFatalEnabled()
+	return l.determineLogger().IsFatalEnabled()
 }
