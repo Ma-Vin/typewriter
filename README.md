@@ -23,7 +23,7 @@ There are permutations of the following categories for each severity
 * log with correlation, e.g. `InformationWithCorrelation(correlationId string, args ...any)`
 * log with custom values map, e.g. `InformationCustom(customValues map[string]any, args ...any)`
 * message format with args, e.g. `Informationf(format string, args ...any)`
-* panic (only fpr error and fatal) e.g. `ErrorWithPanic(args ...any)`
+* panic (only for warning, error and fatal) e.g. `ErrorWithPanic(args ...any)`
 * exit (only for fatal) e.g. `FatalWithExit(args ...any)`
 
 Arguments are handled in the manner of `fmt.Sprint`/`fmt.Sprintf`
