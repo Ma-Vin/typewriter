@@ -17,9 +17,9 @@ The logger can be accessed via importing `github.com/ma-vin/typewriter/logger` a
 
 #### Log Methods
 
-There are permutations of the following categories for each severiy
+There are permutations of the following categories for each severity
 
-* log without addtional parameters, e.g. `Information(args ...any)`
+* log without additional parameters, e.g. `Information(args ...any)`
 * log with correlation, e.g. `InformationWithCorrelation(correlationId string, args ...any)`
 * log with custom values map, e.g. `InformationCustom(customValues map[string]any, args ...any)`
 * message format with args, e.g. `Informationf(format string, args ...any)`
@@ -28,7 +28,7 @@ There are permutations of the following categories for each severiy
 
 Arguments are handled in the manner of `fmt.Sprint`/`fmt.Sprintf`
 
-In addtion indicator if the severiy is enabled or not.
+In addition, there exists an indicator if the severity is enabled or not.
 
 ### Configuration
 
@@ -36,7 +36,7 @@ Configuration is currently only possible via environment variables. In a later v
 
 #### Log levels
 
-The log level can be set via `TYPEWRITER_LOG_LEVEL` with one of the follwing values:
+The log level can be set via `TYPEWRITER_LOG_LEVEL` with one of the following values:
 
 * `DEBUG`
 * `INFO` or `INFORMATION`
@@ -44,7 +44,7 @@ The log level can be set via `TYPEWRITER_LOG_LEVEL` with one of the follwing val
 * `ERROR`
 * `FATAL`
 
-The deault log level is `ERROR`
+The default log level is `ERROR`
 
 #### Appender
 
@@ -60,27 +60,27 @@ The default appender is the standard output one
 
 There are three types of formatter which provides the texts to log for the appender. They can be configured by setting `TYPEWRITER_LOG_FORMATTER_TYPE` with one of the following values:
 
-* `DELIMITER`: The record information will be append and delimited with a given sign
+* `DELIMITER`: The record information will be appended and delimited with a given sign
   * The default value of the delimiter is ` - `. It can be configured by setting `TYPEWRITER_LOG_FORMATTER_PARAMETER`.
 * `TEMPLATE`: The records will be derived from three templates and time layout. They can be set `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>`has to be replaced by the following integers.
-  1. tempalte for writing time, severity and the message. Default `[%s] %s: %s`
-  2. tempalte for writing time, severity, correlationID and the message. Default `[%s] %s %s: %s`
-  3. tempalte for writing time, severity, message and custom value map. Default `[%s] %s: %s`
+  1. template for writing time, severity and the message. Default `[%s] %s: %s`
+  2. template for writing time, severity, correlationID and the message. Default `[%s] %s %s: %s`
+  3. template for writing time, severity, message and custom value map. Default `[%s] %s: %s`
   4. time layout. Default value of `time.RFC3339`
 
-  It is possible to reorder parameter by argumented indices. The *custom value map* at *3* will be appended as key-value-pairs sorted by key (e.g. a custom map with three entries of string, number and boolean format at indices from 4 to 9: `severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s`)
+  It is possible to reorder parameter by argument indices. The *custom value map* at *3* will be appended as key-value-pairs sorted by key (e.g. a custom map with three entries of string, number and boolean format at indices from 4 to 9: `severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s`)
 * `JSON`: The records will be logged as *JSON*. It is possible to define key names, the time layout and if the custom value map should be a sub element or not. The keys of the custom value map will be used 1:1. The properties can be set via `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>`has to be replaced by the following integers.
   1. key of time. Default `time`
   2. key of severity. Default: `severity`
   3. key of correlationID. Default: `correlation`
   4. key of message. Default:  `message`
   5. key of custom values if used as sub elements. Default: `custom`
-  6. indicator to add custom value map as subelemt: Default: `false`
+  6. indicator to add custom value map as sub element: Default: `false`
   7. time layout. Default value of `time.RFC3339`
   
-  :warning: :construction: No escaping of special charactes like `"` or `\` at the moment
+  :warning: :construction: No escaping of special characters like `"` or `\` at the moment
 
-The default fomatter is the delimiter one.
+The default formatter is the delimiter one.
 
 #### Package specific configuration
 
