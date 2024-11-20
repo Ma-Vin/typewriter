@@ -308,32 +308,32 @@ func (l CommonLogger) FatalCustomWithPanicf(customValues map[string]any, format 
 
 func (l CommonLogger) FatalWithExit(args ...any) {
 	l.Fatal(args...)
-	exitOrMock(1)
+	l.exitOrMock(1)
 }
 
 func (l CommonLogger) FatalWithCorrelationAndExit(correlationId string, args ...any) {
 	l.FatalWithCorrelation(correlationId, args...)
-	exitOrMock(1)
+	l.exitOrMock(1)
 }
 
 func (l CommonLogger) FatalCustomWithExit(customValues map[string]any, args ...any) {
 	l.FatalCustom(customValues, args...)
-	exitOrMock(1)
+	l.exitOrMock(1)
 }
 
 func (l CommonLogger) FatalWithExitf(format string, args ...any) {
 	l.Fatalf(format, args...)
-	exitOrMock(1)
+	l.exitOrMock(1)
 }
 
 func (l CommonLogger) FatalWithCorrelationAndExitf(correlationId string, format string, args ...any) {
 	l.FatalWithCorrelationf(correlationId, format, args...)
-	exitOrMock(1)
+	l.exitOrMock(1)
 }
 
 func (l CommonLogger) FatalCustomWithExitf(customValues map[string]any, format string, args ...any) {
 	l.FatalCustomf(customValues, format, args...)
-	exitOrMock(1)
+	l.exitOrMock(1)
 }
 
 func (l CommonLogger) IsDebugEnabled() bool {
@@ -356,6 +356,10 @@ func (l CommonLogger) IsFatalEnabled() bool {
 	return l.fatalEnabled
 }
 
+func (l *CommonLogger) closeAppender() {
+	(*l.appender).Close()
+}
+
 func panicOrMock(message string) {
 	if mockPanicAndExitAtCommonLogger {
 		panicMockActivated = true
@@ -364,7 +368,9 @@ func panicOrMock(message string) {
 	panic(message)
 }
 
-func exitOrMock(code int) {
+func (l *CommonLogger) exitOrMock(code int) {
+	l.closeAppender()
+
 	if mockPanicAndExitAtCommonLogger {
 		exitMockAcitvated = true
 		return

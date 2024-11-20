@@ -237,27 +237,27 @@ func (l MainLogger) FatalCustomWithPanicf(customValues map[string]any, format st
 }
 
 func (l MainLogger) FatalWithExit(args ...any) {
-	l.determineLogger().FatalWithExit(args...)
+	l.determineLoggerAndCloseOthersAppender().FatalWithExit(args...)
 }
 
 func (l MainLogger) FatalWithCorrelationAndExit(correlationId string, args ...any) {
-	l.determineLogger().FatalWithCorrelationAndExit(correlationId, args...)
+	l.determineLoggerAndCloseOthersAppender().FatalWithCorrelationAndExit(correlationId, args...)
 }
 
 func (l MainLogger) FatalCustomWithExit(customValues map[string]any, args ...any) {
-	l.determineLogger().FatalCustomWithExit(customValues, args...)
+	l.determineLoggerAndCloseOthersAppender().FatalCustomWithExit(customValues, args...)
 }
 
 func (l MainLogger) FatalWithExitf(format string, args ...any) {
-	l.determineLogger().FatalWithExitf(format, args...)
+	l.determineLoggerAndCloseOthersAppender().FatalWithExitf(format, args...)
 }
 
 func (l MainLogger) FatalWithCorrelationAndExitf(correlationId string, format string, args ...any) {
-	l.determineLogger().FatalWithCorrelationAndExitf(correlationId, format, args...)
+	l.determineLoggerAndCloseOthersAppender().FatalWithCorrelationAndExitf(correlationId, format, args...)
 }
 
 func (l MainLogger) FatalCustomWithExitf(customValues map[string]any, format string, args ...any) {
-	l.determineLogger().FatalCustomWithExitf(customValues, format, args...)
+	l.determineLoggerAndCloseOthersAppender().FatalCustomWithExitf(customValues, format, args...)
 }
 
 func (l MainLogger) IsDebugEnabled() bool {
@@ -278,4 +278,25 @@ func (l MainLogger) IsErrorEnabled() bool {
 
 func (l MainLogger) IsFatalEnabled() bool {
 	return l.determineLogger().IsFatalEnabled()
+}
+
+func (l *MainLogger) determineLoggerAndCloseOthersAppender() *CommonLogger {
+	relevantLogger := l.determineLogger()
+	l.closeAppender(relevantLogger)
+	return relevantLogger
+}
+
+func (l *MainLogger) closeAppender(loggerToSkip *CommonLogger) {
+	if l.commonLogger != loggerToSkip {
+		l.commonLogger.closeAppender()
+	}
+	if !l.existPackageLogger {
+		// There exists only commonlogger: nothing to do
+		return
+	}
+	for _, pLog := range l.packageLoggers {
+		if pLog != loggerToSkip {
+			pLog.closeAppender()
+		}
+	}
 }

@@ -33,6 +33,8 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 	mockPanicAndExitAtCommonLogger = true
 	panicMockActivated = false
 	exitMockAcitvated = false
+	testCommonLoggerCounterAppenderClosed = 0
+	testCommonLoggerCounterAppenderClosedExpected = 2
 
 	mainLogger = MainLogger{
 		commonLogger:       &testMainCommonLogger,
@@ -51,6 +53,7 @@ func initMainLoggerViaCommonTest(envCommonLogLevel string, envPackageLogLevel st
 
 func initMainLoggerOnlyCommonTest(envCommonLogLevel string) {
 	initMainLoggerViaCommonTest(envCommonLogLevel, envCommonLogLevel)
+	testCommonLoggerCounterAppenderClosedExpected = 1
 	mainLogger = MainLogger{
 		commonLogger:       &testMainCommonLogger,
 		existPackageLogger: false,
@@ -2128,26 +2131,149 @@ func TestMainLoggerInactiveFatalCustomWithExitf(t *testing.T) {
 
 // -------------------
 //
+// Fatal Package With Exit Block
+//
+// -------------------
+
+func TestMainLoggerViaPackageFatalWithExit(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalWithExit("fatal test message")
+
+	assertMessageViaPackageWithExit(t, "FatalWithExit", "1fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalWithExit(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalWithExit("fatal test message")
+
+	assertNoMessageWithExit(t, "FatalWithExit")
+}
+
+func TestMainLoggerViaPackageFatalWithCorrelationAndExit(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalWithCorrelationAndExit("1234", "fatal test message")
+
+	assertMessageViaPackageWithExit(t, "FatalWithCorrelationAndExit", "11234fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalWithCorrelationAndExit(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalWithCorrelationAndExit("1234", "fatal test message")
+
+	assertNoMessageWithExit(t, "FatalWithCorrelationAndExit")
+}
+
+func TestMainLoggerViaPackageFatalCustomWithExit(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalCustomWithExit(map[string]any{"test": 123}, "fatal test message")
+
+	assertMessageViaPackageWithExit(t, "FatalCustomWithExit", "1 map[test:123]fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalCustomWithExit(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalCustomWithExit(map[string]any{"test": 123}, "fatal test message")
+
+	assertNoMessageWithExit(t, "FatalCustomWithExit")
+}
+
+func TestMainLoggerViaPackageFatalWithExitf(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalWithExitf("fatal test %s", "message")
+
+	assertMessageViaPackageWithExit(t, "FatalWithExitf", "1fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalWithExitf(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalWithExitf("fatal test %s", "message")
+
+	assertNoMessageWithExit(t, "FatalWithExitf")
+}
+
+func TestMainLoggerViaPackageFatalWithCorrelationAndExitf(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalWithCorrelationAndExitf("1234", "fatal test %s", "message")
+
+	assertMessageViaPackageWithExit(t, "FatalWithCorrelationAndExitf", "11234fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalWithCorrelationAndExitf(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalWithCorrelationAndExitf("1234", "fatal test %s", "message")
+
+	assertNoMessageWithExit(t, "FatalWithCorrelationAndExitf")
+}
+
+func TestMainLoggerViaPackageFatalCustomWithExitf(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalCustomWithExitf(map[string]any{"test": 123}, "fatal test %s", "message")
+
+	assertMessageViaPackageWithExit(t, "FatalCustomWithExitf", "1 map[test:123]fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalCustomWithExitf(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalCustomWithExitf(map[string]any{"test": 123}, "fatal test %s", "message")
+
+	assertNoMessageWithExit(t, "FatalCustomWithExitf")
+}
+
+// -------------------
+//
+// Fatal Only Common Block
+//
+// -------------------
+
+func TestMainLoggerOnlyCommonFatalWithExit(t *testing.T) {
+	initMainLoggerOnlyCommonTest("FATAL")
+
+	mainLogger.FatalWithExit("fatal test message")
+
+	assertMessageWithExit(t, "Fatal", "1fatal test message")
+}
+
+// -------------------
+//
 // Assert Block
 //
 // -------------------
 
 func assertMessageViaPackage(t *testing.T, methodName string, message string) {
 	assertMessage(t, methodName, &testMainPackageLoggerAppender, &testMainCommonLoggerAppender, "package", "common", message)
+	assertPanicAndExitMockNotActivated(t)
 }
 
 func assertMessageViaCommon(t *testing.T, methodName string, message string) {
 	assertMessage(t, methodName, &testMainCommonLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
+	assertPanicAndExitMockNotActivated(t)
 }
 
 func assertMessageWithPanic(t *testing.T, methodName string, message string) {
 	assertMessage(t, methodName, &testMainCommonLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
-	testutil.AssertTrue(panicMockActivated, t, "panic")
+	assertPanicMockAcitvated(t)
 }
 
 func assertMessageWithExit(t *testing.T, methodName string, message string) {
 	assertMessage(t, methodName, &testMainCommonLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
-	testutil.AssertTrue(exitMockAcitvated, t, "exit")
+	assertExitMockAcitvated(t)
+}
+
+func assertMessageViaPackageWithExit(t *testing.T, methodName string, message string) {
+	assertMessage(t, methodName, &testMainPackageLoggerAppender, &testMainCommonLoggerAppender, "package", "common", message)
+	assertExitMockAcitvated(t)
 }
 
 func assertMessage(t *testing.T, methodName string, appenderWithMessage *appender.Appender, appenderWithoutMessage *appender.Appender, withMessageName string, withoutMessageName string, message string) {
@@ -2158,12 +2284,12 @@ func assertMessage(t *testing.T, methodName string, appenderWithMessage *appende
 
 func assertNoMessageWithPanic(t *testing.T, methodName string) {
 	assertNoMessage(t, methodName)
-	testutil.AssertTrue(panicMockActivated, t, "panic")
+	assertPanicMockAcitvated(t)
 }
 
 func assertNoMessageWithExit(t *testing.T, methodName string) {
 	assertNoMessage(t, methodName)
-	testutil.AssertTrue(exitMockAcitvated, t, "exit")
+	assertExitMockAcitvated(t)
 }
 
 func assertNoMessage(t *testing.T, methodName string) {
