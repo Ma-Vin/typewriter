@@ -73,34 +73,12 @@ func formatCustomValuesToJson(customValues *map[string]any) string {
 		switch value.(type) {
 		case bool:
 			customValuesBuffer.WriteString(fmt.Sprintf("%t", value))
-		case byte:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case int:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case int8:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case int16:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case int32:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case int64:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case uint:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
 		// case uint8: equal to byte
-		case uint16:
+		case byte, int, int8, int16, int32, int64, uint, uint16, uint32, uint64:
 			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case uint32:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case uint64:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case float32:
+		case float32, float64:
 			customValuesBuffer.WriteString(fmt.Sprintf("%g", value))
-		case float64:
-			customValuesBuffer.WriteString(fmt.Sprintf("%g", value))
-		case complex64:
-			customValuesBuffer.WriteString(fmt.Sprintf("%g", value))
-		case complex128:
+		case complex64, complex128:
 			customValuesBuffer.WriteString(fmt.Sprintf("%g", value))
 		case string:
 			customValuesBuffer.WriteString(fmt.Sprintf("\"%s\"", value))
