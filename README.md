@@ -1,3 +1,6 @@
+[![Build and test](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml/badge.svg)](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml)
+
+
 # Typewriter
 
 This repository provides a GoLang logging package, which are inspired by some Log4j features like package specific enablement
