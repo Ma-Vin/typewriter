@@ -46,7 +46,7 @@ func TestGetConfigExistingFromNoEnv(t *testing.T) {
 
 	GetConfig()
 
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_DEBUG)
+	os.Setenv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_DEBUG)
 
 	result := GetConfig()
 
@@ -82,10 +82,10 @@ func TestGetConfigCreateFromFile(t *testing.T) {
 
 func TestGetConfigCreateFromEnvDefaultDelimiter(t *testing.T) {
 	os.Clearenv()
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
-	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
-	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, FORMATTER_DELIMITER)
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME, ":")
+	os.Setenv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_DELIMITER)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME, ":")
 	configInitialized = false
 
 	result := GetConfig()
@@ -109,13 +109,13 @@ func TestGetConfigCreateFromEnvDefaultDelimiter(t *testing.T) {
 
 func TestGetConfigCreateFromEnvDefaultTemplate(t *testing.T) {
 	os.Clearenv()
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
-	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
-	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, FORMATTER_TEMPLATE)
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_1", "time: %s severity: %s message: %s")
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_2", "time: %s severity: %s correlation: %s message: %s")
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_4", time.RFC1123Z)
+	os.Setenv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_TEMPLATE)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_1", "time: %s severity: %s message: %s")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_2", "time: %s severity: %s correlation: %s message: %s")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_4", time.RFC1123Z)
 	configInitialized = false
 
 	result := GetConfig()
@@ -142,9 +142,9 @@ func TestGetConfigCreateFromEnvDefaultTemplate(t *testing.T) {
 
 func TestGetConfigCreateFromEnvDefaultTemplateWithoutParameter(t *testing.T) {
 	os.Clearenv()
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
-	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
-	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, FORMATTER_TEMPLATE)
+	os.Setenv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_TEMPLATE)
 	configInitialized = false
 
 	result := GetConfig()
@@ -171,16 +171,16 @@ func TestGetConfigCreateFromEnvDefaultTemplateWithoutParameter(t *testing.T) {
 
 func TestGetConfigCreateFromEnvDefaultJson(t *testing.T) {
 	os.Clearenv()
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
-	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
-	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, FORMATTER_JSON)
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_1", "timing")
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_2", "level")
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_3", "cor")
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_4", "msg")
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_5", "customValues")
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_6", "true")
-	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_7", time.RFC1123Z)
+	os.Setenv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_JSON)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_1", "timing")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_2", "level")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_3", "cor")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_4", "msg")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_5", "customValues")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_6", "true")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_7", time.RFC1123Z)
 	configInitialized = false
 
 	result := GetConfig()
@@ -210,9 +210,9 @@ func TestGetConfigCreateFromEnvDefaultJson(t *testing.T) {
 
 func TestGetConfigCreateFromEnvDefaultJsonWithoutParameter(t *testing.T) {
 	os.Clearenv()
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
-	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_STDOUT)
-	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, FORMATTER_JSON)
+	os.Setenv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
+	os.Setenv(DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_JSON)
 	configInitialized = false
 
 	result := GetConfig()
@@ -244,9 +244,9 @@ func TestGetConfigCreateFromEnvDefaultFileAppender(t *testing.T) {
 	logFilePath := "pathToLogFile"
 	appender.SkipFileCreationForTest = true
 	os.Clearenv()
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
-	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_FILE)
-	os.Setenv(DEFAULT_LOG_APPENDER_PARAMETER_ENV_NAME, logFilePath)
+	os.Setenv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
+	os.Setenv(DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME, logFilePath)
 	configInitialized = false
 
 	result := GetConfig()
@@ -271,8 +271,8 @@ func TestGetConfigCreateFromEnvDefaultFileAppender(t *testing.T) {
 func TestGetConfigCreateFromEnvDefaultFileAppenderMissingPath(t *testing.T) {
 	appender.SkipFileCreationForTest = true
 	os.Clearenv()
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
-	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, APPENDER_FILE)
+	os.Setenv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
 	configInitialized = false
 
 	result := GetConfig()
@@ -295,9 +295,9 @@ func TestGetConfigCreateFromEnvDefaultFileAppenderMissingPath(t *testing.T) {
 
 func TestGetConfigCreateFromEnvDefaultUnkown(t *testing.T) {
 	os.Clearenv()
-	os.Setenv(DEFAULT_LOG_LEVEL_ENV_NAME, LOG_LEVEL_INFO)
-	os.Setenv(DEFAULT_LOG_APPENDER_ENV_NAME, "abc")
-	os.Setenv(DEFAULT_LOG_FORMATTER_ENV_NAME, "123")
+	os.Setenv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+	os.Setenv(DEFAULT_LOG_APPENDER_PROPERTY_NAME, "abc")
+	os.Setenv(DEFAULT_LOG_FORMATTER_PROPERTY_NAME, "123")
 	configInitialized = false
 
 	result := GetConfig()
@@ -327,10 +327,10 @@ func TestGetConfigCreateFromEnvPackageDelimiter(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(PACKAGE_LOG_LEVEL_ENV_NAME+packageName, LOG_LEVEL_DEBUG)
-	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_STDOUT)
-	os.Setenv(PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, FORMATTER_DELIMITER)
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName, "_")
+	os.Setenv(PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
+	os.Setenv(PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName, "_")
 	configInitialized = false
 
 	result := GetConfig()
@@ -366,13 +366,13 @@ func TestGetConfigCreateFromEnvPackageTemplate(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(PACKAGE_LOG_LEVEL_ENV_NAME+packageName, LOG_LEVEL_DEBUG)
-	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_STDOUT)
-	os.Setenv(PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, FORMATTER_TEMPLATE)
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_1", "time: %s severity: %s message: %s")
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_2", "time: %s severity: %s correlation: %s message: %s")
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_4", time.RFC1123Z)
+	os.Setenv(PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
+	os.Setenv(PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_TEMPLATE)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_1", "time: %s severity: %s message: %s")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_2", "time: %s severity: %s correlation: %s message: %s")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_4", time.RFC1123Z)
 	configInitialized = false
 
 	result := GetConfig()
@@ -411,16 +411,16 @@ func TestGetConfigCreateFromEnvPackageJson(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(PACKAGE_LOG_LEVEL_ENV_NAME+packageName, LOG_LEVEL_DEBUG)
-	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_STDOUT)
-	os.Setenv(PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, FORMATTER_JSON)
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_1", "timing")
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_2", "level")
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_3", "cor")
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_4", "msg")
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_5", "customValues")
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_6", "true")
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName+"_7", time.RFC1123Z)
+	os.Setenv(PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
+	os.Setenv(PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_JSON)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_1", "timing")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_2", "level")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_3", "cor")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_4", "msg")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_5", "customValues")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_6", "true")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+"_7", time.RFC1123Z)
 	configInitialized = false
 
 	result := GetConfig()
@@ -462,7 +462,7 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyLevel(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(PACKAGE_LOG_LEVEL_ENV_NAME+packageName, LOG_LEVEL_DEBUG)
+	os.Setenv(PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
 	configInitialized = false
 
 	result := GetConfig()
@@ -498,7 +498,7 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_STDOUT)
+	os.Setenv(PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
 	configInitialized = false
 
 	result := GetConfig()
@@ -534,7 +534,7 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyFromatter(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, FORMATTER_DELIMITER)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
 	configInitialized = false
 
 	result := GetConfig()
@@ -570,8 +570,8 @@ func TestGetConfigCreateFromEnvPackagePartialOnlyFromatterWithParamterDelimiter(
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, FORMATTER_DELIMITER)
-	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName, "_")
+	os.Setenv(PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
+	os.Setenv(PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName, "_")
 	configInitialized = false
 
 	result := GetConfig()
@@ -609,8 +609,8 @@ func TestGetConfigCreateFromEnvPackageFileAppender(t *testing.T) {
 	logFilePath := "pathToLogFile"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(PACKAGE_LOG_APPENDER_ENV_NAME+packageName, APPENDER_FILE)
-	os.Setenv(PACKAGE_LOG_APPENDER_PARAMETER_ENV_NAME+packageName, logFilePath)
+	os.Setenv(PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
+	os.Setenv(PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME+packageName, logFilePath)
 	configInitialized = false
 
 	result := GetConfig()

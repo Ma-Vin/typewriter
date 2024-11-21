@@ -18,10 +18,10 @@ import (
 
 func TestGetLoggersCreateFromEnvDefaultDelimiter(t *testing.T) {
 	os.Clearenv()
-	os.Setenv(config.DEFAULT_LOG_LEVEL_ENV_NAME, config.LOG_LEVEL_INFO)
-	os.Setenv(config.DEFAULT_LOG_APPENDER_ENV_NAME, config.APPENDER_STDOUT)
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_ENV_NAME, config.FORMATTER_DELIMITER)
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME, ":")
+	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, config.APPENDER_STDOUT)
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PROPERTY_NAME, config.FORMATTER_DELIMITER)
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME, ":")
 	config.ClearConfig()
 	loggersInitialized = false
 
@@ -42,13 +42,13 @@ func TestGetLoggersCreateFromEnvDefaultDelimiter(t *testing.T) {
 
 func TestGetLoggersCreateFromEnvDefaulTemplate(t *testing.T) {
 	os.Clearenv()
-	os.Setenv(config.DEFAULT_LOG_LEVEL_ENV_NAME, config.LOG_LEVEL_INFO)
-	os.Setenv(config.DEFAULT_LOG_APPENDER_ENV_NAME, config.APPENDER_STDOUT)
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_ENV_NAME, config.FORMATTER_TEMPLATE)
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_1", "time: %s severity: %s message: %s")
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_2", "time: %s severity: %s correlation: %s message: %s")
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_4", time.RFC1123Z)
+	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, config.APPENDER_STDOUT)
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PROPERTY_NAME, config.FORMATTER_TEMPLATE)
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_1", "time: %s severity: %s message: %s")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_2", "time: %s severity: %s correlation: %s message: %s")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_4", time.RFC1123Z)
 	config.ClearConfig()
 	loggersInitialized = false
 
@@ -69,16 +69,16 @@ func TestGetLoggersCreateFromEnvDefaulTemplate(t *testing.T) {
 
 func TestGetLoggersCreateFromEnvDefaulJson(t *testing.T) {
 	os.Clearenv()
-	os.Setenv(config.DEFAULT_LOG_LEVEL_ENV_NAME, config.LOG_LEVEL_INFO)
-	os.Setenv(config.DEFAULT_LOG_APPENDER_ENV_NAME, config.APPENDER_STDOUT)
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_ENV_NAME, config.FORMATTER_JSON)
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_1", "timing")
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_2", "level")
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_3", "cor")
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_4", "msg")
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_5", "customValues")
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_6", "true")
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME+"_7", time.RFC1123Z)
+	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, config.APPENDER_STDOUT)
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PROPERTY_NAME, config.FORMATTER_JSON)
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_1", "timing")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_2", "level")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_3", "cor")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_4", "msg")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_5", "customValues")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_6", "true")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_7", time.RFC1123Z)
 	config.ClearConfig()
 	loggersInitialized = false
 
@@ -101,9 +101,9 @@ func TestGetLoggersCreateFromEnvDefaultFileAppender(t *testing.T) {
 	appender.SkipFileCreationForTest = true
 	logFilePath := "pathToLogFile"
 	os.Clearenv()
-	os.Setenv(config.DEFAULT_LOG_LEVEL_ENV_NAME, config.LOG_LEVEL_INFO)
-	os.Setenv(config.DEFAULT_LOG_APPENDER_ENV_NAME, config.APPENDER_FILE)
-	os.Setenv(config.DEFAULT_LOG_APPENDER_PARAMETER_ENV_NAME, logFilePath)
+	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, config.APPENDER_FILE)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME, logFilePath)
 	config.ClearConfig()
 	loggersInitialized = false
 
@@ -130,10 +130,10 @@ func TestGetLoggersCreateFromEnvPackage(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(config.PACKAGE_LOG_LEVEL_ENV_NAME+packageName, config.LOG_LEVEL_DEBUG)
-	os.Setenv(config.PACKAGE_LOG_APPENDER_ENV_NAME+packageName, config.APPENDER_STDOUT)
-	os.Setenv(config.PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, config.FORMATTER_DELIMITER)
-	os.Setenv(config.PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName, "_")
+	os.Setenv(config.PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, config.LOG_LEVEL_DEBUG)
+	os.Setenv(config.PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, config.APPENDER_STDOUT)
+	os.Setenv(config.PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, config.FORMATTER_DELIMITER)
+	os.Setenv(config.PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName, "_")
 	config.ClearConfig()
 	loggersInitialized = false
 
@@ -165,7 +165,7 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyLevel(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(config.PACKAGE_LOG_LEVEL_ENV_NAME+packageName, config.LOG_LEVEL_DEBUG)
+	os.Setenv(config.PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, config.LOG_LEVEL_DEBUG)
 	config.ClearConfig()
 	loggersInitialized = false
 
@@ -198,8 +198,8 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	logFilePath := "pathToLogFile"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(config.PACKAGE_LOG_APPENDER_ENV_NAME+packageName, config.APPENDER_FILE)
-	os.Setenv(config.PACKAGE_LOG_APPENDER_PARAMETER_ENV_NAME+packageName, logFilePath)
+	os.Setenv(config.PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, config.APPENDER_FILE)
+	os.Setenv(config.PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME+packageName, logFilePath)
 	config.ClearConfig()
 	loggersInitialized = false
 
@@ -230,8 +230,8 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyFromatterWithParamter(t *testi
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
-	os.Setenv(config.PACKAGE_LOG_FORMATTER_ENV_NAME+packageName, config.FORMATTER_DELIMITER)
-	os.Setenv(config.PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME+packageName, "_")
+	os.Setenv(config.PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, config.FORMATTER_DELIMITER)
+	os.Setenv(config.PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName, "_")
 	config.ClearConfig()
 	loggersInitialized = false
 

@@ -57,17 +57,17 @@ type FormatterConfig struct {
 }
 
 const (
-	DEFAULT_LOG_LEVEL_ENV_NAME               = "TYPEWRITER_LOG_LEVEL"
-	DEFAULT_LOG_APPENDER_ENV_NAME            = "TYPEWRITER_LOG_APPENDER_TYPE"
-	DEFAULT_LOG_APPENDER_PARAMETER_ENV_NAME  = "TYPEWRITER_LOG_APPENDER_PARAMETER"
-	DEFAULT_LOG_FORMATTER_ENV_NAME           = "TYPEWRITER_LOG_FORMATTER_TYPE"
-	DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME = "TYPEWRITER_LOG_FORMATTER_PARAMETER"
+	DEFAULT_LOG_LEVEL_PROPERTY_NAME               = "TYPEWRITER_LOG_LEVEL"
+	DEFAULT_LOG_APPENDER_PROPERTY_NAME            = "TYPEWRITER_LOG_APPENDER_TYPE"
+	DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME  = "TYPEWRITER_LOG_APPENDER_PARAMETER"
+	DEFAULT_LOG_FORMATTER_PROPERTY_NAME           = "TYPEWRITER_LOG_FORMATTER_TYPE"
+	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME = "TYPEWRITER_LOG_FORMATTER_PARAMETER"
 
-	PACKAGE_LOG_LEVEL_ENV_NAME               = "TYPEWRITER_PACKAGE_LOG_LEVEL_"
-	PACKAGE_LOG_APPENDER_ENV_NAME            = "TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_"
-	PACKAGE_LOG_APPENDER_PARAMETER_ENV_NAME  = "TYPEWRITER_PACKAGE_LOG_APPENDER_PARAMETER_"
-	PACKAGE_LOG_FORMATTER_ENV_NAME           = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
-	PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
+	PACKAGE_LOG_LEVEL_PROPERTY_NAME               = "TYPEWRITER_PACKAGE_LOG_LEVEL_"
+	PACKAGE_LOG_APPENDER_PROPERTY_NAME            = "TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_"
+	PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME  = "TYPEWRITER_PACKAGE_LOG_APPENDER_PARAMETER_"
+	PACKAGE_LOG_FORMATTER_PROPERTY_NAME           = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
+	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
 
 	DEFAULT_LOG_CONFIG_FILE_ENV_NAME = "TYPEWRITER_CONFIG_FILE"
 
@@ -125,9 +125,9 @@ func GetConfig() *Config {
 		return nil
 	} else if deriveConfigFromEnv() {
 		relevantEnvKeyValues := determineRelevantEnvKeyValues()
-		createFormatterConfigFromEnv(&relevantEnvKeyValues)
-		createAppenderConfigFromEnv(&relevantEnvKeyValues)
-		createLoggerConfigFromEnv(&relevantEnvKeyValues)
+		createFormatterConfig(&relevantEnvKeyValues)
+		createAppenderConfig(&relevantEnvKeyValues)
+		createLoggerConfig(&relevantEnvKeyValues)
 	}
 
 	completeConfig()
@@ -166,8 +166,8 @@ func deriveConfigFromFile() bool {
 
 // Checks whether any environment variable of a severity log level is set
 func deriveConfigFromEnv() bool {
-	return existsAnyAtEnv(DEFAULT_LOG_LEVEL_ENV_NAME, DEFAULT_LOG_APPENDER_ENV_NAME, DEFAULT_LOG_FORMATTER_ENV_NAME) ||
-		existsAnyPrefixAtEnv(PACKAGE_LOG_LEVEL_ENV_NAME, PACKAGE_LOG_APPENDER_ENV_NAME, PACKAGE_LOG_FORMATTER_ENV_NAME)
+	return existsAnyAtEnv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PROPERTY_NAME) ||
+		existsAnyPrefixAtEnv(PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
 }
 
 // Checks if least one entry environment variables matchs at least one entry of a given list of environment variables names
@@ -197,15 +197,19 @@ func existsAnyPrefixAtEnv(envNames ...string) bool {
 
 // Determines a reduced slice of key-value pairs, which only contains relevant keys and non empty values
 func determineRelevantEnvKeyValues() map[string]string {
-	result := make(map[string]string, len(os.Environ()))
+	return createMapFromSliceWithKeyValues(os.Environ())
+}
 
-	relevantKeyPrefixes := []string{DEFAULT_LOG_LEVEL_ENV_NAME, DEFAULT_LOG_APPENDER_ENV_NAME, DEFAULT_LOG_APPENDER_PARAMETER_ENV_NAME,
-		DEFAULT_LOG_FORMATTER_ENV_NAME, DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME,
-		PACKAGE_LOG_LEVEL_ENV_NAME, PACKAGE_LOG_APPENDER_ENV_NAME, PACKAGE_LOG_APPENDER_PARAMETER_ENV_NAME,
-		PACKAGE_LOG_FORMATTER_ENV_NAME, PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME}
+func createMapFromSliceWithKeyValues(sliceToConvert []string) map[string]string {
+	result := make(map[string]string, len(sliceToConvert))
 
-	for _, envEntry := range os.Environ() {
-		keyValue := strings.SplitN(envEntry, "=", 2)
+	relevantKeyPrefixes := []string{DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME,
+		DEFAULT_LOG_FORMATTER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
+		PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME,
+		PACKAGE_LOG_FORMATTER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME}
+
+	for _, entry := range sliceToConvert {
+		keyValue := strings.SplitN(entry, "=", 2)
 		if len(keyValue) == 2 && strings.TrimSpace(keyValue[1]) != "" {
 			key := strings.ToUpper(keyValue[0])
 			for _, keyPrefix := range relevantKeyPrefixes {
@@ -220,133 +224,133 @@ func determineRelevantEnvKeyValues() map[string]string {
 	return result
 }
 
-// creates all relevant appender config elements derived from relevant environment variables
-func createAppenderConfigFromEnv(relevantEnvKeyValues *map[string]string) {
+// creates all relevant appender config elements derived from relevant properties
+func createAppenderConfig(relevantKeyValues *map[string]string) {
 	config.Appender = append(config.Appender, AppenderConfig{IsDefault: true, PackageName: ""})
 	appenderIndex := len(config.Appender) - 1
-	configureAppenderFromEnv(relevantEnvKeyValues, &config.Appender[appenderIndex], "")
+	configureAppender(relevantKeyValues, &config.Appender[appenderIndex], "")
 
-	for key, _ := range *relevantEnvKeyValues {
-		packageOfAppender, found := strings.CutPrefix(key, PACKAGE_LOG_APPENDER_ENV_NAME)
+	for key, _ := range *relevantKeyValues {
+		packageOfAppender, found := strings.CutPrefix(key, PACKAGE_LOG_APPENDER_PROPERTY_NAME)
 		if found {
 			config.Appender = append(config.Appender, AppenderConfig{IsDefault: false, PackageName: packageOfAppender})
 			appenderIndex++
-			configureAppenderFromEnv(relevantEnvKeyValues, &config.Appender[appenderIndex], packageOfAppender)
+			configureAppender(relevantKeyValues, &config.Appender[appenderIndex], packageOfAppender)
 		}
 	}
 }
 
-// configures a given appender config element from environment variables concerning a given package name
-func configureAppenderFromEnv(relevantEnvKeyValues *map[string]string, appenderConfig *AppenderConfig, packageName string) {
-	var appenderEnvKey string
-	var appenderParameterEnvKey string
+// configures a given appender config element from properties concerning a given package name
+func configureAppender(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageName string) {
+	var appenderKey string
+	var appenderParameterKey string
 	if len(packageName) > 0 {
-		appenderEnvKey = PACKAGE_LOG_APPENDER_ENV_NAME + packageName
-		appenderParameterEnvKey = PACKAGE_LOG_APPENDER_PARAMETER_ENV_NAME + packageName
+		appenderKey = PACKAGE_LOG_APPENDER_PROPERTY_NAME + packageName
+		appenderParameterKey = PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME + packageName
 	} else {
-		appenderEnvKey = DEFAULT_LOG_APPENDER_ENV_NAME
-		appenderParameterEnvKey = DEFAULT_LOG_APPENDER_PARAMETER_ENV_NAME
+		appenderKey = DEFAULT_LOG_APPENDER_PROPERTY_NAME
+		appenderParameterKey = DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME
 	}
 
-	appenderName := getValueFromMapOrDefault(relevantEnvKeyValues, appenderEnvKey, APPENDER_STDOUT)
+	appenderName := getValueFromMapOrDefault(relevantKeyValues, appenderKey, APPENDER_STDOUT)
 
 	switch appenderName {
 	case APPENDER_STDOUT:
 		appenderConfig.AppenderType = appenderName
 	case APPENDER_FILE:
-		value, found := (*relevantEnvKeyValues)[appenderParameterEnvKey]
+		value, found := (*relevantKeyValues)[appenderParameterKey]
 		if found {
 			appenderConfig.AppenderType = appenderName
 			appenderConfig.PathToLogFile = value
 		} else {
-			fmt.Printf("Cannot use file appender, because there is no value at %s. Use %s appender instead", appenderParameterEnvKey, APPENDER_STDOUT)
+			fmt.Printf("Cannot use file appender, because there is no value at %s. Use %s appender instead", appenderParameterKey, APPENDER_STDOUT)
 			fmt.Println()
 			appenderConfig.AppenderType = APPENDER_STDOUT
 		}
 	default:
-		printHint(appenderName, appenderEnvKey, "appender")
+		printHint(appenderName, appenderKey)
 	}
 }
 
-// creates all relevant formatter config elements derived from relevant environment variables
-func createFormatterConfigFromEnv(relevantEnvKeyValues *map[string]string) {
+// creates all relevant formatter config elements derived from relevant properties
+func createFormatterConfig(relevantKeyValues *map[string]string) {
 	config.Formatter = append(config.Formatter, FormatterConfig{IsDefault: true, PackageName: ""})
 	formatterIndex := len(config.Formatter) - 1
-	configureFormatterFromEnv(relevantEnvKeyValues, &config.Formatter[formatterIndex], "")
+	configureFormatter(relevantKeyValues, &config.Formatter[formatterIndex], "")
 
-	for key, _ := range *relevantEnvKeyValues {
-		packageOfFormatter, found := strings.CutPrefix(key, PACKAGE_LOG_FORMATTER_ENV_NAME)
+	for key, _ := range *relevantKeyValues {
+		packageOfFormatter, found := strings.CutPrefix(key, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
 		if found {
 			config.Formatter = append(config.Formatter, FormatterConfig{IsDefault: false, PackageName: packageOfFormatter})
 			formatterIndex++
-			configureFormatterFromEnv(relevantEnvKeyValues, &config.Formatter[formatterIndex], packageOfFormatter)
+			configureFormatter(relevantKeyValues, &config.Formatter[formatterIndex], packageOfFormatter)
 		}
 	}
 }
 
-// configures a given formatter config element from environment variables concerning a given package name
-func configureFormatterFromEnv(relevantEnvKeyValues *map[string]string, formatterConfig *FormatterConfig, packageName string) {
-	var formatterEnvKey string
-	var formatterParameterEnvKey string
+// configures a given formatter config element from properties concerning a given package name
+func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *FormatterConfig, packageName string) {
+	var formatterKey string
+	var formatterParameterKey string
 	if len(packageName) > 0 {
-		formatterEnvKey = PACKAGE_LOG_FORMATTER_ENV_NAME + packageName
-		formatterParameterEnvKey = PACKAGE_LOG_FORMATTER_PARAMETER_ENV_NAME + packageName
+		formatterKey = PACKAGE_LOG_FORMATTER_PROPERTY_NAME + packageName
+		formatterParameterKey = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + packageName
 	} else {
-		formatterEnvKey = DEFAULT_LOG_FORMATTER_ENV_NAME
-		formatterParameterEnvKey = DEFAULT_LOG_FORMATTER_PARAMETER_ENV_NAME
+		formatterKey = DEFAULT_LOG_FORMATTER_PROPERTY_NAME
+		formatterParameterKey = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
 	}
 
-	formatterName := getValueFromMapOrDefault(relevantEnvKeyValues, formatterEnvKey, FORMATTER_DELIMITER)
+	formatterName := getValueFromMapOrDefault(relevantKeyValues, formatterKey, FORMATTER_DELIMITER)
 	switch formatterName {
 	case FORMATTER_DELIMITER:
 		formatterConfig.FormatterType = formatterName
-		formatterConfig.Delimiter = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey, DEFAULT_DELIMITER)
+		formatterConfig.Delimiter = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey, DEFAULT_DELIMITER)
 	case FORMATTER_TEMPLATE:
 		formatterConfig.FormatterType = formatterName
-		formatterConfig.Template = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_1", DEFAULT_TEMPLATE)
-		formatterConfig.CorrelationIdTemplate = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_2", DEFAULT_CORRELATION_TEMPLATE)
-		formatterConfig.CustomTemplate = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_3", DEFAULT_CUSTOM_TEMPLATE)
-		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_4", DEFAULT_TIME_LAYOUT)
+		formatterConfig.Template = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_1", DEFAULT_TEMPLATE)
+		formatterConfig.CorrelationIdTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_2", DEFAULT_CORRELATION_TEMPLATE)
+		formatterConfig.CustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_3", DEFAULT_CUSTOM_TEMPLATE)
+		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_4", DEFAULT_TIME_LAYOUT)
 	case FORMATTER_JSON:
 		formatterConfig.FormatterType = formatterName
-		formatterConfig.TimeKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_1", DEFAULT_TIME_KEY)
-		formatterConfig.SeverityKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_2", DEFAULT_SEVERITY_KEY)
-		formatterConfig.CorrelationKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_3", DEFAULT_CORRELATION_KEY)
-		formatterConfig.MessageKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_4", DEFAULT_MESSAGE_KEY)
-		formatterConfig.CustomValuesKey = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_5", DEFAULT_CUSTOM_VALUES_KEY)
-		formatterConfig.CustomValuesAsSubElement = strings.ToLower(getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_6", DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true"
-		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantEnvKeyValues, formatterParameterEnvKey+"_7", DEFAULT_TIME_LAYOUT)
+		formatterConfig.TimeKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_1", DEFAULT_TIME_KEY)
+		formatterConfig.SeverityKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_2", DEFAULT_SEVERITY_KEY)
+		formatterConfig.CorrelationKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_3", DEFAULT_CORRELATION_KEY)
+		formatterConfig.MessageKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_4", DEFAULT_MESSAGE_KEY)
+		formatterConfig.CustomValuesKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_5", DEFAULT_CUSTOM_VALUES_KEY)
+		formatterConfig.CustomValuesAsSubElement = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_6", DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true"
+		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_7", DEFAULT_TIME_LAYOUT)
 	default:
-		printHint(formatterName, formatterEnvKey, "formatter")
+		printHint(formatterName, formatterKey)
 	}
 }
 
-// creates all relevant logger config elements derived from relevant environment variables
-func createLoggerConfigFromEnv(relevantEnvKeyValues *map[string]string) {
+// creates all relevant logger config elements derived from relevant properties
+func createLoggerConfig(relevantKeyValues *map[string]string) {
 	config.Logger = append(config.Logger, LoggerConfig{IsDefault: true, PackageName: ""})
 	loggerIndex := len(config.Logger) - 1
-	configureLoggerFromEnv(relevantEnvKeyValues, &config.Logger[loggerIndex], "")
+	configureLogger(relevantKeyValues, &config.Logger[loggerIndex], "")
 
-	for key, _ := range *relevantEnvKeyValues {
-		packageOfLogger, found := strings.CutPrefix(key, PACKAGE_LOG_LEVEL_ENV_NAME)
+	for key, _ := range *relevantKeyValues {
+		packageOfLogger, found := strings.CutPrefix(key, PACKAGE_LOG_LEVEL_PROPERTY_NAME)
 		if found {
 			config.Logger = append(config.Logger, LoggerConfig{IsDefault: false, PackageName: packageOfLogger})
 			loggerIndex++
-			configureLoggerFromEnv(relevantEnvKeyValues, &config.Logger[loggerIndex], packageOfLogger)
+			configureLogger(relevantKeyValues, &config.Logger[loggerIndex], packageOfLogger)
 		}
 	}
 }
 
-// configures a given logger config element from environment variables concerning a given package name
-func configureLoggerFromEnv(relevantEnvKeyValues *map[string]string, loggerConfig *LoggerConfig, packageName string) {
-	var formatterEnvKey string
+// configures a given logger config element from properties concerning a given package name
+func configureLogger(relevantKeyValues *map[string]string, loggerConfig *LoggerConfig, packageName string) {
+	var formatterKey string
 	if len(packageName) > 0 {
-		formatterEnvKey = PACKAGE_LOG_LEVEL_ENV_NAME + packageName
+		formatterKey = PACKAGE_LOG_LEVEL_PROPERTY_NAME + packageName
 	} else {
-		formatterEnvKey = DEFAULT_LOG_LEVEL_ENV_NAME
+		formatterKey = DEFAULT_LOG_LEVEL_PROPERTY_NAME
 	}
 
-	loglevel := getValueFromMapOrDefault(relevantEnvKeyValues, formatterEnvKey, LOG_LEVEL_ERROR)
+	loglevel := getValueFromMapOrDefault(relevantKeyValues, formatterKey, LOG_LEVEL_ERROR)
 	severity, found := SeverityLevelMap[loglevel]
 	if !found {
 		severity = constants.ERROR_SEVERITY
@@ -363,8 +367,8 @@ func getValueFromMapOrDefault(source *map[string]string, key string, defaultValu
 	return defaultValue
 }
 
-func printHint(propertyName string, propertyEnvName string, objectType string) {
-	fmt.Println("Unkown", objectType, propertyName, "for logger at env variable", propertyEnvName)
+func printHint(propertyName string, objectType string) {
+	fmt.Println("Unkown \"", objectType, "\" value at property", propertyName)
 }
 
 // creates default configs if missing and adds package specfic copies of defaults if at least one of the other config types exists as package variant

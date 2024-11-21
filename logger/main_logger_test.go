@@ -18,8 +18,8 @@ var testMainPackageLogger CommonLogger
 var mainLogger MainLogger
 
 func clearMainLoggerTestEnv() {
-	os.Unsetenv(config.DEFAULT_LOG_LEVEL_ENV_NAME)
-	os.Unsetenv(config.DEFAULT_LOG_LEVEL_ENV_NAME + "_LOGGER")
+	os.Unsetenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME)
+	os.Unsetenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME + "_LOGGER")
 }
 
 func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, packageName string) {
