@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ma-vin/typewriter/appender"
+	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/testutil"
 )
 
@@ -17,8 +18,8 @@ var testMainPackageLogger CommonLogger
 var mainLogger MainLogger
 
 func clearMainLoggerTestEnv() {
-	os.Unsetenv(DEFAULT_LOG_LEVEL_ENV_NAME)
-	os.Unsetenv(DEFAULT_LOG_LEVEL_ENV_NAME + "_LOGGER")
+	os.Unsetenv(config.DEFAULT_LOG_LEVEL_ENV_NAME)
+	os.Unsetenv(config.DEFAULT_LOG_LEVEL_ENV_NAME + "_LOGGER")
 }
 
 func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, packageName string) {
@@ -27,8 +28,8 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 	*testMainCommonLoggerAppender.(TestAppender).content = []string{}
 	*testMainPackageLoggerAppender.(TestAppender).content = []string{}
 
-	testMainCommonLogger = CreateCommonLogger(&testMainCommonLoggerAppender, severityLevelMap[envCommonLogLevel])
-	testMainPackageLogger = CreateCommonLogger(&testMainPackageLoggerAppender, severityLevelMap[envPackageLogLevel])
+	testMainCommonLogger = CreateCommonLogger(&testMainCommonLoggerAppender, config.SeverityLevelMap[envCommonLogLevel])
+	testMainPackageLogger = CreateCommonLogger(&testMainPackageLoggerAppender, config.SeverityLevelMap[envPackageLogLevel])
 
 	mockPanicAndExitAtCommonLogger = true
 	panicMockActivated = false

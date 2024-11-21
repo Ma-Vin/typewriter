@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ma-vin/typewriter/appender"
+	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/constants"
 	"github.com/ma-vin/typewriter/testutil"
 )
@@ -36,7 +37,7 @@ var testCommonLoggerCounterAppenderClosedExpected = 1
 
 func initTestCommonLogger(envLogLevel string) {
 	*testCommonLoggerAppender.(TestAppender).content = []string{}
-	determineSeverityByLevel(&testCommonLogger, severityLevelMap[envLogLevel])
+	determineSeverityByLevel(&testCommonLogger, config.SeverityLevelMap[envLogLevel])
 	mockPanicAndExitAtCommonLogger = true
 	panicMockActivated = false
 	exitMockAcitvated = false
