@@ -1,6 +1,5 @@
 [![Build and test](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml/badge.svg)](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml)
 
-
 # Typewriter
 
 This repository provides a GoLang logging package, which are inspired by some Log4j features like package specific enablement
@@ -32,7 +31,13 @@ In addition, there exists an indicator if the severity is enabled or not.
 
 ### Configuration
 
-Configuration is currently only possible via environment variables. In a later version, it should also be possible to refer to a configuration file.
+Configuration is currently possible via environment variables or an properties file.
+
+#### Configauration by file
+
+To use a configuration file by setting an environment variable `TYPEWRITER_CONFIG_FILE` with a path to a properties file.
+If this environment variable is set, all others will be ignored. Nevertheless, the same property names are used by both.
+It is possible to use single line comments `#`,`//` or `--` and multiline commets with begin at `/*` and end at `*/`.
 
 #### Log levels
 

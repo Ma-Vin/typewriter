@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
@@ -8,10 +9,6 @@ import (
 
 	"github.com/ma-vin/typewriter/constants"
 )
-
-type ConfigType interface {
-	LoggerConfig | AppenderConfig | FormatterConfig
-}
 
 // root config element
 type Config struct {
@@ -69,7 +66,7 @@ const (
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME           = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
 
-	DEFAULT_LOG_CONFIG_FILE_ENV_NAME = "TYPEWRITER_CONFIG_FILE"
+	LOG_CONFIG_FILE_ENV_NAME = "TYPEWRITER_CONFIG_FILE"
 
 	LOG_LEVEL_DEBUG       = "DEBUG"
 	LOG_LEVEL_INFO        = "INFO"
@@ -119,17 +116,20 @@ func GetConfig() *Config {
 	}
 
 	config = Config{}
-	if deriveConfigFromFile() {
-		// not supported yet
-		fmt.Println("Logger configuration is not yet supported:", DEFAULT_LOG_CONFIG_FILE_ENV_NAME, os.Getenv(DEFAULT_LOG_CONFIG_FILE_ENV_NAME))
-		return nil
-	} else if deriveConfigFromEnv() {
-		relevantEnvKeyValues := determineRelevantEnvKeyValues()
-		createFormatterConfig(&relevantEnvKeyValues)
-		createAppenderConfig(&relevantEnvKeyValues)
-		createLoggerConfig(&relevantEnvKeyValues)
-	}
+	var relevantKeyValues map[string]string
 
+	if deriveConfigFromFile() {
+		relevantKeyValues = determineRelevantPropertyFileKeyValues()
+	} else if deriveConfigFromEnv() {
+		relevantKeyValues = determineRelevantEnvKeyValues()
+	} else {
+		relevantKeyValues = map[string]string{}
+	}
+	if len(relevantKeyValues) > 0 {
+		createFormatterConfig(&relevantKeyValues)
+		createAppenderConfig(&relevantKeyValues)
+		createLoggerConfig(&relevantKeyValues)
+	}
 	completeConfig()
 
 	configInitialized = true
@@ -161,7 +161,7 @@ func LoggerConfigEquals(lc1 *LoggerConfig, lc2 *LoggerConfig) bool {
 
 // Checks whether the environment variable of the config is empty or not
 func deriveConfigFromFile() bool {
-	return existsAnyAtEnv(DEFAULT_LOG_CONFIG_FILE_ENV_NAME)
+	return existsAnyAtEnv(LOG_CONFIG_FILE_ENV_NAME)
 }
 
 // Checks whether any environment variable of a severity log level is set
@@ -195,11 +195,44 @@ func existsAnyPrefixAtEnv(envNames ...string) bool {
 	return false
 }
 
-// Determines a reduced slice of key-value pairs, which only contains relevant keys and non empty values
+// Determines a reduced map of key-value pairs from enironment, which only contains relevant keys and non empty values
 func determineRelevantEnvKeyValues() map[string]string {
 	return createMapFromSliceWithKeyValues(os.Environ())
 }
 
+// Determines a reduced map of key-value pairs from property file, which only contains relevant keys and non empty values
+func determineRelevantPropertyFileKeyValues() map[string]string {
+	pathToFile := os.Getenv(LOG_CONFIG_FILE_ENV_NAME)
+	propertiesFile, err := os.Open(pathToFile)
+	if err != nil {
+		fmt.Printf("Failed to load configuration file defined by enironment variable %s with value \"%s\". Use default config instead", LOG_CONFIG_FILE_ENV_NAME, pathToFile)
+		fmt.Println()
+	}
+	defer propertiesFile.Close()
+
+	fileContent := []string{}
+	scanner := bufio.NewScanner(propertiesFile)
+	multilineCommentOpen := false
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if multilineCommentOpen && strings.Contains(line, "*/") {
+			multilineCommentOpen = false
+			continue
+		}
+		if multilineCommentOpen || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "//") || strings.HasPrefix(line, "--") {
+			continue
+		}
+		if strings.HasPrefix(line, "/*") {
+			multilineCommentOpen = !strings.HasSuffix(line, "*/")
+			continue
+		}
+		fileContent = append(fileContent, line)
+	}
+	return createMapFromSliceWithKeyValues(fileContent)
+}
+
+// creates a map with the relevant key and values from a given slice
+// The key will be compared after transforming in upper way and the keys at result map will be upper case also.
 func createMapFromSliceWithKeyValues(sliceToConvert []string) map[string]string {
 	result := make(map[string]string, len(sliceToConvert))
 
@@ -211,7 +244,7 @@ func createMapFromSliceWithKeyValues(sliceToConvert []string) map[string]string 
 	for _, entry := range sliceToConvert {
 		keyValue := strings.SplitN(entry, "=", 2)
 		if len(keyValue) == 2 && strings.TrimSpace(keyValue[1]) != "" {
-			key := strings.ToUpper(keyValue[0])
+			key := strings.ToUpper(strings.TrimSpace(keyValue[0]))
 			for _, keyPrefix := range relevantKeyPrefixes {
 				if strings.HasPrefix(key, keyPrefix) {
 					result[key] = strings.TrimSpace(keyValue[1])
@@ -230,7 +263,7 @@ func createAppenderConfig(relevantKeyValues *map[string]string) {
 	appenderIndex := len(config.Appender) - 1
 	configureAppender(relevantKeyValues, &config.Appender[appenderIndex], "")
 
-	for key, _ := range *relevantKeyValues {
+	for key := range *relevantKeyValues {
 		packageOfAppender, found := strings.CutPrefix(key, PACKAGE_LOG_APPENDER_PROPERTY_NAME)
 		if found {
 			config.Appender = append(config.Appender, AppenderConfig{IsDefault: false, PackageName: packageOfAppender})
@@ -278,7 +311,7 @@ func createFormatterConfig(relevantKeyValues *map[string]string) {
 	formatterIndex := len(config.Formatter) - 1
 	configureFormatter(relevantKeyValues, &config.Formatter[formatterIndex], "")
 
-	for key, _ := range *relevantKeyValues {
+	for key := range *relevantKeyValues {
 		packageOfFormatter, found := strings.CutPrefix(key, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
 		if found {
 			config.Formatter = append(config.Formatter, FormatterConfig{IsDefault: false, PackageName: packageOfFormatter})
@@ -331,7 +364,7 @@ func createLoggerConfig(relevantKeyValues *map[string]string) {
 	loggerIndex := len(config.Logger) - 1
 	configureLogger(relevantKeyValues, &config.Logger[loggerIndex], "")
 
-	for key, _ := range *relevantKeyValues {
+	for key := range *relevantKeyValues {
 		packageOfLogger, found := strings.CutPrefix(key, PACKAGE_LOG_LEVEL_PROPERTY_NAME)
 		if found {
 			config.Logger = append(config.Logger, LoggerConfig{IsDefault: false, PackageName: packageOfLogger})
