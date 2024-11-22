@@ -74,7 +74,7 @@ There are three types of formatter which provides the texts to log for the appen
   4. time layout. Default value of `time.RFC3339`
 
   It is possible to reorder parameter by argument indices. The *custom value map* at *3* will be appended as key-value-pairs sorted by key (e.g. a custom map with three entries of string, number and boolean format at indices from 4 to 9: `severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s`)
-* `JSON`: The records will be logged as *JSON*. It is possible to define key names, the time layout and if the custom value map should be a sub element or not. The keys of the custom value map will be used 1:1. The properties can be set via `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>`has to be replaced by the following integers.
+* `JSON`: The records will be logged as *JSON*. It is possible to define key names, the time layout and if the custom value map should be a sub element or not. The keys of the custom value map will be used 1:1. The properties can be set via `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>` has to be replaced by the following integers.
   1. key of time. Default `time`
   2. key of severity. Default: `severity`
   3. key of correlationID. Default: `correlation`
