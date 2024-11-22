@@ -1,3 +1,5 @@
+// This package provides the accessor [pkg/github.com/ma-vin/typewriter/logger.Log] to get the relevant logger,
+// which provides all logging functions by implementing the interface [pkg/github.com/ma-vin/typewriter/logger.Logger]
 package logger
 
 type Logger interface {

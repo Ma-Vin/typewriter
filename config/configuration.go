@@ -1,3 +1,4 @@
+// This package provides functions to derive configuration from environment variables or configuration files
 package config
 
 import (
@@ -99,6 +100,7 @@ const (
 var configInitialized = false
 var config Config
 
+// Mapping external severity levels to internal ids
 var SeverityLevelMap = map[string]int{
 	LOG_LEVEL_DEBUG:       constants.DEBUG_SEVERITY,
 	LOG_LEVEL_INFO:        constants.INFORMATION_SEVERITY,

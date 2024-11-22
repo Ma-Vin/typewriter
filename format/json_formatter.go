@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Formats the log entries as JSON
 type JsonFormatter struct {
 	timeKey                  string
 	severityKey              string
@@ -30,6 +31,7 @@ func CreateJsonFormatter(timeKey string, severityKey string, messageKey string, 
 	}
 }
 
+// Formats the given parameter to a string to log
 func (j JsonFormatter) Format(severity int, message string) string {
 	return fmt.Sprintf("{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\" }",
 		j.timeKey, getNowAsStringFromLayout(j.timeLayout),
@@ -37,6 +39,7 @@ func (j JsonFormatter) Format(severity int, message string) string {
 		j.messageKey, message)
 }
 
+// Formats the given default parameter and a correlation id to a string to log
 func (j JsonFormatter) FormatWithCorrelation(severity int, correlationId string, message string) string {
 	return fmt.Sprintf("{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\" }",
 		j.timeKey, getNowAsStringFromLayout(j.timeLayout),
@@ -45,6 +48,7 @@ func (j JsonFormatter) FormatWithCorrelation(severity int, correlationId string,
 		j.messageKey, message)
 }
 
+// Formats the given parameter to a string to log and the customValues will be added at the end
 func (j JsonFormatter) FormatCustom(severity int, message string, customValues map[string]any) string {
 
 	if j.customValuesAsSubElement {

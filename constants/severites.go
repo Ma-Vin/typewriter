@@ -1,3 +1,4 @@
+// This package contains constants which are are used in several packages
 package constants
 
 const (

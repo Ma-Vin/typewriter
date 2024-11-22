@@ -10,15 +10,11 @@ import (
 //
 // The arguments of the templates will be passed in the following order (paramter skipped if not relevant)
 //
-// 1. time (derived by [time.Format] with timeLayout parameter)
-//
-// 2. severity
-//
-// 3. correlationId
-//
-// 4. message
-//
-// 5. custom values as key-value pairs sorted by key
+//  1. time (derived by [time.Format] with timeLayout parameter)
+//  2. severity
+//  3. correlationId
+//  4. message
+//  5. custom values as key-value pairs sorted by key
 //
 // Because of explicit argument indices can be used at templates
 type TemplateFormatter struct {
@@ -38,14 +34,17 @@ func CreateTemplateFormatter(template string, correlationIdTemplate string, cust
 	}
 }
 
+// Formats the given parameter to a string to log
 func (t TemplateFormatter) Format(severity int, message string) string {
 	return formatValues(t.template, getNowAsStringFromLayout(t.timeLayout), severityTextMap[severity], message)
 }
 
+// Formats the given default parameter and a correlation id to a string to log
 func (t TemplateFormatter) FormatWithCorrelation(severity int, correlationId string, message string) string {
 	return formatValues(t.correlationIdTemplate, getNowAsStringFromLayout(t.timeLayout), severityTextMap[severity], correlationId, message)
 }
 
+// Formats the given parameter to a string to log and the customValues will be added at the end
 func (t TemplateFormatter) FormatCustom(severity int, message string, customValues map[string]any) string {
 	args := make([]any, 0, 2*len(customValues)+3)
 

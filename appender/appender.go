@@ -1,5 +1,7 @@
+// This package provides appender to delegate messages to their target
 package appender
 
+// Interface to delegate messages to their target
 type Appender interface {
 	// Writes the given message
 	Write(severity int, message string)

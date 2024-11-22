@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Formatter which append given parameter with a delimter. Since name the of the parameter meter will not be contained, the keys of customValues at FormatCustom neither.
+// Formatter which append given parameter with a delimter. Since name the of the parameter will not be contained, the keys of customValues at FormatCustom neither.
 type DelimiterFormatter struct {
 	delimiter string
 }
@@ -16,14 +16,17 @@ func CreateDelimiterFormatter(delimiter string) Formatter {
 	return DelimiterFormatter{delimiter}
 }
 
+// Formats the given parameter to a string to log
 func (d DelimiterFormatter) Format(severity int, message string) string {
 	return concatWithDelimiter(&d.delimiter, getNowAsStringDefaultLayout(), severityTextMap[severity], message)
 }
 
+// Formats the given default parameter and a correlation id to a string to log
 func (d DelimiterFormatter) FormatWithCorrelation(severity int, correlationId string, message string) string {
 	return concatWithDelimiter(&d.delimiter, getNowAsStringDefaultLayout(), severityTextMap[severity], correlationId, message)
 }
 
+// Formats the given parameter to a string to log and the customValues will be added at the end
 func (d DelimiterFormatter) FormatCustom(severity int, message string, customValues map[string]any) string {
 	return concatWithDelimiter(&d.delimiter, getNowAsStringDefaultLayout(), severityTextMap[severity], message, formatMapToString(&customValues, &d.delimiter))
 }

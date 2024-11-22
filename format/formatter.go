@@ -1,3 +1,4 @@
+// This package provides formatter to transform log parameter to an entry
 package format
 
 import (
@@ -16,12 +17,13 @@ const (
 	FATAL_PREFIX            string = "FATAL"
 )
 
+// Interface to format severity, message, correlationId and customValues
 type Formatter interface {
 	// Formats the given parameter to a string to log
 	Format(severity int, message string) string
 	// Formats the given default parameter and a correlation id to a string to log
 	FormatWithCorrelation(severity int, correlationId string, message string) string
-	// Formats the given parameter to a string to log and he customValues will be added at the end
+	// Formats the given parameter to a string to log and the customValues will be added at the end
 	FormatCustom(severity int, message string, customValues map[string]any) string
 }
 
@@ -51,7 +53,7 @@ func getNowAsStringFromLayout(template string) string {
 	return timeToFormat.Local().Format(template)
 }
 
-// Sets constant mock time. If this parameter is nil [time.Now] will be calculated
+// For test usage only! Sets constant mock time. If this parameter is nil [time.Now] will be calculated
 func SetFormatterMockTime(mockTime *time.Time) {
 	formatterMockTime = mockTime
 }
