@@ -34,6 +34,7 @@ func (s StandardOutputAppender) WriteCustom(severity int, message string, custom
 	fmt.Fprintln(s.writer, (*s.formatter).FormatCustom(severity, message, customValues))
 }
 
-// Nothing to do. Closing os.Stdout may cause errors elsewhere: See documentation of os.Stdout
+// Does nothing, but has to be declared to fullfill the interface
 func (s StandardOutputAppender) Close() {
+	// Nothing to do. Closing os.Stdout may cause errors elsewhere: See documentation of os.Stdout
 }
