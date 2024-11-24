@@ -33,7 +33,7 @@ func TestFileAppenderWrite(t *testing.T) {
 	appender.Write(constants.INFORMATION_SEVERITY, "Testmessage")
 	appender.Close()
 
-	checkLogFileEntry(logFilePath, "{ \"time\": \""+jsonFormatTestTimeText+"\", \"severity\": \"INFO\", \"message\": \"Testmessage\" }", t)
+	checkLogFileEntry(logFilePath, "{\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
 }
 
 func TestFileAppenderWriteWithCorrelation(t *testing.T) {
@@ -44,7 +44,7 @@ func TestFileAppenderWriteWithCorrelation(t *testing.T) {
 	appender.WriteWithCorrelation(constants.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
 	appender.Close()
 
-	checkLogFileEntry(logFilePath, "{ \"time\": \""+jsonFormatTestTimeText+"\", \"severity\": \"INFO\", \"correlation\": \"someCorrelationId\", \"message\": \"Testmessage\" }", t)
+	checkLogFileEntry(logFilePath, "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
 }
 
 func TestFileAppenderWriteCustom(t *testing.T) {
@@ -59,7 +59,7 @@ func TestFileAppenderWriteCustom(t *testing.T) {
 	appender.WriteCustom(constants.INFORMATION_SEVERITY, "Testmessage", customProperties)
 	appender.Close()
 
-	checkLogFileEntry(logFilePath, "{ \"time\": \""+jsonFormatTestTimeText+"\", \"severity\": \"INFO\", \"message\": \"Testmessage\", \"first\": \"abc\" }", t)
+	checkLogFileEntry(logFilePath, "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
 }
 
 func checkLogFileEntry(logFilePath string, entry string, t *testing.T) {

@@ -2,6 +2,7 @@ package format
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -33,64 +34,79 @@ func CreateJsonFormatter(timeKey string, severityKey string, messageKey string, 
 
 // Formats the given parameter to a string to log
 func (j JsonFormatter) Format(severity int, message string) string {
-	return fmt.Sprintf("{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\" }",
-		j.timeKey, getNowAsStringFromLayout(j.timeLayout),
-		j.severityKey, severityTrimTextMap[severity],
-		j.messageKey, message)
+	return j.formatJsonEntriesMap(j.createJsonEntriesMap(3, severity, "", message))
 }
 
 // Formats the given default parameter and a correlation id to a string to log
 func (j JsonFormatter) FormatWithCorrelation(severity int, correlationId string, message string) string {
-	return fmt.Sprintf("{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\" }",
-		j.timeKey, getNowAsStringFromLayout(j.timeLayout),
-		j.severityKey, severityTrimTextMap[severity],
-		j.correlationKey, correlationId,
-		j.messageKey, message)
+	return j.formatJsonEntriesMap(j.createJsonEntriesMap(4, severity, correlationId, message))
 }
 
-// Formats the given parameter to a string to log and the customValues will be added at the end
+// Formats the given parameter to a string to log and the customValues will be added
 func (j JsonFormatter) FormatCustom(severity int, message string, customValues map[string]any) string {
-
+	var jsonEntries *map[string]any
 	if j.customValuesAsSubElement {
-		return fmt.Sprintf("{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": { %s } }",
-			j.timeKey, getNowAsStringFromLayout(j.timeLayout),
-			j.severityKey, severityTrimTextMap[severity],
-			j.messageKey, message,
-			j.customValuesKey, formatCustomValuesToJson(&customValues))
+		jsonEntries = j.createJsonEntriesMap(4, severity, "", message)
+		(*jsonEntries)[j.customValuesKey] = customValues
+	} else {
+		jsonEntries = j.createJsonEntriesMap(3+len(customValues), severity, "", message)
+		for k, v := range customValues {
+			(*jsonEntries)[k] = v
+		}
 	}
 
-	return fmt.Sprintf("{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\", %s }",
-		j.timeKey, getNowAsStringFromLayout(j.timeLayout),
-		j.severityKey, severityTrimTextMap[severity],
-		j.messageKey, message,
-		formatCustomValuesToJson(&customValues))
+	return j.formatJsonEntriesMap(jsonEntries)
 }
 
-func formatCustomValuesToJson(customValues *map[string]any) string {
-	var customValuesBuffer bytes.Buffer
-	addComma := false
-	for key, value := range *customValues {
-		if addComma {
-			customValuesBuffer.WriteString(", ")
-		}
-		customValuesBuffer.WriteString(fmt.Sprintf("\"%s\": ", key))
-		switch value.(type) {
-		case bool:
-			customValuesBuffer.WriteString(fmt.Sprintf("%t", value))
-		// case uint8: equal to byte
-		case byte, int, int8, int16, int32, int64, uint, uint16, uint32, uint64:
-			customValuesBuffer.WriteString(fmt.Sprintf("%d", value))
-		case float32, float64:
-			customValuesBuffer.WriteString(fmt.Sprintf("%g", value))
-		case complex64, complex128:
-			customValuesBuffer.WriteString(fmt.Sprintf("%g", value))
-		case string:
-			customValuesBuffer.WriteString(fmt.Sprintf("\"%s\"", value))
-		default:
-			customValuesBuffer.WriteString(fmt.Sprintf("\"%v\"", value))
-		}
-		addComma = true
+func (j *JsonFormatter) formatJsonEntriesMap(jsonEntries *map[string]any) string {
+	jsonByteArray, err := json.Marshal(jsonEntries)
+
+	if err != nil {
+		return j.formatWithError(jsonEntries, err)
 	}
 
-	return customValuesBuffer.String()
+	return string(jsonByteArray)
+}
+
+func (j *JsonFormatter) createJsonEntriesMap(capacity int, severity int, correlationId string, message string) *map[string]any {
+	result := make(map[string]any, capacity)
+
+	if correlationId != "" {
+		result[j.correlationKey] = correlationId
+	}
+
+	result[j.timeKey] = getNowAsStringFromLayout(j.timeLayout)
+	result[j.severityKey] = severityTrimTextMap[severity]
+	result[j.messageKey] = message
+
+	return &result
+}
+
+func (j *JsonFormatter) formatWithError(jsonEntries *map[string]any, err error) string {
+	buf := new(bytes.Buffer)
+	fmt.Fprint(buf, "{")
+
+	correlationId, correlationFound := (*jsonEntries)[j.correlationKey]
+	if correlationFound {
+		fmt.Fprintf(buf, "\"%s\":\"%s\",", j.correlationKey, correlationId)
+
+	}
+	fmt.Fprintf(buf, "\"%s\":\"%s: %v\",\"%s\":\"%s\",\"%s\":\"%s\"}",
+		j.messageKey, "Fail to marshal to json, use custom formatter", err,
+		j.severityKey, ERROR_PREFIX,
+		j.timeKey, (*jsonEntries)[j.timeKey])
+
+	fmt.Fprintln(buf)
+
+	fmt.Fprint(buf, "{")
+	if correlationFound {
+		fmt.Fprintf(buf, "\"%s\":\"%s\",", j.correlationKey, correlationId)
+
+	}
+	fmt.Fprintf(buf, "\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}",
+		j.messageKey, (*jsonEntries)[j.messageKey],
+		j.severityKey, (*jsonEntries)[j.severityKey],
+		j.timeKey, (*jsonEntries)[j.timeKey])
+
+	return buf.String()
 }
