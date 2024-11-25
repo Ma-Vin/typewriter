@@ -13,13 +13,15 @@ var templateFormatter Formatter = CreateTemplateFormatter(
 	"time: %s severity: %s message: %s",
 	"time: %s severity: %s correlation: %s message: %s",
 	"time: %s severity: %s message: %s %s: %s %s: %d %s: %t",
-	time.RFC1123Z)
+	time.RFC1123Z,
+	false)
 
 var templateFormatterOrder Formatter = CreateTemplateFormatter(
 	"severity: %[2]s message: %[3]s time: %[1]s",
 	"severity: %[2]s correlation: %[3]s message: %[4]s time: %[1]s",
 	"severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s",
-	time.RFC1123Z)
+	time.RFC1123Z,
+	false)
 
 var templateFormatTestTime = time.Date(2024, time.November, 1, 20, 15, 0, 0, time.UTC)
 var templateFormatTestTimeText = templateFormatTestTime.Local().Format(time.RFC1123Z)
@@ -117,7 +119,8 @@ func TestTemplateFormatCustomDefaultFormat(t *testing.T) {
 		"time: %s severity: %s message: %s",
 		"time: %s severity: %s correlation: %s message: %s",
 		DEFAULT_TEMPLATE,
-		time.RFC1123Z)
+		time.RFC1123Z,
+		false)
 
 	customProperties := map[string]any{
 		"first":  "abc",
@@ -157,5 +160,29 @@ func TestTemplateFormatCustomOrder(t *testing.T) {
 
 	for severity, expexpectedMessage := range expectedResults {
 		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.FormatCustom(severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
+	}
+}
+
+
+func TestTemplateFormatTrimSeverity(t *testing.T) {
+	formatterMockTime = &templateFormatTestTime
+
+	var templateFormatterTrim Formatter = CreateTemplateFormatter(
+		"time: %s severity: %s message: %s",
+		"time: %s severity: %s correlation: %s message: %s",
+		"time: %s severity: %s message: %s %s: %s %s: %d %s: %t",
+		time.RFC1123Z,
+		true)
+
+	expectedResults := map[int]string{
+		constants.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG message: Testmessage",
+		constants.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: INFO message: Testmessage",
+		constants.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: WARN message: Testmessage",
+		constants.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: ERROR message: Testmessage",
+		constants.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage",
+	}
+
+	for severity, expexpectedMessage := range expectedResults {
+		testutil.AssertEquals(expexpectedMessage, templateFormatterTrim.Format(severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }

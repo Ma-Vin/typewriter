@@ -24,26 +24,28 @@ type TemplateFormatter struct {
 	correlationIdTemplate string
 	customTemplate        string
 	timeLayout            string
+	trimSeverityText      bool
 }
 
 // Creates a new formater with given templates and time layout
-func CreateTemplateFormatter(template string, correlationIdTemplate string, customTemplate string, timeLayout string) Formatter {
+func CreateTemplateFormatter(template string, correlationIdTemplate string, customTemplate string, timeLayout string, trimSeverityText bool) Formatter {
 	return TemplateFormatter{
 		template:              template,
 		correlationIdTemplate: correlationIdTemplate,
 		customTemplate:        customTemplate,
 		timeLayout:            timeLayout,
+		trimSeverityText:      trimSeverityText,
 	}
 }
 
 // Formats the given parameter to a string to log
 func (t TemplateFormatter) Format(severity int, message string) string {
-	return formatValues(t.template, getNowAsStringFromLayout(t.timeLayout), severityTextMap[severity], message)
+	return formatValues(t.template, getNowAsStringFromLayout(t.timeLayout), t.getSeverityText(severity), message)
 }
 
 // Formats the given default parameter and a correlation id to a string to log
 func (t TemplateFormatter) FormatWithCorrelation(severity int, correlationId string, message string) string {
-	return formatValues(t.correlationIdTemplate, getNowAsStringFromLayout(t.timeLayout), severityTextMap[severity], correlationId, message)
+	return formatValues(t.correlationIdTemplate, getNowAsStringFromLayout(t.timeLayout), t.getSeverityText(severity), correlationId, message)
 }
 
 // Formats the given parameter to a string to log and the customValues will be added at the end
@@ -56,11 +58,18 @@ func (t TemplateFormatter) FormatCustom(severity int, message string, customValu
 	args := make([]any, 0, 2*len(customValues)+3)
 
 	args = append(args, getNowAsStringFromLayout(t.timeLayout))
-	args = append(args, severityTextMap[severity])
+	args = append(args, t.getSeverityText(severity))
 	args = append(args, message)
 	args = appendCustomValues(args, &customValues)
 
 	return formatValues(t.customTemplate, args...)
+}
+
+func (t *TemplateFormatter) getSeverityText(severity int) string {
+	if t.trimSeverityText {
+		return severityTrimTextMap[severity]
+	}
+	return severityTextMap[severity]
 }
 
 func formatValues(template string, args ...any) string {

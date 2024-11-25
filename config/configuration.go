@@ -46,6 +46,7 @@ type FormatterConfig struct {
 	Template                 string
 	CorrelationIdTemplate    string
 	CustomTemplate           string
+	TrimSeverityText         bool
 	TimeKey                  string
 	SeverityKey              string
 	MessageKey               string
@@ -89,6 +90,7 @@ const (
 	DEFAULT_TEMPLATE              = format.DEFAULT_TEMPLATE
 	DEFAULT_CORRELATION_TEMPLATE  = "[%s] %s %s: %s"
 	DEFAULT_CUSTOM_TEMPLATE       = DEFAULT_TEMPLATE
+	DEFAULT_TRIM_SEVERITY_TEXT    = "false"
 	DEFAULT_TIME_KEY              = "time"
 	DEFAULT_SEVERITY_KEY          = "severity"
 	DEFAULT_MESSAGE_KEY           = "message"
@@ -347,6 +349,7 @@ func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *F
 		formatterConfig.CorrelationIdTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_2", DEFAULT_CORRELATION_TEMPLATE)
 		formatterConfig.CustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_3", DEFAULT_CUSTOM_TEMPLATE)
 		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_4", DEFAULT_TIME_LAYOUT)
+		formatterConfig.TrimSeverityText = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_5", DEFAULT_TRIM_SEVERITY_TEXT)) == "true"
 	case FORMATTER_JSON:
 		formatterConfig.FormatterType = formatterName
 		formatterConfig.TimeKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_1", DEFAULT_TIME_KEY)

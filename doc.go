@@ -57,6 +57,7 @@ TEMPLATE: The records will be derived from three templates and time layout. They
  2. template for writing time, severity, correlationID and the message. Default “[%s] %s %s: %s”
  3. template for writing time, severity, message and custom value map. Default “[%s] %s: %s”
  4. time layout. Default value of [time.RFC3339]
+ 5. indicator wether to trim severity text or to add space at warn and info to algin following elements. Default “false”
 
 It is possible to reorder parameter by argument indices. The custom value map at 3 will be appended as key-value-pairs sorted by key
 (e.g. a custom map with three entries of string, number and boolean format at indices from 4 to 9: “severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s”)

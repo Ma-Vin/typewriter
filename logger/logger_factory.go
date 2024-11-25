@@ -56,7 +56,7 @@ func createFormatters(formatterConfigs *[]config.FormatterConfig, formatterConfi
 			appendFormatter(format.CreateDelimiterFormatter(fc1.Delimiter))
 			setLastFormatter(fc1.Id, formatterConfigMapping)
 		case config.FORMATTER_TEMPLATE:
-			appendFormatter(format.CreateTemplateFormatter(fc1.Template, fc1.CorrelationIdTemplate, fc1.CustomTemplate, fc1.TimeLayout))
+			appendFormatter(format.CreateTemplateFormatter(fc1.Template, fc1.CorrelationIdTemplate, fc1.CustomTemplate, fc1.TimeLayout, fc1.TrimSeverityText))
 			setLastFormatter(fc1.Id, formatterConfigMapping)
 		case config.FORMATTER_JSON:
 			appendFormatter(format.CreateJsonFormatter(fc1.TimeKey, fc1.SeverityKey, fc1.MessageKey, fc1.CorrelationKey, fc1.CustomValuesKey, fc1.TimeLayout, fc1.CustomValuesAsSubElement))
