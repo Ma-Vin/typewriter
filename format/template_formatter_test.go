@@ -110,6 +110,34 @@ func TestTemplateFormatCustom(t *testing.T) {
 	}
 }
 
+func TestTemplateFormatCustomDefaultFormat(t *testing.T) {
+	formatterMockTime = &templateFormatTestTime
+
+	var templateFormatterDefaultCustom Formatter = CreateTemplateFormatter(
+		"time: %s severity: %s message: %s",
+		"time: %s severity: %s correlation: %s message: %s",
+		DEFAULT_TEMPLATE,
+		time.RFC1123Z)
+
+	customProperties := map[string]any{
+		"first":  "abc",
+		"third":  true,
+		"second": 1,
+	}
+
+	expectedResults := map[int]string{
+		constants.DEBUG_SEVERITY:       "[" + templateFormatTestTimeText + "] DEBUG: Testmessage [first]: abc [second]: 1 [third]: true",
+		constants.INFORMATION_SEVERITY: "[" + templateFormatTestTimeText + "] INFO : Testmessage [first]: abc [second]: 1 [third]: true",
+		constants.WARNING_SEVERITY:     "[" + templateFormatTestTimeText + "] WARN : Testmessage [first]: abc [second]: 1 [third]: true",
+		constants.ERROR_SEVERITY:       "[" + templateFormatTestTimeText + "] ERROR: Testmessage [first]: abc [second]: 1 [third]: true",
+		constants.FATAL_SEVERITY:       "[" + templateFormatTestTimeText + "] FATAL: Testmessage [first]: abc [second]: 1 [third]: true",
+	}
+
+	for severity, expexpectedMessage := range expectedResults {
+		testutil.AssertEquals(expexpectedMessage, templateFormatterDefaultCustom.FormatCustom(severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
+	}
+}
+
 func TestTemplateFormatCustomOrder(t *testing.T) {
 	formatterMockTime = &templateFormatTestTime
 

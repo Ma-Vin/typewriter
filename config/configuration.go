@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/format"
 )
 
 // root config element
@@ -85,7 +86,7 @@ const (
 	APPENDER_FILE   = "FILE"
 
 	DEFAULT_DELIMITER             = " - "
-	DEFAULT_TEMPLATE              = "[%s] %s: %s"
+	DEFAULT_TEMPLATE              = format.DEFAULT_TEMPLATE
 	DEFAULT_CORRELATION_TEMPLATE  = "[%s] %s %s: %s"
 	DEFAULT_CUSTOM_TEMPLATE       = DEFAULT_TEMPLATE
 	DEFAULT_TIME_KEY              = "time"

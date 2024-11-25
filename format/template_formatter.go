@@ -5,6 +5,8 @@ import (
 	"sort"
 )
 
+const DEFAULT_TEMPLATE = "[%s] %s: %s"
+
 // Formatter which uses given different templates for Format, FormatWithCorrelation and FormatCustom
 // The templates will be used in combination with [fmt.Sprintf]
 //
@@ -46,6 +48,11 @@ func (t TemplateFormatter) FormatWithCorrelation(severity int, correlationId str
 
 // Formats the given parameter to a string to log and the customValues will be added at the end
 func (t TemplateFormatter) FormatCustom(severity int, message string, customValues map[string]any) string {
+	if t.customTemplate == DEFAULT_TEMPLATE {
+		for i := 0; i < len(customValues); i++ {
+			t.customTemplate += " [%s]: %v"
+		}
+	}
 	args := make([]any, 0, 2*len(customValues)+3)
 
 	args = append(args, getNowAsStringFromLayout(t.timeLayout))
