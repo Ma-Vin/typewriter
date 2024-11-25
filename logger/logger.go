@@ -2,6 +2,8 @@
 // which provides all logging functions by implementing the interface [pkg/github.com/ma-vin/typewriter/logger.Logger]
 package logger
 
+import "github.com/ma-vin/typewriter/config"
+
 type Logger interface {
 
 	// Logs a message if debug level is enabled.
@@ -239,4 +241,10 @@ type Logger interface {
 // Returns a pointer to the main logger which provides all methods of the Logger interface
 func Log() Logger {
 	return getLoggers()
+}
+
+// Resets loggers. Configuration will be loaded and loggers will be created again
+func Reset() {
+	loggersInitialized = false
+	config.ClearConfig()
 }
