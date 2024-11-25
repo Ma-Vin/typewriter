@@ -83,8 +83,6 @@ There are three types of formatter which provides the texts to log for the appen
   5. key of custom values if used as sub elements. Default: `custom`
   6. indicator to add custom value map as sub element: Default: `false`
   7. time layout. Default value of `time.RFC3339`
-  
-  :warning: :construction: No escaping of special characters like `"` or `\` at the moment
 
 The default formatter is the delimiter one.
 
