@@ -105,4 +105,4 @@ The table shows the corresponding variable names for the example package *logger
 
 ## Examples
 
-:warning: :construction: tbd
+Examples are avialable at godoc [logger/example_test.go](logger/example_test.go)
