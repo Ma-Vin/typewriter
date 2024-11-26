@@ -11,7 +11,7 @@ import (
 )
 
 var jsonFormatTestTime = time.Date(2024, time.November, 15, 20, 00, 0, 0, time.UTC)
-var jsonFormatTestTimeText = jsonFormatTestTime.Local().Format(time.RFC3339Nano)
+var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 
 var jsonFormatter Formatter = CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, false)
 var jsonFormatterSub Formatter = CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, true)

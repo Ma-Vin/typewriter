@@ -15,7 +15,7 @@ import (
 
 var testJsonFormatter = format.CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339, false)
 var jsonFormatTestTime = time.Date(2024, time.November, 18, 16, 00, 0, 0, time.UTC)
-var jsonFormatTestTimeText = jsonFormatTestTime.Local().Format(time.RFC3339Nano)
+var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 
 func getAppenderTestLogFile(testCase string) string {
 	SkipFileCreationForTest = false

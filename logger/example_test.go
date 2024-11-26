@@ -23,8 +23,8 @@ func ExampleLog_withDefaultConfiguration() {
 	Log().Fatal("Fatal will be ", "printed")
 
 	// Output:
-	// 2024-11-25T09:30:00+01:00 - ERROR - Error will be printed
-	// 2024-11-25T09:30:00+01:00 - FATAL - Fatal will be printed
+	// 2024-11-25T08:30:00Z - ERROR - Error will be printed
+	// 2024-11-25T08:30:00Z - FATAL - Fatal will be printed
 }
 
 func ExampleLog_formatWithDefaultConfiguration() {
@@ -43,8 +43,8 @@ func ExampleLog_formatWithDefaultConfiguration() {
 	Log().Fatalf("Fatal %s %s %s", "will", "be", "printed")
 
 	// Output:
-	// 2024-11-25T09:30:00+01:00 - ERROR - Error will be printed
-	// 2024-11-25T09:30:00+01:00 - FATAL - Fatal will be printed
+	// 2024-11-25T08:30:00Z - ERROR - Error will be printed
+	// 2024-11-25T08:30:00Z - FATAL - Fatal will be printed
 }
 
 func ExampleLog_correlationIdWithDefaultConfiguration() {
@@ -63,8 +63,8 @@ func ExampleLog_correlationIdWithDefaultConfiguration() {
 	Log().FatalWithCorrelation("CorrelationId123", "Fatal will be printed")
 
 	// Output:
-	// 2024-11-25T09:30:00+01:00 - ERROR - CorrelationId123 - Error will be printed
-	// 2024-11-25T09:30:00+01:00 - FATAL - CorrelationId123 - Fatal will be printed
+	// 2024-11-25T08:30:00Z - ERROR - CorrelationId123 - Error will be printed
+	// 2024-11-25T08:30:00Z - FATAL - CorrelationId123 - Fatal will be printed
 }
 
 func ExampleLog_customValuesWithDefaultConfiguration() {
@@ -88,8 +88,8 @@ func ExampleLog_customValuesWithDefaultConfiguration() {
 	Log().FatalCustom(customValueMap, "Fatal will be printed")
 
 	// Output:
-	// 2024-11-25T09:30:00+01:00 - ERROR - Error will be printed - firstEntry - true - 1.2
-	// 2024-11-25T09:30:00+01:00 - FATAL - Fatal will be printed - firstEntry - true - 1.2
+	// 2024-11-25T08:30:00Z - ERROR - Error will be printed - firstEntry - true - 1.2
+	// 2024-11-25T08:30:00Z - FATAL - Fatal will be printed - firstEntry - true - 1.2
 }
 
 func ExampleLog_enableAllLevels() {
@@ -110,11 +110,11 @@ func ExampleLog_enableAllLevels() {
 	Log().Fatal("Fatal will be printed")
 
 	// Output:
-	// 2024-11-25T09:30:00+01:00 - DEBUG - Debug will be printed
-	// 2024-11-25T09:30:00+01:00 - INFO  - Information will be printed
-	// 2024-11-25T09:30:00+01:00 - WARN  - Warning will be printed
-	// 2024-11-25T09:30:00+01:00 - ERROR - Error will be printed
-	// 2024-11-25T09:30:00+01:00 - FATAL - Fatal will be printed
+	// 2024-11-25T08:30:00Z - DEBUG - Debug will be printed
+	// 2024-11-25T08:30:00Z - INFO  - Information will be printed
+	// 2024-11-25T08:30:00Z - WARN  - Warning will be printed
+	// 2024-11-25T08:30:00Z - ERROR - Error will be printed
+	// 2024-11-25T08:30:00Z - FATAL - Fatal will be printed
 }
 
 func ExampleLog_levelRestrictedByPackage() {
@@ -136,9 +136,9 @@ func ExampleLog_levelRestrictedByPackage() {
 	Log().Fatal("Fatal will be printed")
 
 	// Output:
-	// 2024-11-25T09:30:00+01:00 - WARN  - Warning will be printed
-	// 2024-11-25T09:30:00+01:00 - ERROR - Error will be printed
-	// 2024-11-25T09:30:00+01:00 - FATAL - Fatal will be printed
+	// 2024-11-25T08:30:00Z - WARN  - Warning will be printed
+	// 2024-11-25T08:30:00Z - ERROR - Error will be printed
+	// 2024-11-25T08:30:00Z - FATAL - Fatal will be printed
 }
 
 func ExampleLog_otherDdelimiter() {
@@ -160,8 +160,8 @@ func ExampleLog_otherDdelimiter() {
 	Log().Fatal("Fatal will be printed")
 
 	// Output:
-	// 2024-11-25T09:30:00+01:00,ERROR,Error will be printed
-	// 2024-11-25T09:30:00+01:00,FATAL,Fatal will be printed
+	// 2024-11-25T08:30:00Z,ERROR,Error will be printed
+	// 2024-11-25T08:30:00Z,FATAL,Fatal will be printed
 }
 
 func ExampleLog_jsonFormatDefaultKeys() {
@@ -188,9 +188,9 @@ func ExampleLog_jsonFormatDefaultKeys() {
 	Log().FatalCustom(customValueMap, "Fatal will be printed")
 
 	// Output:
-	// {"message":"Warning will be printed","severity":"WARN","time":"2024-11-25T09:30:00+01:00"}
-	// {"correlation":"CorrelationId123","message":"Error will be printed","severity":"ERROR","time":"2024-11-25T09:30:00+01:00"}
-	// {"a":"firstEntry","b":true,"c":1.2,"message":"Fatal will be printed","severity":"FATAL","time":"2024-11-25T09:30:00+01:00"}
+	// {"message":"Warning will be printed","severity":"WARN","time":"2024-11-25T08:30:00Z"}
+	// {"correlation":"CorrelationId123","message":"Error will be printed","severity":"ERROR","time":"2024-11-25T08:30:00Z"}
+	// {"a":"firstEntry","b":true,"c":1.2,"message":"Fatal will be printed","severity":"FATAL","time":"2024-11-25T08:30:00Z"}
 }
 
 func ExampleLog_jsonFormatCustomKeys() {
@@ -225,9 +225,9 @@ func ExampleLog_jsonFormatCustomKeys() {
 	Log().FatalCustom(customValueMap, "Fatal will be printed")
 
 	// Output:
-	// {"log_level":"WARN","msg":"Warning will be printed","the_time":"25 Nov 24 09:30 CET"}
-	// {"correlation_id":"CorrelationId123","log_level":"ERROR","msg":"Error will be printed","the_time":"25 Nov 24 09:30 CET"}
-	// {"log_level":"FATAL","msg":"Fatal will be printed","my_values":{"a":"firstEntry","b":true,"c":1.2},"the_time":"25 Nov 24 09:30 CET"}
+	// {"log_level":"WARN","msg":"Warning will be printed","the_time":"25 Nov 24 08:30 DE"}
+	// {"correlation_id":"CorrelationId123","log_level":"ERROR","msg":"Error will be printed","the_time":"25 Nov 24 08:30 DE"}
+	// {"log_level":"FATAL","msg":"Fatal will be printed","my_values":{"a":"firstEntry","b":true,"c":1.2},"the_time":"25 Nov 24 08:30 DE"}
 }
 
 func ExampleLog_templateFormatDefaultTemplates() {
@@ -254,9 +254,9 @@ func ExampleLog_templateFormatDefaultTemplates() {
 	Log().FatalCustom(customValueMap, "Fatal will be printed")
 
 	// Output:
-	// [2024-11-25T09:30:00+01:00] WARN : Warning will be printed
-	// [2024-11-25T09:30:00+01:00] ERROR CorrelationId123: Error will be printed
-	// [2024-11-25T09:30:00+01:00] FATAL: Fatal will be printed [a]: firstEntry [b]: true [c]: 1.2
+	// [2024-11-25T08:30:00Z] WARN : Warning will be printed
+	// [2024-11-25T08:30:00Z] ERROR CorrelationId123: Error will be printed
+	// [2024-11-25T08:30:00Z] FATAL: Fatal will be printed [a]: firstEntry [b]: true [c]: 1.2
 }
 
 func ExampleLog_templateFormatCustomTemplates() {
@@ -288,7 +288,7 @@ func ExampleLog_templateFormatCustomTemplates() {
 	Log().FatalCustom(customValueMap, "Fatal will be printed")
 
 	// Output:
-	// time=[25 Nov 24 09:30 CET], severity=[WARN], msg=[Warning will be printed]
-	// time=[25 Nov 24 09:30 CET], severity=[ERROR], msg=[Error will be printed] correlation[CorrelationId123]
-	// time=[25 Nov 24 09:30 CET], severity=[FATAL], msg=[Fatal will be printed], a=[firstEntry], b=[true], c=[1.2]
+	// time=[25 Nov 24 08:30 DE], severity=[WARN], msg=[Warning will be printed]
+	// time=[25 Nov 24 08:30 DE], severity=[ERROR], msg=[Error will be printed] correlation[CorrelationId123]
+	// time=[25 Nov 24 08:30 DE], severity=[FATAL], msg=[Fatal will be printed], a=[firstEntry], b=[true], c=[1.2]
 }

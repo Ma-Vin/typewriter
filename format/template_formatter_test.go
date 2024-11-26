@@ -24,7 +24,7 @@ var templateFormatterOrder Formatter = CreateTemplateFormatter(
 	false)
 
 var templateFormatTestTime = time.Date(2024, time.November, 1, 20, 15, 0, 0, time.UTC)
-var templateFormatTestTimeText = templateFormatTestTime.Local().Format(time.RFC1123Z)
+var templateFormatTestTimeText = templateFormatTestTime.Format(time.RFC1123Z)
 
 func TestTemplateFormat(t *testing.T) {
 	formatterMockTime = &templateFormatTestTime

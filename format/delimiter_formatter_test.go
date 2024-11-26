@@ -12,7 +12,7 @@ import (
 var delimiterFormatter Formatter = CreateDelimiterFormatter(" - ")
 
 var delimiterFormatTestTime = time.Date(2024, time.October, 1, 13, 20, 0, 0, time.UTC)
-var delimiterFormatTestTimeText = delimiterFormatTestTime.Local().Format(time.RFC3339)
+var delimiterFormatTestTimeText = delimiterFormatTestTime.Format(time.RFC3339)
 
 func TestDelimiterFormat(t *testing.T) {
 	formatterMockTime = &delimiterFormatTestTime

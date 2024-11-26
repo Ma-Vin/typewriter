@@ -50,7 +50,7 @@ func getNowAsStringFromLayout(template string) string {
 	if formatterMockTime != nil {
 		timeToFormat = *formatterMockTime
 	}
-	return timeToFormat.Local().Format(template)
+	return timeToFormat.Format(template)
 }
 
 // For test usage only! Sets constant mock time. If this parameter is nil [time.Now] will be calculated
