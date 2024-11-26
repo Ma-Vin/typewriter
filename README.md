@@ -6,6 +6,15 @@ This repository provides a GoLang logging package, which are inspired by some Lo
 
 :warning: :construction: **Not released yet**
 
+## Sonar analysis
+
+* [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
+* [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=bugs)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
+* [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
+* [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
+* [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
+* [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
+
 ## Usage
 
 ### Logging
