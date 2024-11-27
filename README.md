@@ -1,19 +1,20 @@
 [![Build and test](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml/badge.svg)](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ma-vin/typewriter.svg)](https://pkg.go.dev/github.com/ma-vin/typewriter)
 
 # Typewriter
 
 This repository provides a GoLang logging package, which are inspired by some Log4j features like package specific enablement
 
-:warning: :construction: **Not released yet**
+:warning: :construction: Unstable release *v0.0.1* (See also [Module version numbering](https://go.dev/doc/modules/version-numbers))
 
 ## Sonar analysis
 
-* [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
-* [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=bugs)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
-* [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
-* [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
-* [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
-* [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)  [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter)
+* [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=alert_status&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)
+* [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=reliability_rating&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)  [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=bugs&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)
+* [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=security_rating&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)  [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=vulnerabilities&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)
+* [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=sqale_rating&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)  [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=sqale_index&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)  [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=code_smells&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)
+* [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=coverage&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)
+* [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=duplicated_lines_density&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)  [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ma-vin%3Atypewriter&metric=ncloc&branch=release%2Fv0.0.1)](https://sonarcloud.io/summary/new_code?id=ma-vin%3Atypewriter&branch=release%2Fv0.0.1)
 
 ## Usage
 
