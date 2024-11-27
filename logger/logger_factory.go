@@ -77,6 +77,7 @@ func setLastFormatter(formatterId string, formatterConfigMapping *map[string]*fo
 
 // Creates the all relevant appenders from config elements
 func createAppenders(conf *config.Config, appenderConfigMapping *map[string]*appender.Appender, formatterConfigMapping *map[string]*format.Formatter) {
+	appender.CleanFileToMutex()
 	for _, ac1 := range conf.Appender {
 		alreadyCreated := false
 		ac1FormatterId := getFormatterConfigForPackage(&ac1.PackageName, &conf.Formatter).Id

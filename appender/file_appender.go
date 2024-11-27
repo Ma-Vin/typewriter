@@ -16,8 +16,19 @@ type FileAppender struct {
 	mu            *sync.Mutex
 }
 
+type fileMutex struct {
+	pathToLogFile *string
+	mu            *sync.Mutex
+}
+
 // For test usage only! Indicator whether to skip creation of the target output file
 var SkipFileCreationForTest = false
+var fileToMutex = []fileMutex{}
+
+// Removes all registered mutex for log file writing
+func CleanFileToMutex() {
+	fileToMutex = []fileMutex{}
+}
 
 // Creates a file appender to the file at “pathToLogFile” with a given formatter
 func CreateFileAppender(pathToLogFile string, formatter *format.Formatter) Appender {
@@ -31,7 +42,18 @@ func CreateFileAppender(pathToLogFile string, formatter *format.Formatter) Appen
 		fmt.Println()
 		return CreateStandardOutputAppender(formatter)
 	}
-	return FileAppender{pathToLogFile, formatter, file, &sync.Mutex{}}
+	return FileAppender{pathToLogFile, formatter, file, getOrCreateMutexForFile(&pathToLogFile)}
+}
+
+func getOrCreateMutexForFile(pathToLogFile *string) *sync.Mutex {
+	for _, fm := range fileToMutex {
+		if *pathToLogFile == *fm.pathToLogFile {
+			return fm.mu
+		}
+	}
+	result := sync.Mutex{}
+	fileToMutex = append(fileToMutex, fileMutex{pathToLogFile, &result})
+	return &result
 }
 
 // Writes the given message to the defined output file

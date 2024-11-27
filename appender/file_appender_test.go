@@ -25,6 +25,26 @@ func getAppenderTestLogFile(testCase string) string {
 	return result
 }
 
+func TestCreateFileAppenderDifferentLogFilePaths(t *testing.T) {
+	SkipFileCreationForTest = true
+	CleanFileToMutex()
+	appender1 := CreateFileAppender("Path1", &testJsonFormatter).(FileAppender)
+	appender2 := CreateFileAppender("Path2", &testJsonFormatter).(FileAppender)
+
+	testutil.AssertEquals(2, len(fileToMutex), t, "len(fileToMutex)")
+	testutil.AssertNotEquals(appender1.mu, appender2.mu, t, "mu")
+}
+
+func TestCreateFileAppenderEqualLogFilePaths(t *testing.T) {
+	SkipFileCreationForTest = true
+	CleanFileToMutex()
+	appender1 := CreateFileAppender("PathEqual", &testJsonFormatter).(FileAppender)
+	appender2 := CreateFileAppender("PathEqual", &testJsonFormatter).(FileAppender)
+
+	testutil.AssertEquals(1, len(fileToMutex), t, "len(fileToMutex)")
+	testutil.AssertEquals(appender1.mu, appender2.mu, t, "mu")
+}
+
 func TestFileAppenderWrite(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("write")
 	format.SetFormatterMockTime(&jsonFormatTestTime)
