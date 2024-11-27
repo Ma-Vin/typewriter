@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    branches: [ "release/**" ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.2'
+      - name: Build
+        run: go build ./...
+      - name: Test
+        run: go test ./...
+  analyse:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.2'
+      - name: Coverage
+        run: go test -v -coverprofile='coverage.out' -json ./... > report.json
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  release-tag:
+    needs: analyse
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: create release tag
+        run: |
+          VERSION_NAME=$(echo "${GITHUB_REF_NAME}" | grep -oP '(?<=release/).*')
+          
+          RELEASE_TAG=$(
+            curl -s -S -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.UPLOAD_GITHUB_PAT }}" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/releases \
+            -d "{\"tag_name\":\"${VERSION_NAME}\",\"target_commitish\":\"${GITHUB_REF_NAME}\",\"name\":\"${VERSION_NAME}\",\"body\":\"Workflow based created release on branch ${GITHUB_REF_NAME}\",\"draft\":false,\"prerelease\":false,\"generate_release_notes\":false}"
+          )
+          
+          RELEASE_ID=$(echo "${RELEASE_TAG}" | grep -oPm1 '(?<="id": ).*(?=,)')
+          if [ -z ${RELEASE_ID} ] ; 
+          then
+            RELEASE_ID=$(echo "${RELEASE_TAG}" | grep -oPm1 '(?<="id":)\d*(?=,)' | head -n1 )
+          fi
+          
+          echo "Release created with Id ${RELEASE_ID}"
