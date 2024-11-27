@@ -1,4 +1,4 @@
-[![Build and test](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml/badge.svg)](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml)
+[![Release](https://github.com/Ma-Vin/typewriter/actions/workflows/go-release.yaml/badge.svg?branch=release%2Fv0.0.1)](https://github.com/Ma-Vin/typewriter/actions/workflows/go-release.yaml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/ma-vin/typewriter.svg)](https://pkg.go.dev/github.com/ma-vin/typewriter)
 
 # Typewriter
