@@ -4,7 +4,7 @@ package format
 import (
 	"time"
 
-	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/common"
 )
 
 const (
@@ -28,19 +28,19 @@ type Formatter interface {
 }
 
 var severityTextMap = map[int]string{
-	constants.DEBUG_SEVERITY:       DEBUG_PREFIX,
-	constants.INFORMATION_SEVERITY: INFORMATION_PREFIX,
-	constants.WARNING_SEVERITY:     WARNING_PREFIX,
-	constants.ERROR_SEVERITY:       ERROR_PREFIX,
-	constants.FATAL_SEVERITY:       FATAL_PREFIX,
+	common.DEBUG_SEVERITY:       DEBUG_PREFIX,
+	common.INFORMATION_SEVERITY: INFORMATION_PREFIX,
+	common.WARNING_SEVERITY:     WARNING_PREFIX,
+	common.ERROR_SEVERITY:       ERROR_PREFIX,
+	common.FATAL_SEVERITY:       FATAL_PREFIX,
 }
 
 var severityTrimTextMap = map[int]string{
-	constants.DEBUG_SEVERITY:       DEBUG_PREFIX,
-	constants.INFORMATION_SEVERITY: INFORMATION_TRIM_PREFIX,
-	constants.WARNING_SEVERITY:     WARNING_TRIM_PREFIX,
-	constants.ERROR_SEVERITY:       ERROR_PREFIX,
-	constants.FATAL_SEVERITY:       FATAL_PREFIX,
+	common.DEBUG_SEVERITY:       DEBUG_PREFIX,
+	common.INFORMATION_SEVERITY: INFORMATION_TRIM_PREFIX,
+	common.WARNING_SEVERITY:     WARNING_TRIM_PREFIX,
+	common.ERROR_SEVERITY:       ERROR_PREFIX,
+	common.FATAL_SEVERITY:       FATAL_PREFIX,
 }
 
 var formatterMockTime *time.Time = nil

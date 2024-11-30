@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/ma-vin/typewriter/appender"
-	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/common"
 )
 
 // A common logger which delegates messages directly to the appender if log level is enabled.
@@ -31,18 +31,18 @@ func CreateCommonLogger(appender *appender.Appender, severity int) CommonLogger 
 
 // activates different log levels
 func determineSeverityByLevel(l *CommonLogger, severity int) {
-	l.debugEnabled = constants.DEBUG_SEVERITY <= severity
-	l.informationEnabled = constants.INFORMATION_SEVERITY <= severity
-	l.warningEnabled = constants.WARNING_SEVERITY <= severity
-	l.errorEnabled = constants.ERROR_SEVERITY <= severity
-	l.fatalEnabled = constants.FATAL_SEVERITY <= severity
+	l.debugEnabled = common.DEBUG_SEVERITY <= severity
+	l.informationEnabled = common.INFORMATION_SEVERITY <= severity
+	l.warningEnabled = common.WARNING_SEVERITY <= severity
+	l.errorEnabled = common.ERROR_SEVERITY <= severity
+	l.fatalEnabled = common.FATAL_SEVERITY <= severity
 }
 
 // Logs a message if debug level is enabled.
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) Debug(args ...any) {
 	if l.debugEnabled {
-		(*l.appender).Write(constants.DEBUG_SEVERITY, fmt.Sprint(args...))
+		(*l.appender).Write(common.DEBUG_SEVERITY, fmt.Sprint(args...))
 	}
 }
 
@@ -50,7 +50,7 @@ func (l CommonLogger) Debug(args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) DebugWithCorrelation(correlationId string, args ...any) {
 	if l.debugEnabled {
-		(*l.appender).WriteWithCorrelation(constants.DEBUG_SEVERITY, correlationId, fmt.Sprint(args...))
+		(*l.appender).WriteWithCorrelation(common.DEBUG_SEVERITY, correlationId, fmt.Sprint(args...))
 	}
 }
 
@@ -58,7 +58,7 @@ func (l CommonLogger) DebugWithCorrelation(correlationId string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) DebugCustom(customValues map[string]any, args ...any) {
 	if l.debugEnabled {
-		(*l.appender).WriteCustom(constants.DEBUG_SEVERITY, fmt.Sprint(args...), customValues)
+		(*l.appender).WriteCustom(common.DEBUG_SEVERITY, fmt.Sprint(args...), customValues)
 	}
 }
 
@@ -66,7 +66,7 @@ func (l CommonLogger) DebugCustom(customValues map[string]any, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) Debugf(format string, args ...any) {
 	if l.debugEnabled {
-		(*l.appender).Write(constants.DEBUG_SEVERITY, fmt.Sprintf(format, args...))
+		(*l.appender).Write(common.DEBUG_SEVERITY, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -74,7 +74,7 @@ func (l CommonLogger) Debugf(format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) DebugWithCorrelationf(correlationId string, format string, args ...any) {
 	if l.debugEnabled {
-		(*l.appender).WriteWithCorrelation(constants.DEBUG_SEVERITY, correlationId, fmt.Sprintf(format, args...))
+		(*l.appender).WriteWithCorrelation(common.DEBUG_SEVERITY, correlationId, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -82,7 +82,7 @@ func (l CommonLogger) DebugWithCorrelationf(correlationId string, format string,
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) DebugCustomf(customValues map[string]any, format string, args ...any) {
 	if l.debugEnabled {
-		(*l.appender).WriteCustom(constants.DEBUG_SEVERITY, fmt.Sprintf(format, args...), customValues)
+		(*l.appender).WriteCustom(common.DEBUG_SEVERITY, fmt.Sprintf(format, args...), customValues)
 	}
 }
 
@@ -90,7 +90,7 @@ func (l CommonLogger) DebugCustomf(customValues map[string]any, format string, a
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) Information(args ...any) {
 	if l.informationEnabled {
-		(*l.appender).Write(constants.INFORMATION_SEVERITY, fmt.Sprint(args...))
+		(*l.appender).Write(common.INFORMATION_SEVERITY, fmt.Sprint(args...))
 	}
 }
 
@@ -98,7 +98,7 @@ func (l CommonLogger) Information(args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) InformationWithCorrelation(correlationId string, args ...any) {
 	if l.informationEnabled {
-		(*l.appender).WriteWithCorrelation(constants.INFORMATION_SEVERITY, correlationId, fmt.Sprint(args...))
+		(*l.appender).WriteWithCorrelation(common.INFORMATION_SEVERITY, correlationId, fmt.Sprint(args...))
 	}
 }
 
@@ -106,7 +106,7 @@ func (l CommonLogger) InformationWithCorrelation(correlationId string, args ...a
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) InformationCustom(customValues map[string]any, args ...any) {
 	if l.informationEnabled {
-		(*l.appender).WriteCustom(constants.INFORMATION_SEVERITY, fmt.Sprint(args...), customValues)
+		(*l.appender).WriteCustom(common.INFORMATION_SEVERITY, fmt.Sprint(args...), customValues)
 	}
 }
 
@@ -114,7 +114,7 @@ func (l CommonLogger) InformationCustom(customValues map[string]any, args ...any
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) Informationf(format string, args ...any) {
 	if l.informationEnabled {
-		(*l.appender).Write(constants.INFORMATION_SEVERITY, fmt.Sprintf(format, args...))
+		(*l.appender).Write(common.INFORMATION_SEVERITY, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -122,7 +122,7 @@ func (l CommonLogger) Informationf(format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) InformationWithCorrelationf(correlationId string, format string, args ...any) {
 	if l.informationEnabled {
-		(*l.appender).WriteWithCorrelation(constants.INFORMATION_SEVERITY, correlationId, fmt.Sprintf(format, args...))
+		(*l.appender).WriteWithCorrelation(common.INFORMATION_SEVERITY, correlationId, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -130,7 +130,7 @@ func (l CommonLogger) InformationWithCorrelationf(correlationId string, format s
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) InformationCustomf(customValues map[string]any, format string, args ...any) {
 	if l.informationEnabled {
-		(*l.appender).WriteCustom(constants.INFORMATION_SEVERITY, fmt.Sprintf(format, args...), customValues)
+		(*l.appender).WriteCustom(common.INFORMATION_SEVERITY, fmt.Sprintf(format, args...), customValues)
 	}
 }
 
@@ -138,7 +138,7 @@ func (l CommonLogger) InformationCustomf(customValues map[string]any, format str
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) Warning(args ...any) {
 	if l.warningEnabled {
-		(*l.appender).Write(constants.WARNING_SEVERITY, fmt.Sprint(args...))
+		(*l.appender).Write(common.WARNING_SEVERITY, fmt.Sprint(args...))
 	}
 }
 
@@ -146,7 +146,7 @@ func (l CommonLogger) Warning(args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) WarningWithCorrelation(correlationId string, args ...any) {
 	if l.warningEnabled {
-		(*l.appender).WriteWithCorrelation(constants.WARNING_SEVERITY, correlationId, fmt.Sprint(args...))
+		(*l.appender).WriteWithCorrelation(common.WARNING_SEVERITY, correlationId, fmt.Sprint(args...))
 	}
 }
 
@@ -154,7 +154,7 @@ func (l CommonLogger) WarningWithCorrelation(correlationId string, args ...any) 
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) WarningCustom(customValues map[string]any, args ...any) {
 	if l.warningEnabled {
-		(*l.appender).WriteCustom(constants.WARNING_SEVERITY, fmt.Sprint(args...), customValues)
+		(*l.appender).WriteCustom(common.WARNING_SEVERITY, fmt.Sprint(args...), customValues)
 	}
 }
 
@@ -162,7 +162,7 @@ func (l CommonLogger) WarningCustom(customValues map[string]any, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) Warningf(format string, args ...any) {
 	if l.warningEnabled {
-		(*l.appender).Write(constants.WARNING_SEVERITY, fmt.Sprintf(format, args...))
+		(*l.appender).Write(common.WARNING_SEVERITY, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -170,7 +170,7 @@ func (l CommonLogger) Warningf(format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) WarningWithCorrelationf(correlationId string, format string, args ...any) {
 	if l.warningEnabled {
-		(*l.appender).WriteWithCorrelation(constants.WARNING_SEVERITY, correlationId, fmt.Sprintf(format, args...))
+		(*l.appender).WriteWithCorrelation(common.WARNING_SEVERITY, correlationId, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -178,7 +178,7 @@ func (l CommonLogger) WarningWithCorrelationf(correlationId string, format strin
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) WarningCustomf(customValues map[string]any, format string, args ...any) {
 	if l.warningEnabled {
-		(*l.appender).WriteCustom(constants.WARNING_SEVERITY, fmt.Sprintf(format, args...), customValues)
+		(*l.appender).WriteCustom(common.WARNING_SEVERITY, fmt.Sprintf(format, args...), customValues)
 	}
 }
 
@@ -228,7 +228,7 @@ func (l CommonLogger) WarningCustomWithPanicf(customValues map[string]any, forma
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) Error(args ...any) {
 	if l.errorEnabled {
-		(*l.appender).Write(constants.ERROR_SEVERITY, fmt.Sprint(args...))
+		(*l.appender).Write(common.ERROR_SEVERITY, fmt.Sprint(args...))
 	}
 }
 
@@ -236,7 +236,7 @@ func (l CommonLogger) Error(args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) ErrorWithCorrelation(correlationId string, args ...any) {
 	if l.errorEnabled {
-		(*l.appender).WriteWithCorrelation(constants.ERROR_SEVERITY, correlationId, fmt.Sprint(args...))
+		(*l.appender).WriteWithCorrelation(common.ERROR_SEVERITY, correlationId, fmt.Sprint(args...))
 	}
 }
 
@@ -244,7 +244,7 @@ func (l CommonLogger) ErrorWithCorrelation(correlationId string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) ErrorCustom(customValues map[string]any, args ...any) {
 	if l.errorEnabled {
-		(*l.appender).WriteCustom(constants.ERROR_SEVERITY, fmt.Sprint(args...), customValues)
+		(*l.appender).WriteCustom(common.ERROR_SEVERITY, fmt.Sprint(args...), customValues)
 	}
 }
 
@@ -252,7 +252,7 @@ func (l CommonLogger) ErrorCustom(customValues map[string]any, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) Errorf(format string, args ...any) {
 	if l.errorEnabled {
-		(*l.appender).Write(constants.ERROR_SEVERITY, fmt.Sprintf(format, args...))
+		(*l.appender).Write(common.ERROR_SEVERITY, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -260,7 +260,7 @@ func (l CommonLogger) Errorf(format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) ErrorWithCorrelationf(correlationId string, format string, args ...any) {
 	if l.errorEnabled {
-		(*l.appender).WriteWithCorrelation(constants.ERROR_SEVERITY, correlationId, fmt.Sprintf(format, args...))
+		(*l.appender).WriteWithCorrelation(common.ERROR_SEVERITY, correlationId, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -268,7 +268,7 @@ func (l CommonLogger) ErrorWithCorrelationf(correlationId string, format string,
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) ErrorCustomf(customValues map[string]any, format string, args ...any) {
 	if l.errorEnabled {
-		(*l.appender).WriteCustom(constants.ERROR_SEVERITY, fmt.Sprintf(format, args...), customValues)
+		(*l.appender).WriteCustom(common.ERROR_SEVERITY, fmt.Sprintf(format, args...), customValues)
 	}
 }
 
@@ -318,7 +318,7 @@ func (l CommonLogger) ErrorCustomWithPanicf(customValues map[string]any, format 
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) Fatal(args ...any) {
 	if l.fatalEnabled {
-		(*l.appender).Write(constants.FATAL_SEVERITY, fmt.Sprint(args...))
+		(*l.appender).Write(common.FATAL_SEVERITY, fmt.Sprint(args...))
 	}
 }
 
@@ -326,7 +326,7 @@ func (l CommonLogger) Fatal(args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) FatalWithCorrelation(correlationId string, args ...any) {
 	if l.fatalEnabled {
-		(*l.appender).WriteWithCorrelation(constants.FATAL_SEVERITY, correlationId, fmt.Sprint(args...))
+		(*l.appender).WriteWithCorrelation(common.FATAL_SEVERITY, correlationId, fmt.Sprint(args...))
 	}
 }
 
@@ -334,7 +334,7 @@ func (l CommonLogger) FatalWithCorrelation(correlationId string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l CommonLogger) FatalCustom(customValues map[string]any, args ...any) {
 	if l.fatalEnabled {
-		(*l.appender).WriteCustom(constants.FATAL_SEVERITY, fmt.Sprint(args...), customValues)
+		(*l.appender).WriteCustom(common.FATAL_SEVERITY, fmt.Sprint(args...), customValues)
 	}
 }
 
@@ -342,7 +342,7 @@ func (l CommonLogger) FatalCustom(customValues map[string]any, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) Fatalf(format string, args ...any) {
 	if l.fatalEnabled {
-		(*l.appender).Write(constants.FATAL_SEVERITY, fmt.Sprintf(format, args...))
+		(*l.appender).Write(common.FATAL_SEVERITY, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -350,7 +350,7 @@ func (l CommonLogger) Fatalf(format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) FatalWithCorrelationf(correlationId string, format string, args ...any) {
 	if l.fatalEnabled {
-		(*l.appender).WriteWithCorrelation(constants.FATAL_SEVERITY, correlationId, fmt.Sprintf(format, args...))
+		(*l.appender).WriteWithCorrelation(common.FATAL_SEVERITY, correlationId, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -358,7 +358,7 @@ func (l CommonLogger) FatalWithCorrelationf(correlationId string, format string,
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l CommonLogger) FatalCustomf(customValues map[string]any, format string, args ...any) {
 	if l.fatalEnabled {
-		(*l.appender).WriteCustom(constants.FATAL_SEVERITY, fmt.Sprintf(format, args...), customValues)
+		(*l.appender).WriteCustom(common.FATAL_SEVERITY, fmt.Sprintf(format, args...), customValues)
 	}
 }
 

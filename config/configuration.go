@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
 )
 
@@ -105,13 +105,13 @@ var config Config
 
 // Mapping external severity levels to internal ids
 var SeverityLevelMap = map[string]int{
-	LOG_LEVEL_DEBUG:       constants.DEBUG_SEVERITY,
-	LOG_LEVEL_INFO:        constants.INFORMATION_SEVERITY,
-	LOG_LEVEL_INFORMATION: constants.INFORMATION_SEVERITY,
-	LOG_LEVEL_WARN:        constants.WARNING_SEVERITY,
-	LOG_LEVEL_WARNING:     constants.WARNING_SEVERITY,
-	LOG_LEVEL_ERROR:       constants.ERROR_SEVERITY,
-	LOG_LEVEL_FATAL:       constants.FATAL_SEVERITY,
+	LOG_LEVEL_DEBUG:       common.DEBUG_SEVERITY,
+	LOG_LEVEL_INFO:        common.INFORMATION_SEVERITY,
+	LOG_LEVEL_INFORMATION: common.INFORMATION_SEVERITY,
+	LOG_LEVEL_WARN:        common.WARNING_SEVERITY,
+	LOG_LEVEL_WARNING:     common.WARNING_SEVERITY,
+	LOG_LEVEL_ERROR:       common.ERROR_SEVERITY,
+	LOG_LEVEL_FATAL:       common.FATAL_SEVERITY,
 }
 
 // returns the config or creates it if it was not initialized yet
@@ -392,7 +392,7 @@ func configureLogger(relevantKeyValues *map[string]string, loggerConfig *LoggerC
 	loglevel := getValueFromMapOrDefault(relevantKeyValues, formatterKey, LOG_LEVEL_ERROR)
 	severity, found := SeverityLevelMap[loglevel]
 	if !found {
-		severity = constants.ERROR_SEVERITY
+		severity = common.ERROR_SEVERITY
 	}
 	loggerConfig.Severity = severity
 }
@@ -454,7 +454,7 @@ func completeDefaults() {
 		}
 	}
 	if !found {
-		config.Logger = append(config.Logger, LoggerConfig{IsDefault: true, PackageName: "", Severity: constants.ERROR_SEVERITY})
+		config.Logger = append(config.Logger, LoggerConfig{IsDefault: true, PackageName: "", Severity: common.ERROR_SEVERITY})
 	}
 }
 

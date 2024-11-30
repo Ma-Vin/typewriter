@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
 	"github.com/ma-vin/typewriter/testutil"
 )
@@ -50,7 +50,7 @@ func TestFileAppenderWrite(t *testing.T) {
 	format.SetFormatterMockTime(&jsonFormatTestTime)
 	appender := CreateFileAppender(logFilePath, &testJsonFormatter).(FileAppender)
 
-	appender.Write(constants.INFORMATION_SEVERITY, "Testmessage")
+	appender.Write(common.INFORMATION_SEVERITY, "Testmessage")
 	appender.Close()
 
 	checkLogFileEntry(logFilePath, "{\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
@@ -61,7 +61,7 @@ func TestFileAppenderWriteWithCorrelation(t *testing.T) {
 	format.SetFormatterMockTime(&jsonFormatTestTime)
 	appender := CreateFileAppender(logFilePath, &testJsonFormatter).(FileAppender)
 
-	appender.WriteWithCorrelation(constants.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
+	appender.WriteWithCorrelation(common.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
 	appender.Close()
 
 	checkLogFileEntry(logFilePath, "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
@@ -76,7 +76,7 @@ func TestFileAppenderWriteCustom(t *testing.T) {
 		"first": "abc",
 	}
 
-	appender.WriteCustom(constants.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	appender.WriteCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
 	appender.Close()
 
 	checkLogFileEntry(logFilePath, "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)

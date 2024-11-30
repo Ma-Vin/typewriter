@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
 	"github.com/ma-vin/typewriter/testutil"
 )
@@ -24,7 +24,7 @@ func TestWrite(t *testing.T) {
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
-	appender.Write(constants.INFORMATION_SEVERITY, "Testmessage")
+	appender.Write(common.INFORMATION_SEVERITY, "Testmessage")
 
 	testutil.AssertHasSuffix(" - INFO  - Testmessage", strings.TrimSpace(buf.String()), t, "Write")
 }
@@ -34,7 +34,7 @@ func TestWriteWithCorrelation(t *testing.T) {
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
-	appender.WriteWithCorrelation(constants.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
+	appender.WriteWithCorrelation(common.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
 
 	testutil.AssertHasSuffix(" - INFO  - someCorrelationId - Testmessage", strings.TrimSpace(buf.String()), t, "WriteWithCorrelation")
 }
@@ -50,7 +50,7 @@ func TestWriteCustom(t *testing.T) {
 		"second": 1,
 	}
 
-	appender.WriteCustom(constants.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	appender.WriteCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
 
 	testutil.AssertHasSuffix(" - INFO  - Testmessage - abc - 1 - true", strings.TrimSpace(buf.String()), t, "WriteCustom")
 }

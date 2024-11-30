@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/testutil"
 )
 
@@ -30,11 +30,11 @@ func TestTemplateFormat(t *testing.T) {
 	formatterMockTime = &templateFormatTestTime
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG message: Testmessage",
-		constants.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: INFO  message: Testmessage",
-		constants.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: WARN  message: Testmessage",
-		constants.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: ERROR message: Testmessage",
-		constants.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage",
+		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG message: Testmessage",
+		common.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: INFO  message: Testmessage",
+		common.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: WARN  message: Testmessage",
+		common.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: ERROR message: Testmessage",
+		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -46,11 +46,11 @@ func TestTemplateFormatOrder(t *testing.T) {
 	formatterMockTime = &templateFormatTestTime
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "severity: DEBUG message: Testmessage time: " + templateFormatTestTimeText,
-		constants.INFORMATION_SEVERITY: "severity: INFO  message: Testmessage time: " + templateFormatTestTimeText,
-		constants.WARNING_SEVERITY:     "severity: WARN  message: Testmessage time: " + templateFormatTestTimeText,
-		constants.ERROR_SEVERITY:       "severity: ERROR message: Testmessage time: " + templateFormatTestTimeText,
-		constants.FATAL_SEVERITY:       "severity: FATAL message: Testmessage time: " + templateFormatTestTimeText,
+		common.DEBUG_SEVERITY:       "severity: DEBUG message: Testmessage time: " + templateFormatTestTimeText,
+		common.INFORMATION_SEVERITY: "severity: INFO  message: Testmessage time: " + templateFormatTestTimeText,
+		common.WARNING_SEVERITY:     "severity: WARN  message: Testmessage time: " + templateFormatTestTimeText,
+		common.ERROR_SEVERITY:       "severity: ERROR message: Testmessage time: " + templateFormatTestTimeText,
+		common.FATAL_SEVERITY:       "severity: FATAL message: Testmessage time: " + templateFormatTestTimeText,
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -62,11 +62,11 @@ func TestTemplateFormatCorrelation(t *testing.T) {
 	formatterMockTime = &templateFormatTestTime
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG correlation: someCorrelationId message: Testmessage",
-		constants.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: INFO  correlation: someCorrelationId message: Testmessage",
-		constants.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: WARN  correlation: someCorrelationId message: Testmessage",
-		constants.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: ERROR correlation: someCorrelationId message: Testmessage",
-		constants.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL correlation: someCorrelationId message: Testmessage",
+		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG correlation: someCorrelationId message: Testmessage",
+		common.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: INFO  correlation: someCorrelationId message: Testmessage",
+		common.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: WARN  correlation: someCorrelationId message: Testmessage",
+		common.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: ERROR correlation: someCorrelationId message: Testmessage",
+		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL correlation: someCorrelationId message: Testmessage",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -78,11 +78,11 @@ func TestTemplateFormatCorrelationOrder(t *testing.T) {
 	formatterMockTime = &templateFormatTestTime
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "severity: DEBUG correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
-		constants.INFORMATION_SEVERITY: "severity: INFO  correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
-		constants.WARNING_SEVERITY:     "severity: WARN  correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
-		constants.ERROR_SEVERITY:       "severity: ERROR correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
-		constants.FATAL_SEVERITY:       "severity: FATAL correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
+		common.DEBUG_SEVERITY:       "severity: DEBUG correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
+		common.INFORMATION_SEVERITY: "severity: INFO  correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
+		common.WARNING_SEVERITY:     "severity: WARN  correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
+		common.ERROR_SEVERITY:       "severity: ERROR correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
+		common.FATAL_SEVERITY:       "severity: FATAL correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -100,11 +100,11 @@ func TestTemplateFormatCustom(t *testing.T) {
 	}
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG message: Testmessage first: abc second: 1 third: true",
-		constants.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: INFO  message: Testmessage first: abc second: 1 third: true",
-		constants.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: WARN  message: Testmessage first: abc second: 1 third: true",
-		constants.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: ERROR message: Testmessage first: abc second: 1 third: true",
-		constants.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage first: abc second: 1 third: true",
+		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG message: Testmessage first: abc second: 1 third: true",
+		common.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: INFO  message: Testmessage first: abc second: 1 third: true",
+		common.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: WARN  message: Testmessage first: abc second: 1 third: true",
+		common.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: ERROR message: Testmessage first: abc second: 1 third: true",
+		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage first: abc second: 1 third: true",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -129,11 +129,11 @@ func TestTemplateFormatCustomDefaultFormat(t *testing.T) {
 	}
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "[" + templateFormatTestTimeText + "] DEBUG: Testmessage [first]: abc [second]: 1 [third]: true",
-		constants.INFORMATION_SEVERITY: "[" + templateFormatTestTimeText + "] INFO : Testmessage [first]: abc [second]: 1 [third]: true",
-		constants.WARNING_SEVERITY:     "[" + templateFormatTestTimeText + "] WARN : Testmessage [first]: abc [second]: 1 [third]: true",
-		constants.ERROR_SEVERITY:       "[" + templateFormatTestTimeText + "] ERROR: Testmessage [first]: abc [second]: 1 [third]: true",
-		constants.FATAL_SEVERITY:       "[" + templateFormatTestTimeText + "] FATAL: Testmessage [first]: abc [second]: 1 [third]: true",
+		common.DEBUG_SEVERITY:       "[" + templateFormatTestTimeText + "] DEBUG: Testmessage [first]: abc [second]: 1 [third]: true",
+		common.INFORMATION_SEVERITY: "[" + templateFormatTestTimeText + "] INFO : Testmessage [first]: abc [second]: 1 [third]: true",
+		common.WARNING_SEVERITY:     "[" + templateFormatTestTimeText + "] WARN : Testmessage [first]: abc [second]: 1 [third]: true",
+		common.ERROR_SEVERITY:       "[" + templateFormatTestTimeText + "] ERROR: Testmessage [first]: abc [second]: 1 [third]: true",
+		common.FATAL_SEVERITY:       "[" + templateFormatTestTimeText + "] FATAL: Testmessage [first]: abc [second]: 1 [third]: true",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -151,11 +151,11 @@ func TestTemplateFormatCustomOrder(t *testing.T) {
 	}
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "severity: DEBUG message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
-		constants.INFORMATION_SEVERITY: "severity: INFO  message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
-		constants.WARNING_SEVERITY:     "severity: WARN  message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
-		constants.ERROR_SEVERITY:       "severity: ERROR message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
-		constants.FATAL_SEVERITY:       "severity: FATAL message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
+		common.DEBUG_SEVERITY:       "severity: DEBUG message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
+		common.INFORMATION_SEVERITY: "severity: INFO  message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
+		common.WARNING_SEVERITY:     "severity: WARN  message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
+		common.ERROR_SEVERITY:       "severity: ERROR message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
+		common.FATAL_SEVERITY:       "severity: FATAL message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -175,11 +175,11 @@ func TestTemplateFormatTrimSeverity(t *testing.T) {
 		true)
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG message: Testmessage",
-		constants.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: INFO message: Testmessage",
-		constants.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: WARN message: Testmessage",
-		constants.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: ERROR message: Testmessage",
-		constants.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage",
+		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG message: Testmessage",
+		common.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: INFO message: Testmessage",
+		common.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: WARN message: Testmessage",
+		common.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: ERROR message: Testmessage",
+		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {

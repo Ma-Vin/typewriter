@@ -1,5 +1,5 @@
-// This package contains constants which are are used in several packages
-package constants
+// This package contains common elements like constants which are are used in several packages
+package common
 
 const (
 	OFF_SEVERITY = iota

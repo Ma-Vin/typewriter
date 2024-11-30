@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/testutil"
 )
 
@@ -20,11 +20,11 @@ func TestJsonFormat(t *testing.T) {
 	formatterMockTime = &jsonFormatTestTime
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.INFORMATION_SEVERITY: "{\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.WARNING_SEVERITY:     "{\"message\":\"Testmessage\",\"severity\":\"WARN\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.ERROR_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.FATAL_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.DEBUG_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.INFORMATION_SEVERITY: "{\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.WARNING_SEVERITY:     "{\"message\":\"Testmessage\",\"severity\":\"WARN\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.ERROR_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.FATAL_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -36,11 +36,11 @@ func TestJsonFormatCorrelation(t *testing.T) {
 	formatterMockTime = &jsonFormatTestTime
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.INFORMATION_SEVERITY: "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.WARNING_SEVERITY:     "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"WARN\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.ERROR_SEVERITY:       "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.FATAL_SEVERITY:       "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.DEBUG_SEVERITY:       "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.INFORMATION_SEVERITY: "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.WARNING_SEVERITY:     "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"WARN\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.ERROR_SEVERITY:       "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.FATAL_SEVERITY:       "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -56,11 +56,11 @@ func TestJsonFormatCustom(t *testing.T) {
 	}
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.INFORMATION_SEVERITY: "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.WARNING_SEVERITY:     "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"WARN\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.ERROR_SEVERITY:       "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.FATAL_SEVERITY:       "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.DEBUG_SEVERITY:       "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.INFORMATION_SEVERITY: "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.WARNING_SEVERITY:     "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"WARN\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.ERROR_SEVERITY:       "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.FATAL_SEVERITY:       "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
 	}
 
 	for severity, expectedMessage := range expectedResults {
@@ -106,7 +106,7 @@ func TestJsonFormatCustomAllTypes(t *testing.T) {
 		"stringValue":  stringValue,
 	}
 
-	result := jsonFormatter.FormatCustom(constants.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	result := jsonFormatter.FormatCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
 
 	testutil.AssertTrue(strings.Contains(result, "\"boolValue\":true"), t, "Format conatians bool")
 	testutil.AssertTrue(strings.Contains(result, "\"byteValue\":1"), t, "Format conatians byteValue")
@@ -133,7 +133,7 @@ func TestJsonFormatUnsupported(t *testing.T) {
 		"complex128Value": complex(1, 2),
 	}
 
-	result := jsonFormatter.FormatCustom(constants.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	result := jsonFormatter.FormatCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
 
 	expectedResult := "{\"message\":\"Fail to marshal to json, use custom formatter: json: unsupported type: complex128\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}" +
 		fmt.Sprintln() + "{\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}"
@@ -150,7 +150,7 @@ func TestJsonFormatUnsupportedAndCorrelationId(t *testing.T) {
 		"complex128Value": complex(1, 2),
 	}
 
-	result := jsonFormatter.FormatCustom(constants.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	result := jsonFormatter.FormatCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
 
 	expectedResult := "{\"correlation\":\"abc\",\"message\":\"Fail to marshal to json, use custom formatter: json: unsupported type: complex128\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}" +
 		fmt.Sprintln() + "{\"correlation\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}"
@@ -166,11 +166,11 @@ func TestJsonFormatCustomSub(t *testing.T) {
 	}
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.INFORMATION_SEVERITY: "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.WARNING_SEVERITY:     "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"WARN\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.ERROR_SEVERITY:       "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
-		constants.FATAL_SEVERITY:       "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.DEBUG_SEVERITY:       "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.INFORMATION_SEVERITY: "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.WARNING_SEVERITY:     "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"WARN\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.ERROR_SEVERITY:       "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.FATAL_SEVERITY:       "{\"custom\":{\"first\":\"abc\"},\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
 	}
 
 	for severity, expectedMessage := range expectedResults {

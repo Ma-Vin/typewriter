@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ma-vin/typewriter/constants"
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/testutil"
 )
 
@@ -17,11 +17,11 @@ var delimiterFormatTestTimeText = delimiterFormatTestTime.Format(time.RFC3339)
 func TestDelimiterFormat(t *testing.T) {
 	formatterMockTime = &delimiterFormatTestTime
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - Testmessage",
-		constants.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - Testmessage",
-		constants.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - Testmessage",
-		constants.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - Testmessage",
-		constants.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - Testmessage",
+		common.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - Testmessage",
+		common.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - Testmessage",
+		common.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - Testmessage",
+		common.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - Testmessage",
+		common.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - Testmessage",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -32,11 +32,11 @@ func TestDelimiterFormat(t *testing.T) {
 func TestDelimiterFormatCorrelation(t *testing.T) {
 	formatterMockTime = &delimiterFormatTestTime
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - someCorrelationId - Testmessage",
-		constants.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - someCorrelationId - Testmessage",
-		constants.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - someCorrelationId - Testmessage",
-		constants.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - someCorrelationId - Testmessage",
-		constants.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - someCorrelationId - Testmessage",
+		common.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - someCorrelationId - Testmessage",
+		common.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - someCorrelationId - Testmessage",
+		common.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - someCorrelationId - Testmessage",
+		common.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - someCorrelationId - Testmessage",
+		common.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - someCorrelationId - Testmessage",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
@@ -53,11 +53,11 @@ func TestDelimiterFormatCustom(t *testing.T) {
 	}
 
 	expectedResults := map[int]string{
-		constants.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - Testmessage - abc - 1 - true",
-		constants.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - Testmessage - abc - 1 - true",
-		constants.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - Testmessage - abc - 1 - true",
-		constants.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - Testmessage - abc - 1 - true",
-		constants.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - Testmessage - abc - 1 - true",
+		common.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - Testmessage - abc - 1 - true",
+		common.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - Testmessage - abc - 1 - true",
+		common.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - Testmessage - abc - 1 - true",
+		common.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - Testmessage - abc - 1 - true",
+		common.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - Testmessage - abc - 1 - true",
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
