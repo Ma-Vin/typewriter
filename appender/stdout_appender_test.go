@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/ma-vin/typewriter/common"
-	common1 "github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
 	"github.com/ma-vin/typewriter/testutil"
 )
@@ -24,34 +23,34 @@ func TestDefaultIsStdOut(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	common1.SetLogValuesMockTime(&delimiterFormatterTestTime)
+	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
 
 	buf := new(bytes.Buffer)
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
-	logValuesToFormat := common1.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
+	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
 	appender.Write(&logValuesToFormat)
 
 	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - Testmessage", strings.TrimSpace(buf.String()), t, "Write")
 }
 
 func TestWriteWithCorrelation(t *testing.T) {
-	common1.SetLogValuesMockTime(&delimiterFormatterTestTime)
+	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
 	correleation := "someCorrelationId"
 
 	buf := new(bytes.Buffer)
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
-	logValuesToFormat := common1.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correleation, "Testmessage")
+	logValuesToFormat := common.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correleation, "Testmessage")
 	appender.Write(&logValuesToFormat)
 
 	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - someCorrelationId - Testmessage", strings.TrimSpace(buf.String()), t, "WriteWithCorrelation")
 }
 
 func TestWriteCustom(t *testing.T) {
-	common1.SetLogValuesMockTime(&delimiterFormatterTestTime)
+	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
 
 	buf := new(bytes.Buffer)
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
@@ -63,7 +62,7 @@ func TestWriteCustom(t *testing.T) {
 		"second": 1,
 	}
 
-	logValuesToFormat := common1.CreateLogValuesCustom(common.INFORMATION_SEVERITY, "Testmessage", &customProperties)
+	logValuesToFormat := common.CreateLogValuesCustom(common.INFORMATION_SEVERITY, "Testmessage", &customProperties)
 	appender.Write(&logValuesToFormat)
 
 	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - Testmessage - abc - 1 - true", strings.TrimSpace(buf.String()), t, "WriteCustom")

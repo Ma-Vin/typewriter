@@ -3,7 +3,6 @@ package format
 
 import (
 	"github.com/ma-vin/typewriter/common"
-	common1 "github.com/ma-vin/typewriter/common"
 )
 
 const (
@@ -19,7 +18,7 @@ const (
 // Interface to format recdord values
 type Formatter interface {
 	// Formats the given parameter to a string to log
-	Format(logValues *common1.LogValues) string
+	Format(logValues *common.LogValues) string
 }
 
 var severityTextMap = map[int]string{

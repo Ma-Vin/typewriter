@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/ma-vin/typewriter/common"
-	common1 "github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
 	"github.com/ma-vin/typewriter/testutil"
 )
@@ -48,11 +47,11 @@ func TestCreateFileAppenderEqualLogFilePaths(t *testing.T) {
 
 func TestFileAppenderWrite(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("write")
-	common1.SetLogValuesMockTime(&jsonFormatTestTime)
+	common.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	appender := CreateFileAppender(logFilePath, &testJsonFormatter).(FileAppender)
 
-	logValuesToFormat := common1.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
+	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
 	appender.Write(&logValuesToFormat)
 	appender.Close()
 
@@ -61,12 +60,12 @@ func TestFileAppenderWrite(t *testing.T) {
 
 func TestFileAppenderWriteWithCorrelation(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("correlation")
-	common1.SetLogValuesMockTime(&jsonFormatTestTime)
+	common.SetLogValuesMockTime(&jsonFormatTestTime)
 	correleation := "someCorrelationId"
 
 	appender := CreateFileAppender(logFilePath, &testJsonFormatter).(FileAppender)
 
-	logValuesToFormat := common1.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correleation, "Testmessage")
+	logValuesToFormat := common.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correleation, "Testmessage")
 	appender.Write(&logValuesToFormat)
 	appender.Close()
 
@@ -75,7 +74,7 @@ func TestFileAppenderWriteWithCorrelation(t *testing.T) {
 
 func TestFileAppenderWriteCustom(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("custom")
-	common1.SetLogValuesMockTime(&jsonFormatTestTime)
+	common.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	appender := CreateFileAppender(logFilePath, &testJsonFormatter).(FileAppender)
 
@@ -83,7 +82,7 @@ func TestFileAppenderWriteCustom(t *testing.T) {
 		"first": "abc",
 	}
 
-	logValuesToFormat := common1.CreateLogValuesCustom(common.INFORMATION_SEVERITY, "Testmessage", &customProperties)
+	logValuesToFormat := common.CreateLogValuesCustom(common.INFORMATION_SEVERITY, "Testmessage", &customProperties)
 	appender.Write(&logValuesToFormat)
 	appender.Close()
 
