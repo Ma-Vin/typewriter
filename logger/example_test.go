@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/ma-vin/typewriter/format"
+	"github.com/ma-vin/typewriter/common"
 )
 
 func ExampleLog_withDefaultConfiguration() {
@@ -13,7 +13,7 @@ func ExampleLog_withDefaultConfiguration() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	Log().Debug("Debug will not be printed")
@@ -33,7 +33,7 @@ func ExampleLog_formatWithDefaultConfiguration() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	Log().Debugf("Debug %s %s %s %s", "will", "not", "be", "printed")
@@ -53,7 +53,7 @@ func ExampleLog_correlationIdWithDefaultConfiguration() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	Log().DebugWithCorrelation("CorrelationId123", "Debug will not be printed")
@@ -73,7 +73,7 @@ func ExampleLog_customValuesWithDefaultConfiguration() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	customValueMap := make(map[string]any, 3)
@@ -98,7 +98,7 @@ func ExampleLog_enableAllLevels() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "DEBUG")
@@ -123,7 +123,7 @@ func ExampleLog_levelRestrictedByPackage() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "DEBUG")
@@ -147,7 +147,7 @@ func ExampleLog_otherDdelimiter() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "DELIMITER")
@@ -170,7 +170,7 @@ func ExampleLog_jsonFormatDefaultKeys() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
@@ -199,7 +199,7 @@ func ExampleLog_jsonFormatCustomKeys() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
@@ -236,7 +236,7 @@ func ExampleLog_templateFormatDefaultTemplates() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
@@ -265,7 +265,7 @@ func ExampleLog_templateFormatCustomTemplates() {
 	Reset()
 	// use fixed time for output compare
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
-	format.SetFormatterMockTime(&mockTime)
+	common.SetLogValuesMockTime(&mockTime)
 
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")

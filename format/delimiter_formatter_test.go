@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ma-vin/typewriter/common"
+	common1 "github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/testutil"
 )
 
@@ -15,7 +16,8 @@ var delimiterFormatTestTime = time.Date(2024, time.October, 1, 13, 20, 0, 0, tim
 var delimiterFormatTestTimeText = delimiterFormatTestTime.Format(time.RFC3339)
 
 func TestDelimiterFormat(t *testing.T) {
-	formatterMockTime = &delimiterFormatTestTime
+	common1.SetLogValuesMockTime(&delimiterFormatTestTime)
+
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - Testmessage",
 		common.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - Testmessage",
@@ -24,13 +26,16 @@ func TestDelimiterFormat(t *testing.T) {
 		common.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - Testmessage",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, delimiterFormatter.Format(severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common1.CreateLogValues(severity, "Testmessage")
+		testutil.AssertEquals(expectedMessage, delimiterFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestDelimiterFormatCorrelation(t *testing.T) {
-	formatterMockTime = &delimiterFormatTestTime
+	common1.SetLogValuesMockTime(&delimiterFormatTestTime)
+	correleation := "someCorrelationId"
+
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - someCorrelationId - Testmessage",
 		common.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - someCorrelationId - Testmessage",
@@ -39,13 +44,14 @@ func TestDelimiterFormatCorrelation(t *testing.T) {
 		common.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - someCorrelationId - Testmessage",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, delimiterFormatter.FormatWithCorrelation(severity, "someCorrelationId", "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common1.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
+		testutil.AssertEquals(expectedMessage, delimiterFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestDelimiterFormatCustom(t *testing.T) {
-	formatterMockTime = &delimiterFormatTestTime
+	common1.SetLogValuesMockTime(&delimiterFormatTestTime)
 	customProperties := map[string]any{
 		"first":  "abc",
 		"third":  true,
@@ -60,7 +66,26 @@ func TestDelimiterFormatCustom(t *testing.T) {
 		common.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - Testmessage - abc - 1 - true",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, delimiterFormatter.FormatCustom(severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common1.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
+		testutil.AssertEquals(expectedMessage, delimiterFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+	}
+}
+
+func TestDelimiterFormatEmptyCustom(t *testing.T) {
+	common1.SetLogValuesMockTime(&delimiterFormatTestTime)
+	customProperties := map[string]any{}
+
+	expectedResults := map[int]string{
+		common.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - Testmessage",
+		common.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - INFO  - Testmessage",
+		common.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - WARN  - Testmessage",
+		common.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - ERROR - Testmessage",
+		common.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - FATAL - Testmessage",
+	}
+
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common1.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
+		testutil.AssertEquals(expectedMessage, delimiterFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }

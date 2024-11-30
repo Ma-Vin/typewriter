@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ma-vin/typewriter/common"
+	common1 "github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/testutil"
 )
 
@@ -17,7 +18,7 @@ var jsonFormatter Formatter = CreateJsonFormatter("time", "severity", "message",
 var jsonFormatterSub Formatter = CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, true)
 
 func TestJsonFormat(t *testing.T) {
-	formatterMockTime = &jsonFormatTestTime
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
@@ -28,12 +29,14 @@ func TestJsonFormat(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, jsonFormatter.Format(severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValues(severity, "Testmessage")
+		testutil.AssertEquals(expexpectedMessage, jsonFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestJsonFormatCorrelation(t *testing.T) {
-	formatterMockTime = &jsonFormatTestTime
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
+	correleation := "someCorrelationId"
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
@@ -44,12 +47,13 @@ func TestJsonFormatCorrelation(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, jsonFormatter.FormatWithCorrelation(severity, "someCorrelationId", "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
+		testutil.AssertEquals(expexpectedMessage, jsonFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestJsonFormatCustom(t *testing.T) {
-	formatterMockTime = &jsonFormatTestTime
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	customProperties := map[string]any{
 		"first": "abc",
@@ -64,13 +68,14 @@ func TestJsonFormatCustom(t *testing.T) {
 	}
 
 	for severity, expectedMessage := range expectedResults {
-		result := jsonFormatter.FormatCustom(severity, "Testmessage", customProperties)
+		logValuesToFormat := common1.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
+		result := jsonFormatter.Format(&logValuesToFormat)
 		testutil.AssertEquals(expectedMessage, result, t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestJsonFormatCustomAllTypes(t *testing.T) {
-	formatterMockTime = &jsonFormatTestTime
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	var boolValue bool = true
 	var byteValue byte = 1
@@ -106,7 +111,9 @@ func TestJsonFormatCustomAllTypes(t *testing.T) {
 		"stringValue":  stringValue,
 	}
 
-	result := jsonFormatter.FormatCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	logValuesToFormat := common1.CreateLogValuesCustom(common.INFORMATION_SEVERITY, "Testmessage", &customProperties)
+
+	result := jsonFormatter.Format(&logValuesToFormat)
 
 	testutil.AssertTrue(strings.Contains(result, "\"boolValue\":true"), t, "Format conatians bool")
 	testutil.AssertTrue(strings.Contains(result, "\"byteValue\":1"), t, "Format conatians byteValue")
@@ -126,14 +133,16 @@ func TestJsonFormatCustomAllTypes(t *testing.T) {
 }
 
 func TestJsonFormatUnsupported(t *testing.T) {
-	formatterMockTime = &jsonFormatTestTime
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	customProperties := map[string]any{
 		"complex64Value":  complex(1, 1),
 		"complex128Value": complex(1, 2),
 	}
 
-	result := jsonFormatter.FormatCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	logValuesToFormat := common1.CreateLogValuesCustom(common.INFORMATION_SEVERITY, "Testmessage", &customProperties)
+
+	result := jsonFormatter.Format(&logValuesToFormat)
 
 	expectedResult := "{\"message\":\"Fail to marshal to json, use custom formatter: json: unsupported type: complex128\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}" +
 		fmt.Sprintln() + "{\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}"
@@ -142,7 +151,7 @@ func TestJsonFormatUnsupported(t *testing.T) {
 }
 
 func TestJsonFormatUnsupportedAndCorrelationId(t *testing.T) {
-	formatterMockTime = &jsonFormatTestTime
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	customProperties := map[string]any{
 		"correlation":     "abc",
@@ -150,7 +159,9 @@ func TestJsonFormatUnsupportedAndCorrelationId(t *testing.T) {
 		"complex128Value": complex(1, 2),
 	}
 
-	result := jsonFormatter.FormatCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	logValuesToFormat := common1.CreateLogValuesCustom(common.INFORMATION_SEVERITY, "Testmessage", &customProperties)
+
+	result := jsonFormatter.Format(&logValuesToFormat)
 
 	expectedResult := "{\"correlation\":\"abc\",\"message\":\"Fail to marshal to json, use custom formatter: json: unsupported type: complex128\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}" +
 		fmt.Sprintln() + "{\"correlation\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}"
@@ -159,7 +170,7 @@ func TestJsonFormatUnsupportedAndCorrelationId(t *testing.T) {
 }
 
 func TestJsonFormatCustomSub(t *testing.T) {
-	formatterMockTime = &jsonFormatTestTime
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	customProperties := map[string]any{
 		"first": "abc",
@@ -174,7 +185,9 @@ func TestJsonFormatCustomSub(t *testing.T) {
 	}
 
 	for severity, expectedMessage := range expectedResults {
-		result := jsonFormatterSub.FormatCustom(severity, "Testmessage", customProperties)
+		logValuesToFormat := common1.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
+
+		result := jsonFormatterSub.Format(&logValuesToFormat)
 		testutil.AssertEquals(expectedMessage, result, t, fmt.Sprintf("Format severity %d", severity))
 	}
 }

@@ -3,6 +3,8 @@ package format
 import (
 	"fmt"
 	"sort"
+
+	"github.com/ma-vin/typewriter/common"
 )
 
 const DEFAULT_TEMPLATE = "[%s] %s: %s"
@@ -39,30 +41,35 @@ func CreateTemplateFormatter(template string, correlationIdTemplate string, cust
 }
 
 // Formats the given parameter to a string to log
-func (t TemplateFormatter) Format(severity int, message string) string {
-	return formatValues(t.template, getNowAsStringFromLayout(t.timeLayout), t.getSeverityText(severity), message)
-}
-
-// Formats the given default parameter and a correlation id to a string to log
-func (t TemplateFormatter) FormatWithCorrelation(severity int, correlationId string, message string) string {
-	return formatValues(t.correlationIdTemplate, getNowAsStringFromLayout(t.timeLayout), t.getSeverityText(severity), correlationId, message)
+func (t TemplateFormatter) Format(logValues *common.LogValues) string {
+	if logValues.CorrelationId != nil {
+		return formatValues(t.correlationIdTemplate, t.formatTime(logValues), t.getSeverityText(logValues.Severity), *logValues.CorrelationId, logValues.Message)
+	}
+	if logValues.CustomValues != nil {
+		return t.formatCustom(logValues)
+	}
+	return formatValues(t.template, t.formatTime(logValues), t.getSeverityText(logValues.Severity), logValues.Message)
 }
 
 // Formats the given parameter to a string to log and the customValues will be added at the end
-func (t TemplateFormatter) FormatCustom(severity int, message string, customValues map[string]any) string {
+func (t TemplateFormatter) formatCustom(logValues *common.LogValues) string {
 	if t.customTemplate == DEFAULT_TEMPLATE {
-		for i := 0; i < len(customValues); i++ {
+		for i := 0; i < len(*logValues.CustomValues); i++ {
 			t.customTemplate += " [%s]: %v"
 		}
 	}
-	args := make([]any, 0, 2*len(customValues)+3)
+	args := make([]any, 0, 2*len(*logValues.CustomValues)+3)
 
-	args = append(args, getNowAsStringFromLayout(t.timeLayout))
-	args = append(args, t.getSeverityText(severity))
-	args = append(args, message)
-	args = appendCustomValues(args, &customValues)
+	args = append(args, t.formatTime(logValues))
+	args = append(args, t.getSeverityText(logValues.Severity))
+	args = append(args, logValues.Message)
+	args = appendCustomValues(args, logValues.CustomValues)
 
 	return formatValues(t.customTemplate, args...)
+}
+
+func (t *TemplateFormatter) formatTime(logValues *common.LogValues) string {
+	return logValues.Time.Format(t.timeLayout)
 }
 
 func (t *TemplateFormatter) getSeverityText(severity int) string {

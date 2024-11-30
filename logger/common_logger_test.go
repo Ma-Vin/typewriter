@@ -6,6 +6,7 @@ import (
 
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/common"
+	constants "github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/testutil"
 )
@@ -14,8 +15,16 @@ type TestAppender struct {
 	content *[]string
 }
 
-func (s TestAppender) Write(severity int, message string) {
-	*s.content = append(*s.content, fmt.Sprint(severity, message))
+func (s TestAppender) Write(logValues *common.LogValues) {
+	if logValues.CorrelationId!=nil{
+		*s.content = append(*s.content, fmt.Sprint(logValues.Severity, *logValues.CorrelationId, logValues.Message))
+		return
+	}
+	if logValues.CustomValues!=nil{
+		*s.content = append(*s.content, fmt.Sprint(logValues.Severity, *logValues.CustomValues, logValues.Message))
+		return
+	}
+	*s.content = append(*s.content, fmt.Sprint(logValues.Severity, logValues.Message))
 }
 
 func (s TestAppender) WriteWithCorrelation(severity int, correlationId string, message string) {
@@ -31,7 +40,7 @@ func (s TestAppender) Close() {
 }
 
 var testCommonLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
-var testCommonLogger = CreateCommonLogger(&testCommonLoggerAppender, common.OFF_SEVERITY)
+var testCommonLogger = CreateCommonLogger(&testCommonLoggerAppender, constants.OFF_SEVERITY)
 var testCommonLoggerCounterAppenderClosed = 0
 var testCommonLoggerCounterAppenderClosedExpected = 1
 
@@ -46,7 +55,7 @@ func initTestCommonLogger(envLogLevel string) {
 }
 
 func TestEnableDebugSeverityCommonLogger(t *testing.T) {
-	determineSeverityByLevel(&testCommonLogger, common.DEBUG_SEVERITY)
+	determineSeverityByLevel(&testCommonLogger, constants.DEBUG_SEVERITY)
 
 	testutil.AssertTrue(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertTrue(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -56,7 +65,7 @@ func TestEnableDebugSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableInformationSeverityCommonLogger(t *testing.T) {
-	determineSeverityByLevel(&testCommonLogger, common.INFORMATION_SEVERITY)
+	determineSeverityByLevel(&testCommonLogger, constants.INFORMATION_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertTrue(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -66,7 +75,7 @@ func TestEnableInformationSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableWarningSeverityCommonLogger(t *testing.T) {
-	determineSeverityByLevel(&testCommonLogger, common.WARNING_SEVERITY)
+	determineSeverityByLevel(&testCommonLogger, constants.WARNING_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertFalse(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -76,7 +85,7 @@ func TestEnableWarningSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableErrorSeverityCommonLogger(t *testing.T) {
-	determineSeverityByLevel(&testCommonLogger, common.ERROR_SEVERITY)
+	determineSeverityByLevel(&testCommonLogger, constants.ERROR_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertFalse(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -86,7 +95,7 @@ func TestEnableErrorSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableFatalSeverityCommonLogger(t *testing.T) {
-	determineSeverityByLevel(&testCommonLogger, common.FATAL_SEVERITY)
+	determineSeverityByLevel(&testCommonLogger, constants.FATAL_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertFalse(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")
@@ -96,7 +105,7 @@ func TestEnableFatalSeverityCommonLogger(t *testing.T) {
 }
 
 func TestEnableOffSeverityCommonLogger(t *testing.T) {
-	determineSeverityByLevel(&testCommonLogger, common.OFF_SEVERITY)
+	determineSeverityByLevel(&testCommonLogger, constants.OFF_SEVERITY)
 
 	testutil.AssertFalse(testCommonLogger.IsDebugEnabled(), t, "IsDebugEnabled")
 	testutil.AssertFalse(testCommonLogger.IsInformationEnabled(), t, "IsInformationEnabled")

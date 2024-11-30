@@ -5,13 +5,17 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ma-vin/typewriter/common"
+	common1 "github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
 	"github.com/ma-vin/typewriter/testutil"
 )
 
 var testDelimiterFormatter = format.CreateDelimiterFormatter(" - ")
+var delimiterFormatterTestTime = time.Date(2024, time.November, 30, 19, 0, 0, 0, time.UTC)
+var delimiterFormatterTestTimeText = delimiterFormatterTestTime.Format(time.RFC3339)
 
 func TestDefaultIsStdOut(t *testing.T) {
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
@@ -20,26 +24,35 @@ func TestDefaultIsStdOut(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
+	common1.SetLogValuesMockTime(&delimiterFormatterTestTime)
+
 	buf := new(bytes.Buffer)
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
-	appender.Write(common.INFORMATION_SEVERITY, "Testmessage")
+	logValuesToFormat := common1.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
+	appender.Write(&logValuesToFormat)
 
-	testutil.AssertHasSuffix(" - INFO  - Testmessage", strings.TrimSpace(buf.String()), t, "Write")
+	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - Testmessage", strings.TrimSpace(buf.String()), t, "Write")
 }
 
 func TestWriteWithCorrelation(t *testing.T) {
+	common1.SetLogValuesMockTime(&delimiterFormatterTestTime)
+	correleation := "someCorrelationId"
+
 	buf := new(bytes.Buffer)
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
-	appender.WriteWithCorrelation(common.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
+	logValuesToFormat := common1.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correleation, "Testmessage")
+	appender.Write(&logValuesToFormat)
 
-	testutil.AssertHasSuffix(" - INFO  - someCorrelationId - Testmessage", strings.TrimSpace(buf.String()), t, "WriteWithCorrelation")
+	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - someCorrelationId - Testmessage", strings.TrimSpace(buf.String()), t, "WriteWithCorrelation")
 }
 
 func TestWriteCustom(t *testing.T) {
+	common1.SetLogValuesMockTime(&delimiterFormatterTestTime)
+
 	buf := new(bytes.Buffer)
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
@@ -50,7 +63,8 @@ func TestWriteCustom(t *testing.T) {
 		"second": 1,
 	}
 
-	appender.WriteCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	logValuesToFormat := common1.CreateLogValuesCustom(common.INFORMATION_SEVERITY, "Testmessage", &customProperties)
+	appender.Write(&logValuesToFormat)
 
-	testutil.AssertHasSuffix(" - INFO  - Testmessage - abc - 1 - true", strings.TrimSpace(buf.String()), t, "WriteCustom")
+	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - Testmessage - abc - 1 - true", strings.TrimSpace(buf.String()), t, "WriteCustom")
 }

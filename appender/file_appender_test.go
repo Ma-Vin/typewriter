@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ma-vin/typewriter/common"
+	common1 "github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
 	"github.com/ma-vin/typewriter/testutil"
 )
@@ -47,10 +48,12 @@ func TestCreateFileAppenderEqualLogFilePaths(t *testing.T) {
 
 func TestFileAppenderWrite(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("write")
-	format.SetFormatterMockTime(&jsonFormatTestTime)
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
+
 	appender := CreateFileAppender(logFilePath, &testJsonFormatter).(FileAppender)
 
-	appender.Write(common.INFORMATION_SEVERITY, "Testmessage")
+	logValuesToFormat := common1.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
+	appender.Write(&logValuesToFormat)
 	appender.Close()
 
 	checkLogFileEntry(logFilePath, "{\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
@@ -58,10 +61,13 @@ func TestFileAppenderWrite(t *testing.T) {
 
 func TestFileAppenderWriteWithCorrelation(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("correlation")
-	format.SetFormatterMockTime(&jsonFormatTestTime)
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
+	correleation := "someCorrelationId"
+
 	appender := CreateFileAppender(logFilePath, &testJsonFormatter).(FileAppender)
 
-	appender.WriteWithCorrelation(common.INFORMATION_SEVERITY, "someCorrelationId", "Testmessage")
+	logValuesToFormat := common1.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correleation, "Testmessage")
+	appender.Write(&logValuesToFormat)
 	appender.Close()
 
 	checkLogFileEntry(logFilePath, "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
@@ -69,14 +75,16 @@ func TestFileAppenderWriteWithCorrelation(t *testing.T) {
 
 func TestFileAppenderWriteCustom(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("custom")
-	format.SetFormatterMockTime(&jsonFormatTestTime)
+	common1.SetLogValuesMockTime(&jsonFormatTestTime)
+
 	appender := CreateFileAppender(logFilePath, &testJsonFormatter).(FileAppender)
 
 	customProperties := map[string]any{
 		"first": "abc",
 	}
 
-	appender.WriteCustom(common.INFORMATION_SEVERITY, "Testmessage", customProperties)
+	logValuesToFormat := common1.CreateLogValuesCustom(common.INFORMATION_SEVERITY, "Testmessage", &customProperties)
+	appender.Write(&logValuesToFormat)
 	appender.Close()
 
 	checkLogFileEntry(logFilePath, "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)

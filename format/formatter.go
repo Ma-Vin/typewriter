@@ -2,9 +2,8 @@
 package format
 
 import (
-	"time"
-
 	"github.com/ma-vin/typewriter/common"
+	common1 "github.com/ma-vin/typewriter/common"
 )
 
 const (
@@ -17,14 +16,10 @@ const (
 	FATAL_PREFIX            string = "FATAL"
 )
 
-// Interface to format severity, message, correlationId and customValues
+// Interface to format recdord values
 type Formatter interface {
 	// Formats the given parameter to a string to log
-	Format(severity int, message string) string
-	// Formats the given default parameter and a correlation id to a string to log
-	FormatWithCorrelation(severity int, correlationId string, message string) string
-	// Formats the given parameter to a string to log and the customValues will be added at the end
-	FormatCustom(severity int, message string, customValues map[string]any) string
+	Format(logValues *common1.LogValues) string
 }
 
 var severityTextMap = map[int]string{
@@ -41,23 +36,4 @@ var severityTrimTextMap = map[int]string{
 	common.WARNING_SEVERITY:     WARNING_TRIM_PREFIX,
 	common.ERROR_SEVERITY:       ERROR_PREFIX,
 	common.FATAL_SEVERITY:       FATAL_PREFIX,
-}
-
-var formatterMockTime *time.Time = nil
-
-func getNowAsStringFromLayout(template string) string {
-	timeToFormat := time.Now()
-	if formatterMockTime != nil {
-		timeToFormat = *formatterMockTime
-	}
-	return timeToFormat.Format(template)
-}
-
-// For test usage only! Sets constant mock time. If this parameter is nil [time.Now] will be calculated
-func SetFormatterMockTime(mockTime *time.Time) {
-	formatterMockTime = mockTime
-}
-
-func getNowAsStringDefaultLayout() string {
-	return getNowAsStringFromLayout(time.RFC3339)
 }

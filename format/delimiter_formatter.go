@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
+
+	"github.com/ma-vin/typewriter/common"
 )
 
 // Formatter which append given parameter with a delimter. Since name the of the parameter will not be contained, the keys of customValues at FormatCustom neither.
@@ -17,29 +20,21 @@ func CreateDelimiterFormatter(delimiter string) Formatter {
 }
 
 // Formats the given parameter to a string to log
-func (d DelimiterFormatter) Format(severity int, message string) string {
-	return concatWithDelimiter(&d.delimiter, getNowAsStringDefaultLayout(), severityTextMap[severity], message)
-}
-
-// Formats the given default parameter and a correlation id to a string to log
-func (d DelimiterFormatter) FormatWithCorrelation(severity int, correlationId string, message string) string {
-	return concatWithDelimiter(&d.delimiter, getNowAsStringDefaultLayout(), severityTextMap[severity], correlationId, message)
-}
-
-// Formats the given parameter to a string to log and the customValues will be added at the end
-func (d DelimiterFormatter) FormatCustom(severity int, message string, customValues map[string]any) string {
-	return concatWithDelimiter(&d.delimiter, getNowAsStringDefaultLayout(), severityTextMap[severity], message, formatMapToString(&customValues, &d.delimiter))
-}
-
-func concatWithDelimiter(delimiter *string, args ...string) string {
+func (d DelimiterFormatter) Format(logValues *common.LogValues) string {
 	var sb strings.Builder
-	for i, arg := range args {
-		if i > 0 {
-			sb.WriteString(*delimiter)
-		}
-		sb.WriteString(arg)
+	sb.WriteString(logValues.Time.Format(time.RFC3339))
+	sb.WriteString(d.delimiter)
+	sb.WriteString(severityTextMap[logValues.Severity])
+	if logValues.CorrelationId != nil {
+		sb.WriteString(d.delimiter)
+		sb.WriteString(*logValues.CorrelationId)
 	}
-
+	sb.WriteString(d.delimiter)
+	sb.WriteString(logValues.Message)
+	if logValues.CustomValues != nil && len(*logValues.CustomValues) > 0 {
+		sb.WriteString(d.delimiter)
+		sb.WriteString(formatMapToString(logValues.CustomValues, &d.delimiter))
+	}
 	return sb.String()
 }
 

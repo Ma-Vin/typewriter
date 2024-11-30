@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ma-vin/typewriter/common"
+	common1 "github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/testutil"
 )
 
@@ -27,7 +28,7 @@ var templateFormatTestTime = time.Date(2024, time.November, 1, 20, 15, 0, 0, tim
 var templateFormatTestTimeText = templateFormatTestTime.Format(time.RFC1123Z)
 
 func TestTemplateFormat(t *testing.T) {
-	formatterMockTime = &templateFormatTestTime
+	common1.SetLogValuesMockTime(&templateFormatTestTime)
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG message: Testmessage",
@@ -38,12 +39,13 @@ func TestTemplateFormat(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValues(severity, "Testmessage")
+		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatOrder(t *testing.T) {
-	formatterMockTime = &templateFormatTestTime
+	common1.SetLogValuesMockTime(&templateFormatTestTime)
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "severity: DEBUG message: Testmessage time: " + templateFormatTestTimeText,
@@ -54,12 +56,14 @@ func TestTemplateFormatOrder(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValues(severity, "Testmessage")
+		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatCorrelation(t *testing.T) {
-	formatterMockTime = &templateFormatTestTime
+	common1.SetLogValuesMockTime(&templateFormatTestTime)
+	correleation := "someCorrelationId"
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG correlation: someCorrelationId message: Testmessage",
@@ -70,12 +74,14 @@ func TestTemplateFormatCorrelation(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, templateFormatter.FormatWithCorrelation(severity, "someCorrelationId", "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
+		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatCorrelationOrder(t *testing.T) {
-	formatterMockTime = &templateFormatTestTime
+	common1.SetLogValuesMockTime(&templateFormatTestTime)
+	correleation := "someCorrelationId"
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "severity: DEBUG correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
@@ -86,12 +92,13 @@ func TestTemplateFormatCorrelationOrder(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.FormatWithCorrelation(severity, "someCorrelationId", "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
+		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatCustom(t *testing.T) {
-	formatterMockTime = &templateFormatTestTime
+	common1.SetLogValuesMockTime(&templateFormatTestTime)
 
 	customProperties := map[string]any{
 		"first":  "abc",
@@ -108,12 +115,13 @@ func TestTemplateFormatCustom(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, templateFormatter.FormatCustom(severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
+		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatCustomDefaultFormat(t *testing.T) {
-	formatterMockTime = &templateFormatTestTime
+	common1.SetLogValuesMockTime(&templateFormatTestTime)
 
 	var templateFormatterDefaultCustom Formatter = CreateTemplateFormatter(
 		"time: %s severity: %s message: %s",
@@ -137,12 +145,13 @@ func TestTemplateFormatCustomDefaultFormat(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, templateFormatterDefaultCustom.FormatCustom(severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
+		testutil.AssertEquals(expexpectedMessage, templateFormatterDefaultCustom.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatCustomOrder(t *testing.T) {
-	formatterMockTime = &templateFormatTestTime
+	common1.SetLogValuesMockTime(&templateFormatTestTime)
 
 	customProperties := map[string]any{
 		"first":  "abc",
@@ -159,13 +168,13 @@ func TestTemplateFormatCustomOrder(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.FormatCustom(severity, "Testmessage", customProperties), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
+		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
-
 func TestTemplateFormatTrimSeverity(t *testing.T) {
-	formatterMockTime = &templateFormatTestTime
+	common1.SetLogValuesMockTime(&templateFormatTestTime)
 
 	var templateFormatterTrim Formatter = CreateTemplateFormatter(
 		"time: %s severity: %s message: %s",
@@ -183,6 +192,7 @@ func TestTemplateFormatTrimSeverity(t *testing.T) {
 	}
 
 	for severity, expexpectedMessage := range expectedResults {
-		testutil.AssertEquals(expexpectedMessage, templateFormatterTrim.Format(severity, "Testmessage"), t, fmt.Sprintf("Format severity %d", severity))
+		logValuesToFormat := common1.CreateLogValues(severity, "Testmessage")
+		testutil.AssertEquals(expexpectedMessage, templateFormatterTrim.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }

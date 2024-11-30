@@ -5,6 +5,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
 )
 
@@ -56,19 +57,9 @@ func getOrCreateMutexForFile(pathToLogFile *string) *sync.Mutex {
 	return &result
 }
 
-// Writes the given message to the defined output file
-func (f FileAppender) Write(severity int, message string) {
-	f.writeRecord((*f.formatter).Format(severity, message))
-}
-
-// Writes the given message and correlation id to the defined output file
-func (f FileAppender) WriteWithCorrelation(severity int, correlationId string, message string) {
-	f.writeRecord((*f.formatter).FormatWithCorrelation(severity, correlationId, message))
-}
-
-// Writes the given message and a map of custom values to the defined output file
-func (f FileAppender) WriteCustom(severity int, message string, customValues map[string]any) {
-	f.writeRecord((*f.formatter).FormatCustom(severity, message, customValues))
+// Writes the given logValues to the defined output file
+func (f FileAppender) Write(logValues *common.LogValues) {
+	f.writeRecord((*f.formatter).Format(logValues))
 }
 
 // Closes writer of the output file

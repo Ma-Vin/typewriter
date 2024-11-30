@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+
+	"github.com/ma-vin/typewriter/common"
 )
 
 // Formats the log entries as JSON
@@ -33,30 +35,48 @@ func CreateJsonFormatter(timeKey string, severityKey string, messageKey string, 
 }
 
 // Formats the given parameter to a string to log
-func (j JsonFormatter) Format(severity int, message string) string {
-	return j.formatJsonEntriesMap(j.createJsonEntriesMap(3, severity, "", message))
-}
+func (j JsonFormatter) Format(logValues *common.LogValues) string {
+	jsonEntries := make(map[string]any, j.getJsonEntriesMapCapacity(logValues))
 
-// Formats the given default parameter and a correlation id to a string to log
-func (j JsonFormatter) FormatWithCorrelation(severity int, correlationId string, message string) string {
-	return j.formatJsonEntriesMap(j.createJsonEntriesMap(4, severity, correlationId, message))
-}
+	jsonEntries[j.timeKey] = logValues.Time.Format(j.timeLayout)
+	jsonEntries[j.severityKey] = severityTrimTextMap[logValues.Severity]
+	jsonEntries[j.messageKey] = logValues.Message
 
-// Formats the given parameter to a string to log and the customValues will be added
-func (j JsonFormatter) FormatCustom(severity int, message string, customValues map[string]any) string {
-	var jsonEntries *map[string]any
-	if j.customValuesAsSubElement {
-		jsonEntries = j.createJsonEntriesMap(4, severity, "", message)
-		(*jsonEntries)[j.customValuesKey] = customValues
-	} else {
-		jsonEntries = j.createJsonEntriesMap(3+len(customValues), severity, "", message)
-		for k, v := range customValues {
-			(*jsonEntries)[k] = v
+	if logValues.CorrelationId != nil {
+		jsonEntries[j.correlationKey] = *logValues.CorrelationId
+	}
+
+	if logValues.CustomValues != nil {
+		if j.customValuesAsSubElement {
+			jsonEntries[j.customValuesKey] = *logValues.CustomValues
+		} else {
+			for k, v := range *logValues.CustomValues {
+				jsonEntries[k] = v
+			}
 		}
 	}
 
-	return j.formatJsonEntriesMap(jsonEntries)
+	return j.formatJsonEntriesMap(&jsonEntries)
 }
+
+func (j *JsonFormatter) getJsonEntriesMapCapacity(logValues *common.LogValues) int {
+	result := 3
+	
+	if logValues.CorrelationId != nil {
+		result++
+	}
+
+	if logValues.CustomValues != nil {
+		if j.customValuesAsSubElement {
+			result++
+		} else {
+			result += len(*logValues.CustomValues)
+		}
+	}
+
+	return result
+}
+
 
 func (j *JsonFormatter) formatJsonEntriesMap(jsonEntries *map[string]any) string {
 	jsonByteArray, err := json.Marshal(jsonEntries)
@@ -66,20 +86,6 @@ func (j *JsonFormatter) formatJsonEntriesMap(jsonEntries *map[string]any) string
 	}
 
 	return string(jsonByteArray)
-}
-
-func (j *JsonFormatter) createJsonEntriesMap(capacity int, severity int, correlationId string, message string) *map[string]any {
-	result := make(map[string]any, capacity)
-
-	if correlationId != "" {
-		result[j.correlationKey] = correlationId
-	}
-
-	result[j.timeKey] = getNowAsStringFromLayout(j.timeLayout)
-	result[j.severityKey] = severityTrimTextMap[severity]
-	result[j.messageKey] = message
-
-	return &result
 }
 
 func (j *JsonFormatter) formatWithError(jsonEntries *map[string]any, err error) string {

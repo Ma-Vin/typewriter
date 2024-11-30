@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
 )
 
@@ -19,19 +20,9 @@ func CreateStandardOutputAppender(formatter *format.Formatter) Appender {
 	return StandardOutputAppender{formatter, os.Stdout}
 }
 
-// Writes the given message to the standard output
-func (s StandardOutputAppender) Write(severity int, message string) {
-	fmt.Fprintln(s.writer, (*s.formatter).Format(severity, message))
-}
-
-// Writes the given message and correlation id to the standard output
-func (s StandardOutputAppender) WriteWithCorrelation(severity int, correlationId string, message string) {
-	fmt.Fprintln(s.writer, (*s.formatter).FormatWithCorrelation(severity, correlationId, message))
-}
-
-// Writes the given message and a map of custom values to the standard output
-func (s StandardOutputAppender) WriteCustom(severity int, message string, customValues map[string]any) {
-	fmt.Fprintln(s.writer, (*s.formatter).FormatCustom(severity, message, customValues))
+// Writes the given logValues to the standard output
+func (s StandardOutputAppender) Write(logValues *common.LogValues) {
+	fmt.Fprintln(s.writer, (*s.formatter).Format(logValues))
 }
 
 // Does nothing, but has to be declared to fullfill the interface
