@@ -16,12 +16,17 @@ type JsonFormatter struct {
 	correlationKey           string
 	customValuesKey          string
 	timeLayout               string
+	callerFunctionKey        string
+	callerFileKey            string
+	callerFileLineKey        string
 	customValuesAsSubElement bool
 }
 
 // Creates a new formater with given key names and time layout
 func CreateJsonFormatter(timeKey string, severityKey string, messageKey string, correlationKey string,
-	customValuesKey string, timeLayout string, customValuesAsSubElement bool) Formatter {
+	customValuesKey string, timeLayout string,
+	callerFunctionKey string, callerFileKey string, callerFileLineKey string,
+	customValuesAsSubElement bool) Formatter {
 
 	return JsonFormatter{
 		timeKey:                  timeKey,
@@ -30,6 +35,9 @@ func CreateJsonFormatter(timeKey string, severityKey string, messageKey string, 
 		correlationKey:           correlationKey,
 		customValuesKey:          customValuesKey,
 		timeLayout:               timeLayout,
+		callerFunctionKey:        callerFunctionKey,
+		callerFileKey:            callerFileKey,
+		callerFileLineKey:        callerFileLineKey,
 		customValuesAsSubElement: customValuesAsSubElement,
 	}
 }
@@ -56,12 +64,18 @@ func (j JsonFormatter) Format(logValues *common.LogValues) string {
 		}
 	}
 
+	if logValues.IsCallerSet {
+		jsonEntries[j.callerFunctionKey] = logValues.CallerFunction
+		jsonEntries[j.callerFileKey] = logValues.CallerFile
+		jsonEntries[j.callerFileLineKey] = logValues.CallerFileLine
+	}
+
 	return j.formatJsonEntriesMap(&jsonEntries)
 }
 
 func (j *JsonFormatter) getJsonEntriesMapCapacity(logValues *common.LogValues) int {
 	result := 3
-	
+
 	if logValues.CorrelationId != nil {
 		result++
 	}
@@ -76,7 +90,6 @@ func (j *JsonFormatter) getJsonEntriesMapCapacity(logValues *common.LogValues) i
 
 	return result
 }
-
 
 func (j *JsonFormatter) formatJsonEntriesMap(jsonEntries *map[string]any) string {
 	jsonByteArray, err := json.Marshal(jsonEntries)

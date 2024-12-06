@@ -56,10 +56,13 @@ func createFormatters(formatterConfigs *[]config.FormatterConfig, formatterConfi
 			appendFormatter(format.CreateDelimiterFormatter(fc1.Delimiter))
 			setLastFormatter(fc1.Id, formatterConfigMapping)
 		case config.FORMATTER_TEMPLATE:
-			appendFormatter(format.CreateTemplateFormatter(fc1.Template, fc1.CorrelationIdTemplate, fc1.CustomTemplate, fc1.TimeLayout, fc1.TrimSeverityText))
+			appendFormatter(format.CreateTemplateFormatter(fc1.Template, fc1.CorrelationIdTemplate, fc1.CustomTemplate, 
+				fc1.CallerTemplate, fc1.CallerCorrelationIdTemplate, fc1.CallerCustomTemplate, 
+				fc1.TimeLayout, fc1.TrimSeverityText))
 			setLastFormatter(fc1.Id, formatterConfigMapping)
 		case config.FORMATTER_JSON:
-			appendFormatter(format.CreateJsonFormatter(fc1.TimeKey, fc1.SeverityKey, fc1.MessageKey, fc1.CorrelationKey, fc1.CustomValuesKey, fc1.TimeLayout, fc1.CustomValuesAsSubElement))
+			appendFormatter(format.CreateJsonFormatter(fc1.TimeKey, fc1.SeverityKey, fc1.MessageKey, fc1.CorrelationKey, fc1.CustomValuesKey, fc1.TimeLayout,
+				fc1.CallerFunctionKey, fc1.CallerFileKey, fc1.CallerFileLineKey, fc1.CustomValuesAsSubElement))
 			setLastFormatter(fc1.Id, formatterConfigMapping)
 		default:
 			// not relevant: handled at config load
@@ -139,7 +142,7 @@ func createCommonLoggers(conf *config.Config, loggerConfigMapping *map[string]*C
 		}
 
 		appender := (*appenderConfigMapping)[lc1AppenderId+lc1FormatterId]
-		cLoggers = append(cLoggers, CreateCommonLogger(appender, lc1.Severity))
+		cLoggers = append(cLoggers, CreateCommonLogger(appender, lc1.Severity, lc1.IsCallerToSet))
 		(*loggerConfigMapping)[lc1.Id+lc1AppenderId+lc1FormatterId] = &cLoggers[len(cLoggers)-1]
 	}
 }

@@ -13,8 +13,8 @@ import (
 var jsonFormatTestTime = time.Date(2024, time.November, 15, 20, 00, 0, 0, time.UTC)
 var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 
-var jsonFormatter Formatter = CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, false)
-var jsonFormatterSub Formatter = CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, true)
+var jsonFormatter Formatter = CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false)
+var jsonFormatterSub Formatter = CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", true)
 
 func TestJsonFormat(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
@@ -185,6 +185,29 @@ func TestJsonFormatCustomSub(t *testing.T) {
 
 	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
+
+		result := jsonFormatterSub.Format(&logValuesToFormat)
+		testutil.AssertEquals(expectedMessage, result, t, fmt.Sprintf("Format severity %d", severity))
+	}
+}
+
+func TestJsonFormatCaller(t *testing.T) {
+	common.SetLogValuesMockTime(&jsonFormatTestTime)
+
+	expectedResults := map[int]string{
+		common.DEBUG_SEVERITY:       "{\"caller\":\"f1\",\"file\":\"abc\",\"line\":3,\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.INFORMATION_SEVERITY: "{\"caller\":\"f1\",\"file\":\"abc\",\"line\":3,\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.WARNING_SEVERITY:     "{\"caller\":\"f1\",\"file\":\"abc\",\"line\":3,\"message\":\"Testmessage\",\"severity\":\"WARN\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.ERROR_SEVERITY:       "{\"caller\":\"f1\",\"file\":\"abc\",\"line\":3,\"message\":\"Testmessage\",\"severity\":\"ERROR\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.FATAL_SEVERITY:       "{\"caller\":\"f1\",\"file\":\"abc\",\"line\":3,\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+	}
+
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
+		logValuesToFormat.CallerFunction = "f1"
+		logValuesToFormat.CallerFile = "abc"
+		logValuesToFormat.CallerFileLine = 3
+		logValuesToFormat.IsCallerSet = true
 
 		result := jsonFormatterSub.Format(&logValuesToFormat)
 		testutil.AssertEquals(expectedMessage, result, t, fmt.Sprintf("Format severity %d", severity))

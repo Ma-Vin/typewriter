@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+const NOT_AVAILABLE_VALUE = "n/a"
+
 // Value container which holds the values to log. External given values CorrelationId and CustomValues are provided as pointers
 // (Message might be concat by [fmt.Sprint] / [fmt.Sprintf] from several values, so Message is not given external)
 type LogValues struct {
@@ -12,6 +14,10 @@ type LogValues struct {
 	CorrelationId  *string
 	Message        string
 	CustomValues   *map[string]any
+	IsCallerSet    bool
+	CallerFile     string
+	CallerFileLine int
+	CallerFunction string
 }
 
 var lockValuesMockTime *time.Time = nil
@@ -23,7 +29,12 @@ func CreateLogValues(severity int, message string) LogValues {
 		Severity:       severity,
 		CorrelationId:  nil,
 		Message:        message,
-		CustomValues:   nil}
+		CustomValues:   nil,
+		IsCallerSet:    false,
+		CallerFile:     NOT_AVAILABLE_VALUE,
+		CallerFileLine: -1,
+		CallerFunction: NOT_AVAILABLE_VALUE,
+	}
 }
 
 // Creates log values with a correlation id

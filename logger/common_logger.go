@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/common"
@@ -16,6 +17,7 @@ type CommonLogger struct {
 	warningEnabled     bool
 	errorEnabled       bool
 	fatalEnabled       bool
+	isCallerToSet      bool
 	appender           *appender.Appender
 }
 
@@ -24,8 +26,8 @@ var panicMockActivated = false
 var exitMockAcitvated = false
 
 // Creates a common logger which delegates messages to the given appender if the log level is enabled by given severity
-func CreateCommonLogger(appender *appender.Appender, severity int) CommonLogger {
-	result := CommonLogger{appender: appender}
+func CreateCommonLogger(appender *appender.Appender, severity int, isCallerToSet bool) CommonLogger {
+	result := CommonLogger{appender: appender, isCallerToSet: isCallerToSet}
 	determineSeverityByLevel(&result, severity)
 	return result
 }
@@ -496,15 +498,34 @@ func (l *CommonLogger) exitOrMock(code int) {
 
 func (l *CommonLogger) write(severity int, message string) {
 	logValuesToWrite := common.CreateLogValues(severity, message)
+	l.setCallerValues(&logValuesToWrite)
 	(*l.appender).Write(&logValuesToWrite)
 }
 
 func (l *CommonLogger) writeWithCorrelation(severity int, correlationId string, message string) {
 	logValuesToWrite := common.CreateLogValuesWithCorrelation(severity, &correlationId, message)
+	l.setCallerValues(&logValuesToWrite)
 	(*l.appender).Write(&logValuesToWrite)
 }
 
 func (l *CommonLogger) writeCustom(severity int, message string, customValues map[string]any) {
 	logValuesToWrite := common.CreateLogValuesCustom(severity, message, &customValues)
+	l.setCallerValues(&logValuesToWrite)
 	(*l.appender).Write(&logValuesToWrite)
+}
+
+func (l *CommonLogger) setCallerValues(logValuesToWrite *common.LogValues) {
+	if l.isCallerToSet {
+		pc, file, line, ok := runtime.Caller(4)
+		if !ok {
+			logValuesToWrite.IsCallerSet = false
+			return
+		}
+		logValuesToWrite.CallerFunction = runtime.FuncForPC(pc).Name()
+		logValuesToWrite.CallerFile = file
+		logValuesToWrite.CallerFileLine = line
+		logValuesToWrite.IsCallerSet = true
+		return
+	}
+	logValuesToWrite.IsCallerSet = false
 }

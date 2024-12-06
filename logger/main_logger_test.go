@@ -28,8 +28,8 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 	*testMainCommonLoggerAppender.(TestAppender).content = []string{}
 	*testMainPackageLoggerAppender.(TestAppender).content = []string{}
 
-	testMainCommonLogger = CreateCommonLogger(&testMainCommonLoggerAppender, config.SeverityLevelMap[envCommonLogLevel])
-	testMainPackageLogger = CreateCommonLogger(&testMainPackageLoggerAppender, config.SeverityLevelMap[envPackageLogLevel])
+	testMainCommonLogger = CreateCommonLogger(&testMainCommonLoggerAppender, config.SeverityLevelMap[envCommonLogLevel], false)
+	testMainPackageLogger = CreateCommonLogger(&testMainPackageLoggerAppender, config.SeverityLevelMap[envPackageLogLevel], false)
 
 	mockPanicAndExitAtCommonLogger = true
 	panicMockActivated = false

@@ -21,10 +21,11 @@ type Config struct {
 
 // config of a single logger
 type LoggerConfig struct {
-	Id          string
-	IsDefault   bool
-	PackageName string
-	Severity    int
+	Id            string
+	IsDefault     bool
+	PackageName   string
+	Severity      int
+	IsCallerToSet bool
 }
 
 // config of an appender
@@ -38,22 +39,28 @@ type AppenderConfig struct {
 
 // config of a formatter
 type FormatterConfig struct {
-	Id                       string
-	FormatterType            string
-	IsDefault                bool
-	PackageName              string
-	Delimiter                string
-	Template                 string
-	CorrelationIdTemplate    string
-	CustomTemplate           string
-	TrimSeverityText         bool
-	TimeKey                  string
-	SeverityKey              string
-	MessageKey               string
-	CorrelationKey           string
-	CustomValuesKey          string
-	CustomValuesAsSubElement bool
-	TimeLayout               string
+	Id                          string
+	FormatterType               string
+	IsDefault                   bool
+	PackageName                 string
+	Delimiter                   string
+	Template                    string
+	CorrelationIdTemplate       string
+	CustomTemplate              string
+	CallerTemplate              string
+	CallerCorrelationIdTemplate string
+	CallerCustomTemplate        string
+	TrimSeverityText            bool
+	TimeKey                     string
+	SeverityKey                 string
+	MessageKey                  string
+	CorrelationKey              string
+	CustomValuesKey             string
+	CustomValuesAsSubElement    bool
+	CallerFunctionKey           string
+	CallerFileKey               string
+	CallerFileLineKey           string
+	TimeLayout                  string
 }
 
 const (
@@ -69,7 +76,8 @@ const (
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME           = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
 
-	LOG_CONFIG_FILE_ENV_NAME = "TYPEWRITER_CONFIG_FILE"
+	LOG_CONFIG_FILE_ENV_NAME             = "TYPEWRITER_CONFIG_FILE"
+	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME = "TYPEWRITER_LOG_CALLER"
 
 	LOG_LEVEL_DEBUG       = "DEBUG"
 	LOG_LEVEL_INFO        = "INFO"
@@ -86,18 +94,24 @@ const (
 	APPENDER_STDOUT = "STDOUT"
 	APPENDER_FILE   = "FILE"
 
-	DEFAULT_DELIMITER             = " - "
-	DEFAULT_TEMPLATE              = format.DEFAULT_TEMPLATE
-	DEFAULT_CORRELATION_TEMPLATE  = "[%s] %s %s: %s"
-	DEFAULT_CUSTOM_TEMPLATE       = DEFAULT_TEMPLATE
-	DEFAULT_TRIM_SEVERITY_TEXT    = "false"
-	DEFAULT_TIME_KEY              = "time"
-	DEFAULT_SEVERITY_KEY          = "severity"
-	DEFAULT_MESSAGE_KEY           = "message"
-	DEFAULT_CORRELATION_KEY       = "correlation"
-	DEFAULT_CUSTOM_VALUES_KEY     = "custom"
-	DEFAULT_CUSTOM_AS_SUB_ELEMENT = "false"
-	DEFAULT_TIME_LAYOUT           = time.RFC3339
+	DEFAULT_DELIMITER                   = " - "
+	DEFAULT_TEMPLATE                    = format.DEFAULT_TEMPLATE
+	DEFAULT_CORRELATION_TEMPLATE        = "[%s] %s %s: %s"
+	DEFAULT_CUSTOM_TEMPLATE             = DEFAULT_TEMPLATE
+	DEFAULT_CALLER_TEMPLATE             = format.DEFAULT_CALLER_TEMPLATE
+	DEFAULT_CALLER_CORRELATION_TEMPLATE = "[%s] %s %s %s(%s.%d): %s"
+	DEFAULT_CALLER_CUSTOM_TEMPLATE      = DEFAULT_CALLER_TEMPLATE
+	DEFAULT_TRIM_SEVERITY_TEXT          = "false"
+	DEFAULT_TIME_KEY                    = "time"
+	DEFAULT_SEVERITY_KEY                = "severity"
+	DEFAULT_MESSAGE_KEY                 = "message"
+	DEFAULT_CORRELATION_KEY             = "correlation"
+	DEFAULT_CUSTOM_VALUES_KEY           = "custom"
+	DEFAULT_CUSTOM_AS_SUB_ELEMENT       = "false"
+	DEFAULT_CALLER_FUNCTIION_KEY        = "caller"
+	DEFAULT_CALLER_FILE_KEY             = "file"
+	DEFAULT_CALLER_FILE_LINE_KEY        = "line"
+	DEFAULT_TIME_LAYOUT                 = time.RFC3339
 )
 
 var configInitialized = false
@@ -171,7 +185,7 @@ func deriveConfigFromFile() bool {
 
 // Checks whether any environment variable of a severity log level is set
 func deriveConfigFromEnv() bool {
-	return existsAnyAtEnv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PROPERTY_NAME) ||
+	return existsAnyAtEnv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME) ||
 		existsAnyPrefixAtEnv(PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
 }
 
@@ -244,7 +258,8 @@ func createMapFromSliceWithKeyValues(sliceToConvert []string) map[string]string 
 	relevantKeyPrefixes := []string{DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME,
 		DEFAULT_LOG_FORMATTER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
 		PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME,
-		PACKAGE_LOG_FORMATTER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME}
+		PACKAGE_LOG_FORMATTER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
+		LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME}
 
 	for _, entry := range sliceToConvert {
 		keyValue := strings.SplitN(entry, "=", 2)
@@ -350,6 +365,9 @@ func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *F
 		formatterConfig.CustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_3", DEFAULT_CUSTOM_TEMPLATE)
 		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_4", DEFAULT_TIME_LAYOUT)
 		formatterConfig.TrimSeverityText = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_5", DEFAULT_TRIM_SEVERITY_TEXT)) == "true"
+		formatterConfig.CallerTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_6", DEFAULT_CALLER_TEMPLATE)
+		formatterConfig.CallerCorrelationIdTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_7", DEFAULT_CALLER_CORRELATION_TEMPLATE)
+		formatterConfig.CallerCustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_8", DEFAULT_CALLER_CUSTOM_TEMPLATE)
 	case FORMATTER_JSON:
 		formatterConfig.FormatterType = formatterName
 		formatterConfig.TimeKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_1", DEFAULT_TIME_KEY)
@@ -359,6 +377,9 @@ func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *F
 		formatterConfig.CustomValuesKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_5", DEFAULT_CUSTOM_VALUES_KEY)
 		formatterConfig.CustomValuesAsSubElement = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_6", DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true"
 		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_7", DEFAULT_TIME_LAYOUT)
+		formatterConfig.CallerFunctionKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_8", DEFAULT_CALLER_FUNCTIION_KEY)
+		formatterConfig.CallerFileKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_9", DEFAULT_CALLER_FILE_KEY)
+		formatterConfig.CallerFileLineKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_10", DEFAULT_CALLER_FILE_LINE_KEY)
 	default:
 		printHint(formatterName, formatterKey)
 	}
@@ -395,6 +416,8 @@ func configureLogger(relevantKeyValues *map[string]string, loggerConfig *LoggerC
 		severity = common.ERROR_SEVERITY
 	}
 	loggerConfig.Severity = severity
+
+	loggerConfig.IsCallerToSet = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, "false")) == "true"
 }
 
 // Returns the value from a map for a given key. If there is none, the default will be returned

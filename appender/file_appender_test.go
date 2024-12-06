@@ -13,7 +13,7 @@ import (
 	"github.com/ma-vin/typewriter/testutil"
 )
 
-var testJsonFormatter = format.CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339, false)
+var testJsonFormatter = format.CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339, "caller", "file", "line", false)
 var jsonFormatTestTime = time.Date(2024, time.November, 18, 16, 00, 0, 0, time.UTC)
 var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 

@@ -88,3 +88,15 @@ func TestDelimiterFormatEmptyCustom(t *testing.T) {
 		testutil.AssertEquals(expectedMessage, delimiterFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
+
+func TestDelimiterFormatCaller(t *testing.T) {
+	common.SetLogValuesMockTime(&delimiterFormatTestTime)
+
+	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
+	logValuesToFormat.CallerFile = "someFile"
+	logValuesToFormat.CallerFileLine = 42
+	logValuesToFormat.CallerFunction = "someFunction"
+	logValuesToFormat.IsCallerSet = true
+
+	testutil.AssertEquals(delimiterFormatTestTimeText+" - INFO  - someFunction at someFile (Line 42) - Testmessage", delimiterFormatter.Format(&logValuesToFormat), t, "Format caller")
+}

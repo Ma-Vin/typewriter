@@ -40,7 +40,7 @@ func (s TestAppender) Close() {
 }
 
 var testCommonLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
-var testCommonLogger = CreateCommonLogger(&testCommonLoggerAppender, constants.OFF_SEVERITY)
+var testCommonLogger = CreateCommonLogger(&testCommonLoggerAppender, constants.OFF_SEVERITY, false)
 var testCommonLoggerCounterAppenderClosed = 0
 var testCommonLoggerCounterAppenderClosedExpected = 1
 

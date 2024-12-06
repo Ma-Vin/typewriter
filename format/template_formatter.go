@@ -8,6 +8,7 @@ import (
 )
 
 const DEFAULT_TEMPLATE = "[%s] %s: %s"
+const DEFAULT_CALLER_TEMPLATE="[%s] %s %s(%s.%d): %s"
 
 // Formatter which uses given different templates for Format, FormatWithCorrelation and FormatCustom
 // The templates will be used in combination with [fmt.Sprintf]
@@ -22,31 +23,47 @@ const DEFAULT_TEMPLATE = "[%s] %s: %s"
 //
 // Because of explicit argument indices can be used at templates
 type TemplateFormatter struct {
-	template              string
-	correlationIdTemplate string
-	customTemplate        string
-	timeLayout            string
-	trimSeverityText      bool
+	template                    string
+	callerTemplate              string
+	correlationIdTemplate       string
+	callerCorrelationIdTemplate string
+	customTemplate              string
+	callerCustomTemplate        string
+	timeLayout                  string
+	trimSeverityText            bool
 }
 
 // Creates a new formater with given templates and time layout
-func CreateTemplateFormatter(template string, correlationIdTemplate string, customTemplate string, timeLayout string, trimSeverityText bool) Formatter {
+func CreateTemplateFormatter(template string, correlationIdTemplate string, customTemplate string,
+	callerTemplate string, callerCorrelationIdTemplate string, callerCustomTemplate string,
+	timeLayout string, trimSeverityText bool) Formatter {
 	return TemplateFormatter{
-		template:              template,
-		correlationIdTemplate: correlationIdTemplate,
-		customTemplate:        customTemplate,
-		timeLayout:            timeLayout,
-		trimSeverityText:      trimSeverityText,
+		template:                    template,
+		callerTemplate:              callerTemplate,
+		correlationIdTemplate:       correlationIdTemplate,
+		callerCorrelationIdTemplate: callerCorrelationIdTemplate,
+		customTemplate:              customTemplate,
+		callerCustomTemplate:        callerCustomTemplate,
+		timeLayout:                  timeLayout,
+		trimSeverityText:            trimSeverityText,
 	}
 }
 
 // Formats the given parameter to a string to log
 func (t TemplateFormatter) Format(logValues *common.LogValues) string {
-	if logValues.CorrelationId != nil {
-		return formatValues(t.correlationIdTemplate, t.formatTime(logValues), t.getSeverityText(logValues.Severity), *logValues.CorrelationId, logValues.Message)
-	}
 	if logValues.CustomValues != nil {
 		return t.formatCustom(logValues)
+	}
+	if logValues.IsCallerSet {
+		if logValues.CorrelationId != nil {
+			return formatValues(t.callerCorrelationIdTemplate, t.formatTime(logValues), t.getSeverityText(logValues.Severity), *logValues.CorrelationId,
+				logValues.CallerFunction, logValues.CallerFile, logValues.CallerFileLine, logValues.Message)
+		}
+		return formatValues(t.callerTemplate, t.formatTime(logValues), t.getSeverityText(logValues.Severity),
+			logValues.CallerFunction, logValues.CallerFile, logValues.CallerFileLine, logValues.Message)
+	}
+	if logValues.CorrelationId != nil {
+		return formatValues(t.correlationIdTemplate, t.formatTime(logValues), t.getSeverityText(logValues.Severity), *logValues.CorrelationId, logValues.Message)
 	}
 	return formatValues(t.template, t.formatTime(logValues), t.getSeverityText(logValues.Severity), logValues.Message)
 }
@@ -62,9 +79,17 @@ func (t TemplateFormatter) formatCustom(logValues *common.LogValues) string {
 
 	args = append(args, t.formatTime(logValues))
 	args = append(args, t.getSeverityText(logValues.Severity))
+	if logValues.IsCallerSet {
+		args = append(args, logValues.CallerFunction)
+		args = append(args, logValues.CallerFile)
+		args = append(args, logValues.CallerFileLine)
+	}
 	args = append(args, logValues.Message)
 	args = appendCustomValues(args, logValues.CustomValues)
 
+	if logValues.IsCallerSet {
+		return formatValues(t.callerCustomTemplate, args...)
+	}
 	return formatValues(t.customTemplate, args...)
 }
 

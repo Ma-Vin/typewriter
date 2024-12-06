@@ -81,7 +81,10 @@ There are three types of formatter which provides the texts to log for the appen
   2. template for writing time, severity, correlationID and the message. Default `[%s] %s %s: %s`
   3. template for writing time, severity, message and custom value map. Default `[%s] %s: %s`
   4. time layout. Default value of `time.RFC3339`
-  5. indicator wether to trim severity text or to add space at warn and info to algin following elements. Default `false`
+  5. indicator whether to trim severity text or to add space at warn and info to algin following elements. Default `false`
+  6. like 1. with caller function, file and line placed in front of message. Default `[%s] %s %s(%s.%d): %s`
+  7. like 2. with caller function, file and line placed in front of message. Default `[%s] %s %s %s(%s.%d): %s`
+  8. like 3. with caller function, file and line placed in front of message. Default `[%s] %s %s(%s.%d): %s`
 
   It is possible to reorder parameter by argument indices. The *custom value map* at *3* will be appended as key-value-pairs sorted by key (e.g. a custom map with three entries of string, number and boolean format at indices from 4 to 9: `severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s`)
 * `JSON`: The records will be logged as *JSON*. It is possible to define key names, the time layout and if the custom value map should be a sub element or not. The keys of the custom value map will be used 1:1. The properties can be set via `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>` has to be replaced by the following integers.
@@ -92,8 +95,15 @@ There are three types of formatter which provides the texts to log for the appen
   5. key of custom values if used as sub elements. Default: `custom`
   6. indicator to add custom value map as sub element: Default: `false`
   7. time layout. Default value of `time.RFC3339`
+  8. key of the caller function. Default: `caller`
+  9. key of the caller file. Default: `file`
+  10. key of the caller file line. Default: `line`
 
 The default formatter is the delimiter one.
+
+#### Caller
+
+The logging of the caller function, file and line can be activated by setting `true` at `TYPEWRITER_LOG_CALLER`. The default is `false`.
 
 #### Package specific configuration
 

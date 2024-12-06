@@ -77,6 +77,9 @@ func TestGetLoggersCreateFromEnvDefaulJson(t *testing.T) {
 	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_5", "customValues")
 	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_6", "true")
 	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_7", time.RFC1123Z)
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_8", "callerFunction")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_9", "callerFileName")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_10", "callerFileLine")
 	Reset()
 
 	result := getLoggers()

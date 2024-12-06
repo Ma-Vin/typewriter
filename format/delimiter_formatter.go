@@ -22,19 +22,29 @@ func CreateDelimiterFormatter(delimiter string) Formatter {
 // Formats the given parameter to a string to log
 func (d DelimiterFormatter) Format(logValues *common.LogValues) string {
 	var sb strings.Builder
+
 	sb.WriteString(logValues.Time.Format(time.RFC3339))
 	sb.WriteString(d.delimiter)
 	sb.WriteString(severityTextMap[logValues.Severity])
+
 	if logValues.CorrelationId != nil {
 		sb.WriteString(d.delimiter)
 		sb.WriteString(*logValues.CorrelationId)
 	}
+
+	if logValues.IsCallerSet {
+		sb.WriteString(d.delimiter)
+		sb.WriteString(fmt.Sprintf("%s at %s (Line %d)", logValues.CallerFunction, logValues.CallerFile, logValues.CallerFileLine))
+	}
+
 	sb.WriteString(d.delimiter)
 	sb.WriteString(logValues.Message)
+
 	if logValues.CustomValues != nil && len(*logValues.CustomValues) > 0 {
 		sb.WriteString(d.delimiter)
 		sb.WriteString(formatMapToString(logValues.CustomValues, &d.delimiter))
 	}
+
 	return sb.String()
 }
 

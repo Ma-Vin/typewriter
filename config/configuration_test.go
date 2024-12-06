@@ -76,6 +76,7 @@ func TestGetConfigNoEnv(t *testing.T) {
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
+	testutil.AssertFalse( result.Logger[0].IsCallerToSet, t, "result.logger[0].IsCallerToSet")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
@@ -145,6 +146,34 @@ func TestGetConfiNonExistingFile(t *testing.T) {
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 }
 
+func TestGetConfigCaller(t *testing.T) {
+	os.Clearenv()
+	configInitialized = false
+
+	os.Setenv(LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, "true")
+
+	result := GetConfig()
+
+	testutil.AssertNotNil(result, t, "result")
+
+	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
+	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
+	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
+	testutil.AssertTrue( result.Logger[0].IsCallerToSet, t, "result.logger[0].IsCallerToSet")
+
+	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
+	testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
+	testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
+
+	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
+	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
+	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+}
+
 func TestGetConfigDefaultDelimiter(t *testing.T) {
 	for i := 0; i < countOfConfigTests; i++ {
 		optionalFile := allInitConfigTest[i](t)
@@ -186,6 +215,9 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_2", "time: %s severity: %s correlation: %s message: %s")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_3", "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_4", time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_6", "time: %s severity: %s caller:%s file:%s line:%d message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_7", "time: %s severity: %s correlation: %s caller:%s file:%s line:%d message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_8", "time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t")
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -210,6 +242,9 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 		testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[0].CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
 		testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.Formatter[0].CustomTemplate, t, "result.formatter[0].customTemplate")
 		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout, t, "result.formatter[0].timeLayout")
+		testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s", result.Formatter[0].CallerTemplate, t, "result.formatter[0].CallerTemplate")
+		testutil.AssertEquals("time: %s severity: %s correlation: %s caller:%s file:%s line:%d message: %s", result.Formatter[0].CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
+		testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t", result.Formatter[0].CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
 	}
 }
 
@@ -242,6 +277,9 @@ func TestGetConfigDefaultTemplateWithoutParameter(t *testing.T) {
 		testutil.AssertEquals("[%s] %s %s: %s", result.Formatter[0].CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
 		testutil.AssertEquals("[%s] %s: %s", result.Formatter[0].CustomTemplate, t, "result.formatter[0].customTemplate")
 		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].timeLayout")
+		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].CallerTemplate, t, "result.formatter[0].CallerTemplate")
+		testutil.AssertEquals("[%s] %s %s %s(%s.%d): %s", result.Formatter[0].CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
+		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
 	}
 }
 
@@ -258,6 +296,9 @@ func TestGetConfigDefaultJson(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_5", "customValues")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_6", "true")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_7", time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_8", "callerFunction")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_9", "callerFile")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+"_10", "callerFileLine")
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -284,6 +325,9 @@ func TestGetConfigDefaultJson(t *testing.T) {
 		testutil.AssertEquals("msg", result.Formatter[0].MessageKey, t, "result.formatter[0].messageKey")
 		testutil.AssertEquals("customValues", result.Formatter[0].CustomValuesKey, t, "result.formatter[0].customValuesKey")
 		testutil.AssertTrue(result.Formatter[0].CustomValuesAsSubElement, t, "result.formatter[0].customValuesAsSubElement")
+		testutil.AssertEquals("callerFunction", result.Formatter[0].CallerFunctionKey, t, "result.formatter[0].CallerFunctionKey")
+		testutil.AssertEquals("callerFile", result.Formatter[0].CallerFileKey, t, "result.formatter[0].CallerFileKey")
+		testutil.AssertEquals("callerFileLine", result.Formatter[0].CallerFileLineKey, t, "result.formatter[0].CallerFileLineKey")
 		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout, t, "result.formatter[0].timeLayout")
 	}
 }
@@ -320,6 +364,9 @@ func TestGetConfigDefaultJsonWithoutParameter(t *testing.T) {
 		testutil.AssertEquals("message", result.Formatter[0].MessageKey, t, "result.formatter[0].messageKey")
 		testutil.AssertEquals("custom", result.Formatter[0].CustomValuesKey, t, "result.formatter[0].customValuesKey")
 		testutil.AssertFalse(result.Formatter[0].CustomValuesAsSubElement, t, "result.formatter[0].customValuesAsSubElement")
+		testutil.AssertEquals("caller", result.Formatter[0].CallerFunctionKey, t, "result.formatter[0].CallerFunctionKey")
+		testutil.AssertEquals("file", result.Formatter[0].CallerFileKey, t, "result.formatter[0].CallerFileKey")
+		testutil.AssertEquals("line", result.Formatter[0].CallerFileLineKey, t, "result.formatter[0].CallerFileLineKey")
 		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].timeLayout")
 	}
 }

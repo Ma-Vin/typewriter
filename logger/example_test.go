@@ -292,3 +292,28 @@ func ExampleLog_templateFormatCustomTemplates() {
 	// time=[25 Nov 24 08:30 DE], severity=[ERROR], msg=[Error will be printed] correlation[CorrelationId123]
 	// time=[25 Nov 24 08:30 DE], severity=[FATAL], msg=[Fatal will be printed], a=[firstEntry], b=[true], c=[1.2]
 }
+
+func ExampleLog_callerWithIndexedTemplate() {
+	// Clear test environment
+	os.Clearenv()
+	Reset()
+	// use fixed time for output compare
+	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
+	common.SetLogValuesMockTime(&mockTime)
+
+	// Example beginn
+	os.Setenv("TYPEWRITER_LOG_CALLER", "true")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "TEMPLATE")
+	// Ignore file, because the system dependend path can not compared
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_6", "time:%[1]s, severity:%[2]s, caller:%[3]s line:%[5]d msg:%[6]s")
+
+	Log().Debug("Debug will not be printed")
+	Log().Information("Information will not be printed")
+	Log().Warning("Warning will not be printed")
+	Log().Error("Error will be printed")
+	Log().Fatal("Fatal will be ", "printed")
+
+	// Output:
+	// time:2024-11-25T08:30:00Z, severity:ERROR, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:313 msg:Error will be printed
+	// time:2024-11-25T08:30:00Z, severity:FATAL, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:314 msg:Fatal will be printed
+}
