@@ -151,7 +151,7 @@ func ExampleLog_otherDdelimiter() {
 
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "DELIMITER")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER", ",")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_DELIMITER", ",")
 
 	Log().Debug("Debug will not be printed")
 	Log().Information("Information will not be printed")
@@ -204,14 +204,14 @@ func ExampleLog_jsonFormatCustomKeys() {
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "JSON")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_1", "the_time")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_2", "log_level")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_3", "correlation_id")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_4", "msg")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_5", "my_values")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_TIME_KEY", "the_time")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_SEVERITY_KEY", "log_level")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CORRELATION_KEY", "correlation_id")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_MESSAGE_KEY", "msg")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CUSTOM_VALUES_KEY", "my_values")
 	// Parameter 6 creates a subelement for the custom values
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_6", "true")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_7", time.RFC822)
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CUSTOM_VALUES_SUB", "true")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TIME_LAYOUT", time.RFC822)
 
 	customValueMap := make(map[string]any, 3)
 	customValueMap["b"] = true
@@ -270,11 +270,11 @@ func ExampleLog_templateFormatCustomTemplates() {
 	// Example beginn
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "TEMPLATE")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_1", "time=[%s], severity=[%s], msg=[%s]")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_2", "time=[%[1]s], severity=[%[2]s], msg=[%[4]s] correlation[%[3]s]")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_3", "time=[%s], severity=[%s], msg=[%s], %s=[%s], %s=[%t], %s=[%g]")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_4", time.RFC822)
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_5", "true")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE", "time=[%s], severity=[%s], msg=[%s]")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CORRELATION", "time=[%[1]s], severity=[%[2]s], msg=[%[4]s] correlation[%[3]s]")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CUSTOM", "time=[%s], severity=[%s], msg=[%s], %s=[%s], %s=[%t], %s=[%g]")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TIME_LAYOUT", time.RFC822)
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_TRIM_SEVERITY", "true")
 
 	customValueMap := make(map[string]any, 3)
 	customValueMap["b"] = true
@@ -305,7 +305,7 @@ func ExampleLog_callerWithIndexedTemplate() {
 	os.Setenv("TYPEWRITER_LOG_CALLER", "true")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "TEMPLATE")
 	// Ignore file, because the system dependend path can not compared
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_6", "time:%[1]s, severity:%[2]s, caller:%[3]s line:%[5]d msg:%[6]s")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CALLER", "time:%[1]s, severity:%[2]s, caller:%[3]s line:%[5]d msg:%[6]s")
 
 	Log().Debug("Debug will not be printed")
 	Log().Information("Information will not be printed")

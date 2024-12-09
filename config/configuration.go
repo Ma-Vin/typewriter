@@ -76,6 +76,25 @@ const (
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME           = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
 
+	TIME_LAYOUT_PARAMETER                 = "_TIME_LAYOUT"
+	DELIMITER_PARAMETER                   = "_DELIMITER"
+	JSON_CALLER_FUNCTIOM_KEY_PARAMETER    = "_JSON_CALLER_FUNCTIOM_KEY"
+	JSON_CALLER_FILE_KEY_PARAMETER        = "_JSON_CALLER_FILE_KEY"
+	JSON_CALLER_LINE_KEY_PARAMETER        = "_JSON_CALLER_LINE_KEY"
+	JSON_CORRELATION_KEY_PARAMETER        = "_JSON_CORRELATION_KEY"
+	JSON_CUSTOM_VALUES_KEY_PARAMETER      = "_JSON_CUSTOM_VALUES_KEY"
+	JSON_CUSTOM_VALUES_SUB_PARAMETER      = "_JSON_CUSTOM_VALUES_SUB"
+	JSON_MESSAGE_KEY_PARAMETER            = "_JSON_MESSAGE_KEY"
+	JSON_SEVERITY_KEY_PARAMETER           = "_JSON_SEVERITY_KEY"
+	JSON_TIME_KEY_PARAMETER               = "_JSON_TIME_KEY"
+	TEMPLATE_PARAMETER                    = "_TEMPLATE"
+	TEMPLATE_CORRELATION_PARAMETER        = "_TEMPLATE_CORRELATION"
+	TEMPLATE_CUSTOM_PARAMETER             = "_TEMPLATE_CUSTOM"
+	TEMPLATE_TRIM_SEVERITY_PARAMETER      = "_TEMPLATE_TRIM_SEVERITY"
+	TEMPLATE_CALLER_PARAMETER             = "_TEMPLATE_CALLER"
+	TEMPLATE_CALLER_CORRELATION_PARAMETER = "_TEMPLATE_CALLER_CORRELATION"
+	TEMPLATE_CALLER_CUSTOM_PARAMETER      = "_TEMPLATE_CALLER_CUSTOM"
+
 	LOG_CONFIG_FILE_ENV_NAME             = "TYPEWRITER_CONFIG_FILE"
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME = "TYPEWRITER_LOG_CALLER"
 
@@ -357,29 +376,29 @@ func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *F
 	switch formatterName {
 	case FORMATTER_DELIMITER:
 		formatterConfig.FormatterType = formatterName
-		formatterConfig.Delimiter = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey, DEFAULT_DELIMITER)
+		formatterConfig.Delimiter = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+DELIMITER_PARAMETER, DEFAULT_DELIMITER)
 	case FORMATTER_TEMPLATE:
 		formatterConfig.FormatterType = formatterName
-		formatterConfig.Template = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_1", DEFAULT_TEMPLATE)
-		formatterConfig.CorrelationIdTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_2", DEFAULT_CORRELATION_TEMPLATE)
-		formatterConfig.CustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_3", DEFAULT_CUSTOM_TEMPLATE)
-		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_4", DEFAULT_TIME_LAYOUT)
-		formatterConfig.TrimSeverityText = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_5", DEFAULT_TRIM_SEVERITY_TEXT)) == "true"
-		formatterConfig.CallerTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_6", DEFAULT_CALLER_TEMPLATE)
-		formatterConfig.CallerCorrelationIdTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_7", DEFAULT_CALLER_CORRELATION_TEMPLATE)
-		formatterConfig.CallerCustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_8", DEFAULT_CALLER_CUSTOM_TEMPLATE)
+		formatterConfig.Template = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE)
+		formatterConfig.CorrelationIdTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE)
+		formatterConfig.CustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE)
+		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT)
+		formatterConfig.TrimSeverityText = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY_TEXT)) == "true"
+		formatterConfig.CallerTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE)
+		formatterConfig.CallerCorrelationIdTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE)
+		formatterConfig.CallerCustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE)
 	case FORMATTER_JSON:
 		formatterConfig.FormatterType = formatterName
-		formatterConfig.TimeKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_1", DEFAULT_TIME_KEY)
-		formatterConfig.SeverityKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_2", DEFAULT_SEVERITY_KEY)
-		formatterConfig.CorrelationKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_3", DEFAULT_CORRELATION_KEY)
-		formatterConfig.MessageKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_4", DEFAULT_MESSAGE_KEY)
-		formatterConfig.CustomValuesKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_5", DEFAULT_CUSTOM_VALUES_KEY)
-		formatterConfig.CustomValuesAsSubElement = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_6", DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true"
-		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_7", DEFAULT_TIME_LAYOUT)
-		formatterConfig.CallerFunctionKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_8", DEFAULT_CALLER_FUNCTIION_KEY)
-		formatterConfig.CallerFileKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_9", DEFAULT_CALLER_FILE_KEY)
-		formatterConfig.CallerFileLineKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+"_10", DEFAULT_CALLER_FILE_LINE_KEY)
+		formatterConfig.TimeKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_TIME_KEY_PARAMETER, DEFAULT_TIME_KEY)
+		formatterConfig.SeverityKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_SEVERITY_KEY_PARAMETER, DEFAULT_SEVERITY_KEY)
+		formatterConfig.CorrelationKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CORRELATION_KEY_PARAMETER, DEFAULT_CORRELATION_KEY)
+		formatterConfig.MessageKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_MESSAGE_KEY_PARAMETER, DEFAULT_MESSAGE_KEY)
+		formatterConfig.CustomValuesKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_KEY_PARAMETER, DEFAULT_CUSTOM_VALUES_KEY)
+		formatterConfig.CustomValuesAsSubElement = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true"
+		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT)
+		formatterConfig.CallerFunctionKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FUNCTIOM_KEY_PARAMETER, DEFAULT_CALLER_FUNCTIION_KEY)
+		formatterConfig.CallerFileKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FILE_KEY_PARAMETER, DEFAULT_CALLER_FILE_KEY)
+		formatterConfig.CallerFileLineKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_LINE_KEY_PARAMETER, DEFAULT_CALLER_FILE_LINE_KEY)
 	default:
 		printHint(formatterName, formatterKey)
 	}
