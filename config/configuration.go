@@ -377,6 +377,7 @@ func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *F
 	case FORMATTER_DELIMITER:
 		formatterConfig.FormatterType = formatterName
 		formatterConfig.Delimiter = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+DELIMITER_PARAMETER, DEFAULT_DELIMITER)
+		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT)
 	case FORMATTER_TEMPLATE:
 		formatterConfig.FormatterType = formatterName
 		formatterConfig.Template = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE)
@@ -476,7 +477,7 @@ func completeDefaults() {
 		}
 	}
 	if !found {
-		config.Formatter = append(config.Formatter, FormatterConfig{FormatterType: FORMATTER_DELIMITER, IsDefault: true, PackageName: "", Delimiter: DEFAULT_DELIMITER})
+		config.Formatter = append(config.Formatter, FormatterConfig{FormatterType: FORMATTER_DELIMITER, IsDefault: true, PackageName: "", Delimiter: DEFAULT_DELIMITER, TimeLayout: DEFAULT_TIME_LAYOUT})
 	}
 
 	for _, ac := range config.Appender {

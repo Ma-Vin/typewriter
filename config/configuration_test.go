@@ -88,6 +88,7 @@ func TestGetConfigNoEnv(t *testing.T) {
 	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
 }
 
 func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
@@ -118,6 +119,7 @@ func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
 	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
 }
 
 func TestGetConfiNonExistingFile(t *testing.T) {
@@ -144,6 +146,7 @@ func TestGetConfiNonExistingFile(t *testing.T) {
 	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
 }
 
 func TestGetConfigCaller(t *testing.T) {
@@ -172,6 +175,7 @@ func TestGetConfigCaller(t *testing.T) {
 	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
 }
 
 func TestGetConfigDefaultDelimiter(t *testing.T) {
@@ -181,6 +185,7 @@ func TestGetConfigDefaultDelimiter(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_DELIMITER)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+DELIMITER_PARAMETER, ":")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -202,6 +207,7 @@ func TestGetConfigDefaultDelimiter(t *testing.T) {
 		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(":", result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
 	}
 }
 

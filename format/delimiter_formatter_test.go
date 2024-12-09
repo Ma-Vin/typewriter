@@ -9,7 +9,7 @@ import (
 	"github.com/ma-vin/typewriter/testutil"
 )
 
-var delimiterFormatter Formatter = CreateDelimiterFormatter(" - ")
+var delimiterFormatter Formatter = CreateDelimiterFormatter(" - ", time.RFC3339)
 
 var delimiterFormatTestTime = time.Date(2024, time.October, 1, 13, 20, 0, 0, time.UTC)
 var delimiterFormatTestTimeText = delimiterFormatTestTime.Format(time.RFC3339)

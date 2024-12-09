@@ -53,7 +53,7 @@ func createFormatters(formatterConfigs *[]config.FormatterConfig, formatterConfi
 
 		switch fc1.FormatterType {
 		case config.FORMATTER_DELIMITER:
-			appendFormatter(format.CreateDelimiterFormatter(fc1.Delimiter))
+			appendFormatter(format.CreateDelimiterFormatter(fc1.Delimiter, fc1.TimeLayout))
 			setLastFormatter(fc1.Id, formatterConfigMapping)
 		case config.FORMATTER_TEMPLATE:
 			appendFormatter(format.CreateTemplateFormatter(fc1.Template, fc1.CorrelationIdTemplate, fc1.CustomTemplate, 

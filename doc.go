@@ -50,7 +50,9 @@ There are two types of appender at the moment. They can be configured by setting
 
 There are three types of formatter which provides the texts to log for the appender. They can be configured by setting “TYPEWRITER_LOG_FORMATTER_TYPE” with one of the following values:
 
-DELIMITER: The record information will be appended and delimited with a given sign. The default value of the delimiter is “ - ”. It can be configured by setting “TYPEWRITER_LOG_FORMATTER_PARAMETER_DELIMITER”.
+DELIMITER: The record information will be appended and delimited with a given sign. They can be set “TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>” where <x>has to be replaced by the following values:
+ 1. “DELIMITER” the delimiting signs. The default value of the delimiter is “ - ”.
+ 2. “TIME_LAYOUT” time layout. Default value of [time.RFC3339]
 
 TEMPLATE: The records will be derived from three templates and time layout. They can be set “TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>” where <x>has to be replaced by the following values:
  1. “TEMPLATE” template for writing time, severity and the message. Default “[%s] %s: %s”
