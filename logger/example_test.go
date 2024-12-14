@@ -27,6 +27,26 @@ func ExampleLog_withDefaultConfiguration() {
 	// 2024-11-25T08:30:00Z - FATAL - Fatal will be printed
 }
 
+func ExampleLog_withDefaultConfigurationWithoutInterface() {
+	// Clear test environment
+	os.Clearenv()
+	Reset()
+	// use fixed time for output compare
+	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
+	common.SetLogValuesMockTime(&mockTime)
+
+	// Example beginn
+	Debug("Debug will not be printed")
+	Information("Information will not be printed")
+	Warning("Warning will not be printed")
+	Error("Error will be printed")
+	Fatal("Fatal will be ", "printed")
+
+	// Output:
+	// 2024-11-25T08:30:00Z - ERROR - Error will be printed
+	// 2024-11-25T08:30:00Z - FATAL - Fatal will be printed
+}
+
 func ExampleLog_formatWithDefaultConfiguration() {
 	// Clear test environment
 	os.Clearenv()
@@ -141,7 +161,7 @@ func ExampleLog_levelRestrictedByPackage() {
 	// 2024-11-25T08:30:00Z - FATAL - Fatal will be printed
 }
 
-func ExampleLog_otherDdelimiter() {
+func ExampleLog_otherDelimiter() {
 	// Clear test environment
 	os.Clearenv()
 	Reset()
@@ -314,6 +334,6 @@ func ExampleLog_callerWithIndexedTemplate() {
 	Log().Fatal("Fatal will be ", "printed")
 
 	// Output:
-	// time:2024-11-25T08:30:00Z, severity:ERROR, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:313 msg:Error will be printed
-	// time:2024-11-25T08:30:00Z, severity:FATAL, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:314 msg:Fatal will be printed
+	// time:2024-11-25T08:30:00Z, severity:ERROR, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:333 msg:Error will be printed
+	// time:2024-11-25T08:30:00Z, severity:FATAL, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:334 msg:Fatal will be printed
 }
