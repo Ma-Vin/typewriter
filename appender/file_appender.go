@@ -14,6 +14,7 @@ type FileAppender struct {
 	pathToLogFile string
 	formatter     *format.Formatter
 	writer        *os.File
+	isClosed      *bool
 	mu            *sync.Mutex
 }
 
@@ -35,6 +36,7 @@ func CleanFileToMutex() {
 func CreateFileAppender(pathToLogFile string, formatter *format.Formatter) Appender {
 	var file *os.File = nil
 	var err error = nil
+	var closed = false
 	if !SkipFileCreationForTest {
 		file, err = os.OpenFile(pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	}
@@ -43,7 +45,7 @@ func CreateFileAppender(pathToLogFile string, formatter *format.Formatter) Appen
 		fmt.Println()
 		return CreateStandardOutputAppender(formatter)
 	}
-	return FileAppender{pathToLogFile, formatter, file, getOrCreateMutexForFile(&pathToLogFile)}
+	return FileAppender{pathToLogFile, formatter, file, &closed, getOrCreateMutexForFile(&pathToLogFile)}
 }
 
 func getOrCreateMutexForFile(pathToLogFile *string) *sync.Mutex {
@@ -64,7 +66,11 @@ func (f FileAppender) Write(logValues *common.LogValues) {
 
 // Closes writer of the output file
 func (f FileAppender) Close() {
+	if *f.isClosed {
+		return
+	}
 	err := f.writer.Close()
+	*f.isClosed = true
 	if err != nil {
 		fmt.Printf("Fail to close writer of %s: %s", f.pathToLogFile, err)
 		fmt.Println()
