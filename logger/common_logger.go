@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/common"
@@ -516,16 +517,42 @@ func (l *CommonLogger) writeCustom(severity int, message string, customValues ma
 
 func (l *CommonLogger) setCallerValues(logValuesToWrite *common.LogValues) {
 	if l.isCallerToSet {
-		pc, file, line, ok := runtime.Caller(4)
-		if !ok {
+		rpc := make([]uintptr, 2)
+		callersCount := runtime.Callers(5, rpc)
+		if callersCount < 1 {
 			logValuesToWrite.IsCallerSet = false
 			return
 		}
-		logValuesToWrite.CallerFunction = runtime.FuncForPC(pc).Name()
-		logValuesToWrite.CallerFile = file
-		logValuesToWrite.CallerFileLine = line
-		logValuesToWrite.IsCallerSet = true
-		return
+		frames := runtime.CallersFrames(rpc)
+		frame, more := frames.Next()
+		if setCallerFromFrame(&frame, logValuesToWrite) {
+			return
+		}
+		if more {
+			frame, _ = frames.Next()
+			if setCallerFromFrame(&frame, logValuesToWrite) {
+				return
+			}
+		}
 	}
 	logValuesToWrite.IsCallerSet = false
+}
+
+func setCallerFromFrame(frame *runtime.Frame, logValuesToWrite *common.LogValues) bool {
+	if isRelevantCaller(frame) {
+		adoptFrameValues(frame, logValuesToWrite)
+		return true
+	}
+	return false
+}
+
+func isRelevantCaller(frame *runtime.Frame) bool {
+	return frame.PC != 0 && (!strings.HasPrefix(frame.Func.Name(), "github.com/ma-vin/typewriter/logger") || !strings.HasSuffix(frame.File, "logger.go"))
+}
+
+func adoptFrameValues(source *runtime.Frame, target *common.LogValues) {
+	target.CallerFunction = source.Func.Name()
+	target.CallerFile = source.File
+	target.CallerFileLine = source.Line
+	target.IsCallerSet = true
 }

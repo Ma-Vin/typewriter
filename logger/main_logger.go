@@ -15,17 +15,38 @@ type MainLogger struct {
 // Determines which logger is relevant. If der exists a logger for a package equal to the callers package, this logger will be return, else the commonlogger.
 func (l *MainLogger) determineLogger() *CommonLogger {
 	if l.existPackageLogger {
-		pc, _, _, ok := runtime.Caller(2)
+		function, ok := determineCallerFunction()
 		if !ok {
 			return l.commonLogger
 		}
 
-		pl, found := l.packageLoggers[determinePackageName(runtime.FuncForPC(pc).Name())]
+		pl, found := l.packageLoggers[determinePackageName(function)]
 		if found {
 			return pl
 		}
 	}
 	return l.commonLogger
+}
+
+func determineCallerFunction() (string, bool) {
+	rpc := make([]uintptr, 2)
+	callersCount := runtime.Callers(4, rpc)
+
+	if callersCount < 1 {
+		return "", false
+	}
+	frames := runtime.CallersFrames(rpc)
+	frame, more := frames.Next()
+	if isRelevantCaller(&frame) {
+		return frame.Function, true
+	}
+	if more {
+		frame, _ = frames.Next()
+		if isRelevantCaller(&frame) {
+			return frame.Function, true
+		}
+	}
+	return "", false
 }
 
 // extracts the packename from a given function name. E.g. the result with parameter "github.com/ma-vin/typewriter/logger.determinePackageName" would be "logger"
@@ -336,37 +357,49 @@ func (l MainLogger) FatalCustomWithPanicf(customValues map[string]any, format st
 // Logs a message if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l MainLogger) FatalWithExit(args ...any) {
-	l.determineLoggerAndCloseOthersAppender().FatalWithExit(args...)
+	relevantLogger := l.determineLogger()
+	l.closeOtherAppender(relevantLogger)
+	relevantLogger.FatalWithExit(args...)
 }
 
 // Logs a message together with a correlation id if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l MainLogger) FatalWithCorrelationAndExit(correlationId string, args ...any) {
-	l.determineLoggerAndCloseOthersAppender().FatalWithCorrelationAndExit(correlationId, args...)
+	relevantLogger := l.determineLogger()
+	l.closeOtherAppender(relevantLogger)
+	relevantLogger.FatalWithCorrelationAndExit(correlationId, args...)
 }
 
 // Logs a message together with custom values if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l MainLogger) FatalCustomWithExit(customValues map[string]any, args ...any) {
-	l.determineLoggerAndCloseOthersAppender().FatalCustomWithExit(customValues, args...)
+	relevantLogger := l.determineLogger()
+	l.closeOtherAppender(relevantLogger)
+	relevantLogger.FatalCustomWithExit(customValues, args...)
 }
 
 // Logs a message derived from format if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l MainLogger) FatalWithExitf(format string, args ...any) {
-	l.determineLoggerAndCloseOthersAppender().FatalWithExitf(format, args...)
+	relevantLogger := l.determineLogger()
+	l.closeOtherAppender(relevantLogger)
+	relevantLogger.FatalWithExitf(format, args...)
 }
 
 // Logs a message derived from format together with a correlation id if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l MainLogger) FatalWithCorrelationAndExitf(correlationId string, format string, args ...any) {
-	l.determineLoggerAndCloseOthersAppender().FatalWithCorrelationAndExitf(correlationId, format, args...)
+	relevantLogger := l.determineLogger()
+	l.closeOtherAppender(relevantLogger)
+	relevantLogger.FatalWithCorrelationAndExitf(correlationId, format, args...)
 }
 
 // Logs a message derived from format together with custom values if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l MainLogger) FatalCustomWithExitf(customValues map[string]any, format string, args ...any) {
-	l.determineLoggerAndCloseOthersAppender().FatalCustomWithExitf(customValues, format, args...)
+	relevantLogger := l.determineLogger()
+	l.closeOtherAppender(relevantLogger)
+	relevantLogger.FatalCustomWithExitf(customValues, format, args...)
 }
 
 // Indicator whether debug level is enabled or not
@@ -394,14 +427,8 @@ func (l MainLogger) IsFatalEnabled() bool {
 	return l.determineLogger().IsFatalEnabled()
 }
 
-func (l *MainLogger) determineLoggerAndCloseOthersAppender() *CommonLogger {
-	relevantLogger := l.determineLogger()
-	l.closeAppender(relevantLogger)
-	return relevantLogger
-}
-
-func (l *MainLogger) closeAppender(loggerToSkip *CommonLogger) {
-	if l.commonLogger != loggerToSkip {
+func (l *MainLogger) closeOtherAppender(loggerToSkip *CommonLogger) {
+	if l.commonLogger.appender != loggerToSkip.appender {
 		l.commonLogger.closeAppender()
 	}
 	if !l.existPackageLogger {
@@ -409,7 +436,7 @@ func (l *MainLogger) closeAppender(loggerToSkip *CommonLogger) {
 		return
 	}
 	for _, pLog := range l.packageLoggers {
-		if pLog != loggerToSkip {
+		if pLog.appender != loggerToSkip.appender {
 			pLog.closeAppender()
 		}
 	}
