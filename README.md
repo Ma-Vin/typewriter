@@ -1,10 +1,14 @@
 [![Build and test](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml/badge.svg)](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ma-vin/typewriter.svg)](https://pkg.go.dev/github.com/ma-vin/typewriter)
+
 
 # Typewriter
 
 This repository provides a GoLang logging package, which are inspired by some Log4j features like package specific enablement
 
-:warning: :construction: **Not released yet**
+:warning: :construction: **No stable released yet**
+
+Nevertheless, pre-release versions can already be tested: [typewriter at pkg.go.dev](https://pkg.go.dev/github.com/ma-vin/typewriter)
 
 ## Sonar analysis
 
