@@ -56,6 +56,7 @@ func TestFileAppenderWrite(t *testing.T) {
 	appender.Write(&logValuesToFormat)
 	appender.Close()
 	testutil.AssertTrue(*appender.isClosed, t, "isClosed")
+	appender.Close()
 
 	checkLogFileEntry(logFilePath, "{\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
 }
