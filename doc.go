@@ -6,6 +6,7 @@ This repository provides a GoLang logging package, which are inspired by some Lo
 # 1.1 Access Log Methods
 
 The logger can be accessed via the [pkg/github.com/ma-vin/typewriter/logger.Log]. This will return a struct implementing the [pkg/github.com/ma-vin/typewriter/logger.Logger] interface.
+There are also the same methods directly in the “logger” package, but without returning an interface.
 
 # 1.2 Log Methods
 
