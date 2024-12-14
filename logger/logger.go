@@ -243,6 +243,355 @@ func Log() Logger {
 	return getLoggers()
 }
 
+// Logs a message if debug level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func Debug(args ...any) {
+	getLoggers().Debug(args...)
+}
+
+// Logs a message together with a correlation id if debug level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func DebugWithCorrelation(correlationId string, args ...any) {
+	getLoggers().DebugWithCorrelation(correlationId, args...)
+}
+
+// Logs a message together with custom values if debug level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func DebugCustom(customValues map[string]any, args ...any) {
+	getLoggers().DebugCustom(customValues, args...)
+}
+
+// Logs a message derived from format if debug level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func Debugf(format string, args ...any) {
+	getLoggers().Debugf(format, args...)
+}
+
+// Logs a message derived from format together with a correlation id if debug level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func DebugWithCorrelationf(correlationId string, format string, args ...any) {
+	getLoggers().DebugWithCorrelationf(correlationId, format, args...)
+}
+
+// Logs a message derived from format together with custom values if debug level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func DebugCustomf(customValues map[string]any, format string, args ...any) {
+	getLoggers().DebugCustomf(customValues, format, args...)
+}
+
+// Logs a message if information level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func Information(args ...any) {
+	getLoggers().Information(args...)
+}
+
+// Logs a message together with a correlation id if information level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func InformationWithCorrelation(correlationId string, args ...any) {
+	getLoggers().InformationWithCorrelation(correlationId, args...)
+}
+
+// Logs a message together with custom values if information level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func InformationCustom(customValues map[string]any, args ...any) {
+	getLoggers().InformationCustom(customValues, args...)
+}
+
+// Logs a message derived from format if information level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func Informationf(format string, args ...any) {
+	getLoggers().Informationf(format, args...)
+}
+
+// Logs a message derived from format together with a correlation id if information level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func InformationWithCorrelationf(correlationId string, format string, args ...any) {
+	getLoggers().InformationWithCorrelationf(correlationId, format, args...)
+}
+
+// Logs a message derived from format together with custom values if information level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func InformationCustomf(customValues map[string]any, format string, args ...any) {
+	getLoggers().InformationCustomf(customValues, format, args...)
+}
+
+// Logs a message if warning level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func Warning(args ...any) {
+	getLoggers().Warning(args...)
+}
+
+// Logs a message together with a correlation id if warning level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func WarningWithCorrelation(correlationId string, args ...any) {
+	getLoggers().WarningWithCorrelation(correlationId, args...)
+}
+
+// Logs a message together with custom values if warning level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func WarningCustom(customValues map[string]any, args ...any) {
+	getLoggers().WarningCustom(customValues, args...)
+}
+
+// Logs a message derived from format if warning level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func Warningf(format string, args ...any) {
+	getLoggers().Warningf(format, args...)
+}
+
+// Logs a message derived from format together with a correlation id if warning level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func WarningWithCorrelationf(correlationId string, format string, args ...any) {
+	getLoggers().WarningWithCorrelationf(correlationId, format, args...)
+}
+
+// Logs a message derived from format together with custom values if warning level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func WarningCustomf(customValues map[string]any, format string, args ...any) {
+	getLoggers().WarningCustomf(customValues, format, args...)
+}
+
+// Logs a message if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func WarningWithPanic(args ...any) {
+	getLoggers().WarningWithPanic(args...)
+}
+
+// Logs a message together with a correlation id if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func WarningWithCorrelationAndPanic(correlationId string, args ...any) {
+	getLoggers().WarningWithCorrelationAndPanic(correlationId, args...)
+}
+
+// Logs a message together with custom values if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func WarningCustomWithPanic(customValues map[string]any, args ...any) {
+	getLoggers().WarningCustomWithPanic(customValues, args...)
+}
+
+// Logs a message derived from format if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func WarningWithPanicf(format string, args ...any) {
+	getLoggers().WarningWithPanicf(format, args...)
+}
+
+// Logs a message derived from format together with a correlation id if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func WarningWithCorrelationAndPanicf(correlationId string, format string, args ...any) {
+	getLoggers().WarningWithCorrelationAndPanicf(correlationId, format, args...)
+}
+
+// Logs a message derived from format together with custom values if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func WarningCustomWithPanicf(customValues map[string]any, format string, args ...any) {
+	getLoggers().WarningCustomWithPanicf(customValues, format, args...)
+}
+
+// Logs a message if error level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func Error(args ...any) {
+	getLoggers().Error(args...)
+}
+
+// Logs a message together with a correlation id if error level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func ErrorWithCorrelation(correlationId string, args ...any) {
+	getLoggers().ErrorWithCorrelation(correlationId, args...)
+}
+
+// Logs a message together with custom values if error level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func ErrorCustom(customValues map[string]any, args ...any) {
+	getLoggers().ErrorCustom(customValues, args...)
+}
+
+// Logs a message derived from format if error level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func Errorf(format string, args ...any) {
+	getLoggers().Errorf(format, args...)
+}
+
+// Logs a message derived from format together with a correlation id if error level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func ErrorWithCorrelationf(correlationId string, format string, args ...any) {
+	getLoggers().ErrorWithCorrelationf(correlationId, format, args...)
+}
+
+// Logs a message derived from format together with custom values if error level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func ErrorCustomf(customValues map[string]any, format string, args ...any) {
+	getLoggers().ErrorCustomf(customValues, format, args...)
+}
+
+// Logs a message if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func ErrorWithPanic(args ...any) {
+	getLoggers().ErrorWithPanic(args...)
+}
+
+// Logs a message together with a correlation id if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func ErrorWithCorrelationAndPanic(correlationId string, args ...any) {
+	getLoggers().ErrorWithCorrelationAndPanic(correlationId, args...)
+}
+
+// Logs a message together with custom values if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func ErrorCustomWithPanic(customValues map[string]any, args ...any) {
+	getLoggers().ErrorCustomWithPanic(customValues, args...)
+}
+
+// Logs a message derived from format if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func ErrorWithPanicf(format string, args ...any) {
+	getLoggers().ErrorWithPanicf(format, args...)
+}
+
+// Logs a message derived from format together with a correlation id if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func ErrorWithCorrelationAndPanicf(correlationId string, format string, args ...any) {
+	getLoggers().ErrorWithCorrelationAndPanicf(correlationId, format, args...)
+}
+
+// Logs a message derived from format together with custom values if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func ErrorCustomWithPanicf(customValues map[string]any, format string, args ...any) {
+	getLoggers().ErrorCustomWithPanicf(customValues, format, args...)
+}
+
+// Logs a message if fatal level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func Fatal(args ...any) {
+	getLoggers().Fatal(args...)
+}
+
+// Logs a message together with a correlation id if fatal level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalWithCorrelation(correlationId string, args ...any) {
+	getLoggers().FatalWithCorrelation(correlationId, args...)
+}
+
+// Logs a message together with custom values if fatal level is enabled
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalCustom(customValues map[string]any, args ...any) {
+	getLoggers().FatalCustom(customValues, args...)
+}
+
+// Logs a message derived from format if fatal level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func Fatalf(format string, args ...any) {
+	getLoggers().Fatalf(format, args...)
+}
+
+// Logs a message derived from format together with a correlation id if fatal level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalWithCorrelationf(correlationId string, format string, args ...any) {
+	getLoggers().FatalWithCorrelationf(correlationId, format, args...)
+}
+
+// Logs a message derived from format together with custom values if fatal level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalCustomf(customValues map[string]any, format string, args ...any) {
+	getLoggers().FatalCustomf(customValues, format, args...)
+}
+
+// Logs a message if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalWithPanic(args ...any) {
+	getLoggers().FatalWithPanic(args...)
+}
+
+// Logs a message together with a correlation id if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalWithCorrelationAndPanic(correlationId string, args ...any) {
+	getLoggers().FatalWithCorrelationAndPanic(correlationId, args...)
+}
+
+// Logs a message together with custom values if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalCustomWithPanic(customValues map[string]any, args ...any) {
+	getLoggers().FatalCustomWithPanic(customValues, args...)
+}
+
+// Logs a message derived from format if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalWithPanicf(format string, args ...any) {
+	getLoggers().FatalWithPanicf(format, args...)
+}
+
+// Logs a message derived from format together with a correlation id if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalWithCorrelationAndPanicf(correlationId string, format string, args ...any) {
+	getLoggers().FatalWithCorrelationAndPanicf(correlationId, format, args...)
+}
+
+// Logs a message derived from format together with custom values if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalCustomWithPanicf(customValues map[string]any, format string, args ...any) {
+	getLoggers().FatalCustomWithPanicf(customValues, format, args...)
+}
+
+// Logs a message if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalWithExit(args ...any) {
+	getLoggers().FatalWithExit(args...)
+}
+
+// Logs a message together with a correlation id if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalWithCorrelationAndExit(correlationId string, args ...any) {
+	getLoggers().FatalWithCorrelationAndExit(correlationId, args...)
+}
+
+// Logs a message together with custom values if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalCustomWithExit(customValues map[string]any, args ...any) {
+	getLoggers().FatalCustomWithExit(customValues, args...)
+}
+
+// Logs a message derived from format if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalWithExitf(format string, args ...any) {
+	getLoggers().FatalWithExitf(format, args...)
+}
+
+// Logs a message derived from format together with a correlation id if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalWithCorrelationAndExitf(fcorrelationId string, format string, args ...any) {
+	getLoggers().FatalWithCorrelationAndExitf(fcorrelationId, format, args...)
+}
+
+// Logs a message derived from format together with custom values if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalCustomWithExitf(customValues map[string]any, format string, args ...any) {
+	getLoggers().FatalCustomWithExitf(customValues, format, args...)
+}
+
+// Indicator whether debug level is enabled or not
+func IsDebugEnabled() bool {
+	return getLoggers().IsDebugEnabled()
+}
+
+// Indicator whether information level is enabled or not
+func IsInformationEnabled() bool {
+	return getLoggers().IsInformationEnabled()
+}
+
+// Indicator whether warning level is enabled or not
+func IsWarningEnabled() bool {
+	return getLoggers().IsWarningEnabled()
+}
+
+// Indicator whether error level is enabled or not
+func IsErrorEnabled() bool {
+	return getLoggers().IsErrorEnabled()
+}
+
+// Indicator whether fatal level is enabled or not
+func IsFatalEnabled() bool {
+	return getLoggers().IsFatalEnabled()
+}
+
 // Resets loggers. Configuration will be loaded and loggers will be created again
 func Reset() {
 	loggersInitialized = false
