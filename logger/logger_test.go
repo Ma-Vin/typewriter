@@ -1,6 +1,10 @@
 package logger
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/ma-vin/typewriter/testutil"
+)
 
 func initLoggerViaPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
 	initMainLoggerViaPackageTest(envCommonLogLevel, envPackageLogLevel)
@@ -29,49 +33,49 @@ func initLoggerOnlyCommonTest(envCommonLogLevel string) {
 func TestEnableDebugSeverityLoggerViaPackage(t *testing.T) {
 	initLoggerViaPackageTest("OFF", "DEBUG")
 
-	assertEnabled(t, true, true, true, true, true)
+	assertLoggerEnabled(t, true, true, true, true, true)
 }
 
 func TestEnableInformationSeverityLoggerViaPackage(t *testing.T) {
 	initLoggerViaPackageTest("OFF", "INFORMATION")
 
-	assertEnabled(t, false, true, true, true, true)
+	assertLoggerEnabled(t, false, true, true, true, true)
 }
 
 func TestEnableInfoSeverityLoggerViaPackage(t *testing.T) {
 	initLoggerViaPackageTest("OFF", "INFO")
 
-	assertEnabled(t, false, true, true, true, true)
+	assertLoggerEnabled(t, false, true, true, true, true)
 }
 
 func TestEnableWarningSeverityLoggerViaPackage(t *testing.T) {
 	initLoggerViaPackageTest("OFF", "WARNING")
 
-	assertEnabled(t, false, false, true, true, true)
+	assertLoggerEnabled(t, false, false, true, true, true)
 }
 
 func TestEnableWarnSeverityLoggerViaPackage(t *testing.T) {
 	initLoggerViaPackageTest("OFF", "WARN")
 
-	assertEnabled(t, false, false, true, true, true)
+	assertLoggerEnabled(t, false, false, true, true, true)
 }
 
 func TestEnableErrorSeverityLoggerViaPackage(t *testing.T) {
 	initLoggerViaPackageTest("OFF", "ERROR")
 
-	assertEnabled(t, false, false, false, true, true)
+	assertLoggerEnabled(t, false, false, false, true, true)
 }
 
 func TestEnableFatalSeverityLoggerViaPackage(t *testing.T) {
 	initLoggerViaPackageTest("OFF", "FATAL")
 
-	assertEnabled(t, false, false, false, false, true)
+	assertLoggerEnabled(t, false, false, false, false, true)
 }
 
 func TestEnableOffSeverityLoggerViaPackage(t *testing.T) {
 	initLoggerViaPackageTest("OFF", "OFF")
 
-	assertEnabled(t, false, false, false, false, false)
+	assertLoggerEnabled(t, false, false, false, false, false)
 }
 
 // -------------------
@@ -83,49 +87,49 @@ func TestEnableOffSeverityLoggerViaPackage(t *testing.T) {
 func TestEnableDebugSeverityLoggerViaCommon(t *testing.T) {
 	initLoggerViaCommonTest("DEBUG", "OFF")
 
-	assertEnabled(t, true, true, true, true, true)
+	assertLoggerEnabled(t, true, true, true, true, true)
 }
 
 func TestEnableInformationSeverityLoggerViaCommon(t *testing.T) {
 	initLoggerViaCommonTest("INFORMATION", "OFF")
 
-	assertEnabled(t, false, true, true, true, true)
+	assertLoggerEnabled(t, false, true, true, true, true)
 }
 
 func TestEnableInfoSeverityLoggerViaCommon(t *testing.T) {
 	initLoggerViaCommonTest("INFO", "OFF")
 
-	assertEnabled(t, false, true, true, true, true)
+	assertLoggerEnabled(t, false, true, true, true, true)
 }
 
 func TestEnableWarningSeverityLoggerViaCommon(t *testing.T) {
 	initLoggerViaCommonTest("WARNING", "OFF")
 
-	assertEnabled(t, false, false, true, true, true)
+	assertLoggerEnabled(t, false, false, true, true, true)
 }
 
 func TestEnableWarnSeverityLoggerViaCommon(t *testing.T) {
 	initLoggerViaCommonTest("WARN", "OFF")
 
-	assertEnabled(t, false, false, true, true, true)
+	assertLoggerEnabled(t, false, false, true, true, true)
 }
 
 func TestEnableErrorSeverityLoggerViaCommon(t *testing.T) {
 	initLoggerViaCommonTest("ERROR", "OFF")
 
-	assertEnabled(t, false, false, false, true, true)
+	assertLoggerEnabled(t, false, false, false, true, true)
 }
 
 func TestEnableFatalSeverityLoggerViaCommon(t *testing.T) {
 	initLoggerViaCommonTest("FATAL", "OFF")
 
-	assertEnabled(t, false, false, false, false, true)
+	assertLoggerEnabled(t, false, false, false, false, true)
 }
 
 func TestEnableOffSeverityLoggerViaCommon(t *testing.T) {
 	initLoggerViaCommonTest("OFF", "OFF")
 
-	assertEnabled(t, false, false, false, false, false)
+	assertLoggerEnabled(t, false, false, false, false, false)
 }
 
 // -------------------
@@ -137,49 +141,57 @@ func TestEnableOffSeverityLoggerViaCommon(t *testing.T) {
 func TestEnableDebugSeverityLoggerOnlyCommon(t *testing.T) {
 	initLoggerOnlyCommonTest("DEBUG")
 
-	assertEnabled(t, true, true, true, true, true)
+	assertLoggerEnabled(t, true, true, true, true, true)
 }
 
 func TestEnableInformationSeverityLoggerOnlyCommon(t *testing.T) {
 	initLoggerOnlyCommonTest("INFORMATION")
 
-	assertEnabled(t, false, true, true, true, true)
+	assertLoggerEnabled(t, false, true, true, true, true)
 }
 
 func TestEnableInfoSeverityLoggerOnlyCommon(t *testing.T) {
 	initLoggerOnlyCommonTest("INFO")
 
-	assertEnabled(t, false, true, true, true, true)
+	assertLoggerEnabled(t, false, true, true, true, true)
 }
 
 func TestEnableWarningSeverityLoggerOnlyCommon(t *testing.T) {
 	initLoggerOnlyCommonTest("WARNING")
 
-	assertEnabled(t, false, false, true, true, true)
+	assertLoggerEnabled(t, false, false, true, true, true)
 }
 
 func TestEnableWarnSeverityLoggerOnlyCommon(t *testing.T) {
 	initLoggerOnlyCommonTest("WARN")
 
-	assertEnabled(t, false, false, true, true, true)
+	assertLoggerEnabled(t, false, false, true, true, true)
 }
 
 func TestEnableErrorSeverityLoggerOnlyCommon(t *testing.T) {
 	initLoggerOnlyCommonTest("ERROR")
 
-	assertEnabled(t, false, false, false, true, true)
+	assertLoggerEnabled(t, false, false, false, true, true)
 }
 
 func TestEnableFatalSeverityLoggerOnlyCommon(t *testing.T) {
 	initLoggerOnlyCommonTest("FATAL")
 
-	assertEnabled(t, false, false, false, false, true)
+	assertLoggerEnabled(t, false, false, false, false, true)
 }
 
 func TestEnableOffSeverityLoggerOnlyCommon(t *testing.T) {
 	initLoggerOnlyCommonTest("OFF")
 
-	assertEnabled(t, false, false, false, false, false)
+	assertLoggerEnabled(t, false, false, false, false, false)
+}
+
+func assertLoggerEnabled(t *testing.T, isDebug bool, isInfo bool, isWarn bool, isError bool, isFatal bool) {
+	testutil.AssertEquals(isDebug, IsDebugEnabled(), t, "IsDebugEnabled")
+	testutil.AssertEquals(isInfo, IsInformationEnabled(), t, "IsInformationEnabled")
+	testutil.AssertEquals(isWarn, IsWarningEnabled(), t, "IsWarningEnabled")
+	testutil.AssertEquals(isError, IsErrorEnabled(), t, "IsErrorEnabled")
+	testutil.AssertEquals(isFatal, IsFatalEnabled(), t, "IsFatalEnabled")
 }
 
 // -------------------
