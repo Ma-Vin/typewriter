@@ -1,0 +1,49 @@
+name: Typewriter Bug Report
+description: Typewriter Bug Report
+title: "[Bug]: "
+labels: ["bug"]
+projects: ["Ma-Vin/8"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: What happened?
+      description: What is the current behavior?
+      placeholder: Describe the current behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: What did you expect?
+      description: What did you expect to see? Why is the current behavior incorrect?
+      placeholder: Describe the expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce-behavior
+    attributes:
+      label: How can the problem be reproduced?
+      description: Please describe how to reproduce the problem
+      placeholder: How to reproduce it.
+    validations:
+      required: true
+  - type: input
+    id: go-version
+    attributes:
+      label: Go version
+      description: |
+        What version of Go are you using (`go version`)?
+      placeholder: go version go1.23.2 linux/amd64
+    validations:
+      required: true
+  - type: textarea
+    id: go-env
+    attributes:
+      label: "Output of `go env` in your module/workspace:"
+    validations:
+      required: false
