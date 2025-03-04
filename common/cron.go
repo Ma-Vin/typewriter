@@ -86,7 +86,7 @@ func (s *Crontab) CalculateNextTime() {
 
 // initializes the crontab time inidices and the last NextTime derived from current time
 func (s *Crontab) initializeNextTimeFromCurrentDate() {
-	base := GetNow()
+	base := getNow()
 
 	s.location = base.Location()
 	s.year = base.Year()
