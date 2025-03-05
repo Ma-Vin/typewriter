@@ -1,6 +1,7 @@
 package common
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -15,19 +16,19 @@ const (
 
 // Structure which represent a cron format expresion and provides the next point in time
 type Crontab struct {
-	NextTime        *time.Time
-	location        *time.Location
-	minutes         []int
-	minuteIndex     int
-	hours           []int
-	hourIndex       int
-	daysOfMonth     []int
-	dayOfMonthIndex int
-	months          []int
-	monthIndex      int
-	daysOfWeek      []int
-	dayOfWeekIndex  int
-	year            int
+	NextTime            *time.Time
+	location            *time.Location
+	minutes             []int
+	minuteIndex         int
+	hours               []int
+	hourIndex           int
+	daysOfMonth         []int
+	months              []int
+	monthIndex          int
+	daysOfWeek          []int
+	year                int
+	allDaysOfMonth      []int
+	allDaysOfMonthIndex int
 }
 
 // Returns the minutes of the next point in time
@@ -42,7 +43,7 @@ func (s *Crontab) Hour() int {
 
 // Returns the day of month of the next point in time
 func (s *Crontab) DayOfMonth() int {
-	return getTimeElement(&s.daysOfMonth, &s.dayOfMonthIndex, false)
+	return getTimeElement(&s.allDaysOfMonth, &s.allDaysOfMonthIndex, false)
 }
 
 // Returns the month of the next point in time
@@ -54,13 +55,6 @@ func (s *Crontab) Month() int {
 func (s *Crontab) Year() int {
 	return s.year
 }
-
-// Not supported yet
-/*
-func (s *Crontab) dayOfWeek() int {
-	return getTimeElement(&s.daysOfWeek, &s.dayOfWeekIndex, true)
-}
-*/
 
 // determines the time value from a Crontab element
 func getTimeElement(timeUnitArray *[]int, index *int, zerobased bool) int {
@@ -94,24 +88,27 @@ func (s *Crontab) initializeNextTimeFromCurrentDate() {
 	refMonth := int(base.Month())
 	interateToLastReachedTimeUnitIndex(&s.months, &s.monthIndex, refMonth, false)
 	if s.Month() > refMonth {
-		s.dayOfMonthIndex = 0
+		s.allDaysOfMonthIndex = 0
 		s.hourIndex = 0
 		s.minuteIndex = 0
+		s.determineAllDaysOfMonth()
 		s.setNextTime()
 		return
 	}
 	if s.Month() < refMonth {
-		s.year++
 		s.monthIndex = 0
-		s.dayOfMonthIndex = 0
+		s.allDaysOfMonthIndex = 0
 		s.hourIndex = 0
 		s.minuteIndex = 0
+		s.year++
+		s.determineAllDaysOfMonth()
 		s.setNextTime()
 		return
 	}
 
 	refDayOfMonth := base.Day()
-	interateToLastReachedTimeUnitIndex(&s.daysOfMonth, &s.dayOfMonthIndex, refDayOfMonth, false)
+	s.determineAllDaysOfMonth()
+	interateToLastReachedTimeUnitIndex(&s.allDaysOfMonth, &s.allDaysOfMonthIndex, refDayOfMonth, false)
 	if s.DayOfMonth() > refDayOfMonth {
 		s.hourIndex = 0
 		s.minuteIndex = 0
@@ -119,7 +116,7 @@ func (s *Crontab) initializeNextTimeFromCurrentDate() {
 		return
 	}
 	if s.DayOfMonth() < refDayOfMonth {
-		s.dayOfMonthIndex = 0
+		s.allDaysOfMonthIndex = 0
 		s.hourIndex = 0
 		s.minuteIndex = 0
 		s.increaseMonth()
@@ -153,6 +150,55 @@ func (s *Crontab) initializeNextTimeFromCurrentDate() {
 	}
 
 	s.setNextTime()
+}
+
+// determines all days of month by using all days defined by daysOfWeek, by using all days defined by daysOfMonth or merging daysOfWeek and daysOfMonth into allDaysOfMonth
+func (s *Crontab) determineAllDaysOfMonth() {
+	if len(s.daysOfWeek) == 0 && len(s.daysOfMonth) == 0 {
+		return
+	}
+
+	if len(s.daysOfWeek) == 0 && len(s.daysOfMonth) > 0 && len(s.allDaysOfMonth) == 0 {
+		s.allDaysOfMonth = make([]int, len(s.daysOfMonth))
+		copy(s.allDaysOfMonth, s.daysOfMonth)
+		return
+	}
+
+	if len(s.daysOfWeek) > 0 && len(s.daysOfMonth) == 0 {
+		s.determineAllDaysOfMonthOnlyByDaysOfWeek()
+		return
+	}
+
+	if len(s.daysOfWeek) > 0 && len(s.daysOfMonth) > 0 {
+		s.determineAllDaysOfMonthByMergeOfDaysOfWeekAndMonth()
+	}
+}
+
+// determines all days of month by using all days defined by daysOfWeek
+func (s *Crontab) determineAllDaysOfMonthOnlyByDaysOfWeek() {
+	weekday := int(time.Date(s.Year(), time.Month(s.Month()), 1, 0, 0, 0, 0, s.location).Weekday())
+	maxDaysInMonth := s.getMaxIndexDayOfMonth()
+	for i := 0; i <= maxDaysInMonth; i++ {
+		if slices.Contains(s.daysOfWeek, weekday) {
+			s.allDaysOfMonth = append(s.allDaysOfMonth, i+1)
+		}
+		weekday = (weekday + 1) % 7
+	}
+}
+
+// determines all days of month by merging daysOfWeek and daysOfMonth into allDaysOfMonth
+func (s *Crontab) determineAllDaysOfMonthByMergeOfDaysOfWeekAndMonth() {
+	s.allDaysOfMonth = make([]int, len(s.daysOfMonth))
+	copy(s.allDaysOfMonth, s.daysOfMonth)
+	weekday := int(time.Date(s.Year(), time.Month(s.Month()), 1, 0, 0, 0, 0, s.location).Weekday())
+	maxDaysInMonth := s.getMaxIndexDayOfMonth()
+	for i := 0; i <= maxDaysInMonth; i++ {
+		if !slices.Contains(s.daysOfMonth, i+1) && slices.Contains(s.daysOfWeek, weekday) {
+			s.allDaysOfMonth = append(s.allDaysOfMonth, i+1)
+		}
+		weekday = (weekday + 1) % 7
+	}
+	slices.Sort(s.allDaysOfMonth)
 }
 
 // adjust the index of a time elements to the last valid value compared to targetValue
@@ -197,12 +243,13 @@ func (s *Crontab) increaseHour() {
 
 // increases the day of month by one unit. If the last element was reached already, the month will be increased
 func (s *Crontab) increaseDayOfMonth() {
-	increaseTimeUnit(&s.daysOfMonth, &s.dayOfMonthIndex, s.getMaxIndexDayOfMonth(), false, s.increaseMonth)
+	increaseTimeUnit(&s.allDaysOfMonth, &s.allDaysOfMonthIndex, s.getMaxIndexDayOfMonth(), false, s.increaseMonth)
 }
 
 // increases the month by one unit. If the last element was reached already, the year will be increased
 func (s *Crontab) increaseMonth() {
 	increaseTimeUnit(&s.months, &s.monthIndex, 11, false, func() { s.year++ })
+	s.determineAllDaysOfMonth()
 }
 
 // increases a time unit of a Crontab element  If the last element was reached already, the following unit will be increased by given nextIncrease
@@ -252,13 +299,7 @@ func (s *Crontab) getMaxIndexDayOfMonth() int {
 		} else {
 			return 27
 		}
-	case 4:
-		return 29
-	case 6:
-		return 29
-	case 9:
-		return 29
-	case 11:
+	case 4, 6, 9, 11:
 		return 29
 	default:
 		return 30
@@ -268,7 +309,7 @@ func (s *Crontab) getMaxIndexDayOfMonth() int {
 // Parses the giuven cron expresion and creates a new Crontab element with initialized NextTime compared to [time.Now]
 func CreateCrontab(cronExpression string) *Crontab {
 	cronParts := strings.Split(cronExpression, " ")
-	result := Crontab{nil, nil, []int{}, -1, []int{}, -1, []int{}, -1, []int{}, -1, []int{}, -1, 0}
+	result := Crontab{nil, nil, []int{}, -1, []int{}, -1, []int{}, []int{}, -1, []int{}, 0, []int{}, -1}
 
 	if len(cronParts) > 0 {
 		determineCronElement(cronParts[0], 0, 59, &result.minutes)

@@ -298,6 +298,8 @@ func TestCreateCronCrontabDayOfWeekRange(t *testing.T) {
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
 	checkSliceValues(3, 3, 1, &result.daysOfWeek, t, "result.dayOfWeek")
+
+	testutil.AssertEquals(time.Date(2025, time.March, 5, 0, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
 
 func TestCreateCronCrontabDayOfWeekRangeIncrement(t *testing.T) {
@@ -309,6 +311,8 @@ func TestCreateCronCrontabDayOfWeekRangeIncrement(t *testing.T) {
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
 	checkSliceValues(2, 3, 2, &result.daysOfWeek, t, "result.dayOfWeek")
+
+	testutil.AssertEquals(time.Date(2025, time.March, 5, 0, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
 
 func TestCreateCronCrontabDayOfWeekList(t *testing.T) {
@@ -320,6 +324,8 @@ func TestCreateCronCrontabDayOfWeekList(t *testing.T) {
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
 	checkSliceValues(3, 2, 2, &result.daysOfWeek, t, "result.dayOfWeek")
+
+	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 11, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
 
 func TestCreateCronCrontabDayOfWeekAsteriskIncrement(t *testing.T) {
@@ -331,6 +337,8 @@ func TestCreateCronCrontabDayOfWeekAsteriskIncrement(t *testing.T) {
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
 	checkSliceValues(3, 0, 3, &result.daysOfWeek, t, "result.dayOfWeek")
+
+	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 11, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
 
 // upper and lower bound
@@ -452,4 +460,15 @@ func TestCalculateNextTimeFebLeapyear(t *testing.T) {
 	testutil.AssertEquals(time.Date(2024, time.February, 29, 0, 0, 0, 0, time.UTC), *crontab.NextTime, t, "1. calculate crontab.NextTime")
 	crontab.CalculateNextTime()
 	testutil.AssertEquals(time.Date(2024, time.March, 2, 0, 0, 0, 0, time.UTC), *crontab.NextTime, t, "2. calculate crontab.NextTime")
+}
+
+func TestCalculateNextTimeDayOfWeekAndMonth(t *testing.T) {
+	SetLogValuesMockTime(&cronCrontabTestTime)
+	crontab := CreateCrontab("0 0 2 * 2")
+
+	testutil.AssertEquals(time.Date(2025, time.March, 2, 0, 0, 0, 0, time.UTC), *crontab.NextTime, t, "init crontab.NextTime")
+	crontab.CalculateNextTime()
+	testutil.AssertEquals(time.Date(2025, time.March, 4, 0, 0, 0, 0, time.UTC), *crontab.NextTime, t, "1. calculate crontab.NextTime")
+	crontab.CalculateNextTime()
+	testutil.AssertEquals(time.Date(2025, time.March, 11, 0, 0, 0, 0, time.UTC), *crontab.NextTime, t, "2. calculate crontab.NextTime")
 }
