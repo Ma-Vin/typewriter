@@ -384,7 +384,7 @@ func TestGetConfigDefaultFileAppender(t *testing.T) {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
-		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME, logFilePath)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -796,7 +796,7 @@ func TestGetConfigPackageFileAppender(t *testing.T) {
 	for i := 0; i < countOfConfigTests; i++ {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
-		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME+packageName, logFilePath)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -818,6 +818,7 @@ func TestGetConfigPackageFileAppender(t *testing.T) {
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
 		testutil.AssertEquals(APPENDER_FILE, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
+		testutil.AssertEquals(logFilePath, result.Appender[1].PathToLogFile, t, "result.appender[1].pathToLogFile")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
@@ -838,7 +839,7 @@ func TestGetConfigFromFileButAllCommentOut(t *testing.T) {
 	propertiesFile := propertiesFileInitConfigTest(t)
 	propertiesFileAddValueConfigTest(propertiesFile, "#"+DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 	propertiesFileAddValueConfigTest(propertiesFile, "//"+DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
-	propertiesFileAddValueConfigTest(propertiesFile, "--"+DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME, logFilePath)
+	propertiesFileAddValueConfigTest(propertiesFile, "--"+DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
 	propertiesFileAddValueConfigTest(propertiesFile, "/*"+DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_TEMPLATE+"*/")
 	fmt.Fprintln(propertiesFile, "/*")
 	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_PARAMETER, "time: %s severity: %s message: %s")

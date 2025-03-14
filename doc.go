@@ -25,11 +25,11 @@ In addition, there exists an indicator if the severity is enabled or not.
 
 Configuration is currently possible via environment variables or an properties file.
 
-# 2.1 Configauration by file
+# 2.1 Configuration by file
 
 To use a configuration file by setting an environment variable “TYPEWRITER_CONFIG_FILE” with a path to a properties file.
 If this environment variable is set, all others will be ignored. Nevertheless, the same property names are used by both.
-It is possible to use single line comments “#”,“//” or “--” and multiline commets with begin at “/*” and end at “* /” (Without blank, because of unknown escaping at doc.go).
+It is possible to use single line comments “#”,“//” or “--” and multiline comments with begin at “/*” and end at “* /” (Without blank, because of unknown escaping at doc.go).
 
 # 2.2 Log levels
 
@@ -45,7 +45,7 @@ The log level can be set via “TYPEWRITER_LOG_LEVEL” with one of the followin
 There are two types of appender at the moment. They can be configured by setting “TYPEWRITER_LOG_APPENDER_TYPE” with one of the following values:
 
   - STDOUT: Standard output appender (The default appender)
-  - FILE: File appender which writes to a file. The target file of the appender has to be configured by setting the path to “TYPEWRITER_LOG_APPENDER_PARAMETER”
+  - FILE: File appender which writes to a file. The target file of the appender has to be configured by setting the path to “TYPEWRITER_LOG_APPENDER_FILE”
 
 # 2.4 Formatter
 
@@ -63,7 +63,7 @@ TEMPLATE: The records will be derived from three templates and time layout. They
  5. “TEMPLATE_TRIM_SEVERITY” indicator wether to trim severity text or to add space at warn and info to algin following elements. Default “false”
  6. “TEMPLATE_CALLER” like 1. with caller function, file and line placed in front of message. Default “[%s] %s %s(%s.%d): %s”
  7. “TEMPLATE_CALLER_CORRELATION” like 2. with caller function, file and line placed in front of message. Default “[%s] %s %s %s(%s.%d): %s”
- 8. “TEMPLATEE_CALLER_CUSTOM” like 3. with caller function, file and line placed in front of message. Default “[%s] %s %s(%s.%d): %s”
+ 8. “TEMPLATE_CALLER_CUSTOM” like 3. with caller function, file and line placed in front of message. Default “[%s] %s %s(%s.%d): %s”
 
 It is possible to reorder parameter by argument indices. The custom value map at 3 will be appended as key-value-pairs sorted by key
 (e.g. a custom map with three entries of string, number and boolean format at indices from 4 to 9: “severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s”)
@@ -77,7 +77,7 @@ The keys of the custom value map will be used 1:1. The properties can be set via
  5. “JSON_CUSTOM_VALUES_KEY” key of custom values if used as sub elements. Default: “custom”
  6. “JSON_CUSTOM_VALUES_SUB” indicator to add custom value map as sub element: Default: “false”
  7. “TIME_LAYOUT” time layout. Default value of [time.RFC3339]
- 8. “JSON_CALLER_FUNCTIOM_KEY” key of the caller function. Default: “caller”
+ 8. “JSON_CALLER_FUNCTION_KEY” key of the caller function. Default: “caller”
  9. “JSON_CALLER_FILE_KEY” key of the caller file. Default: “file”
  10. “JSON_CALLER_LINE_KEY” key of the caller file line. Default: “line”
 
@@ -89,7 +89,7 @@ Each configuration element can be declared package specific by replacing “TYPE
 
   - “TYPEWRITER_LOG_LEVEL” -> “TYPEWRITER_PACKAGE_LOG_LEVEL_LOGGER”
   - “TYPEWRITER_LOG_APPENDER_TYPE” -> “TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_LOGGER”
-  - “TYPEWRITER_LOG_APPENDER_PARAMETER” -> “TYPEWRITER_PACKAGE_LOG_APPENDER_PARAMETER_LOGGER”
+  - “TYPEWRITER_LOG_APPENDER_FILE” -> “TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_LOGGER”
   - “TYPEWRITER_LOG_FORMATTER_TYPE” -> “TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_LOGGER”
   - “TYPEWRITER_LOG_FORMATTER_PARAMETER” -> “TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER”
   - “TYPEWRITER_LOG_FORMATTER_PARAMETER_DELIMITER” -> “TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER_DELIMITER”

@@ -66,13 +66,13 @@ type FormatterConfig struct {
 const (
 	DEFAULT_LOG_LEVEL_PROPERTY_NAME               = "TYPEWRITER_LOG_LEVEL"
 	DEFAULT_LOG_APPENDER_PROPERTY_NAME            = "TYPEWRITER_LOG_APPENDER_TYPE"
-	DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME  = "TYPEWRITER_LOG_APPENDER_PARAMETER"
+	DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME       = "TYPEWRITER_LOG_APPENDER_FILE"
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME           = "TYPEWRITER_LOG_FORMATTER_TYPE"
 	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME = "TYPEWRITER_LOG_FORMATTER_PARAMETER"
 
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME               = "TYPEWRITER_PACKAGE_LOG_LEVEL_"
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME            = "TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_"
-	PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME  = "TYPEWRITER_PACKAGE_LOG_APPENDER_PARAMETER_"
+	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME       = "TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_"
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME           = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
 
@@ -145,6 +145,21 @@ var SeverityLevelMap = map[string]int{
 	LOG_LEVEL_WARNING:     common.WARNING_SEVERITY,
 	LOG_LEVEL_ERROR:       common.ERROR_SEVERITY,
 	LOG_LEVEL_FATAL:       common.FATAL_SEVERITY,
+}
+
+// prefixes to filter all given environment variables or properties from file
+var relevantKeyPrefixes = []string{
+	DEFAULT_LOG_LEVEL_PROPERTY_NAME,
+	DEFAULT_LOG_APPENDER_PROPERTY_NAME,
+	DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME,
+	DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
+	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
+	PACKAGE_LOG_LEVEL_PROPERTY_NAME,
+	PACKAGE_LOG_APPENDER_PROPERTY_NAME,
+	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME,
+	PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
+	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
+	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
 }
 
 // returns the config or creates it if it was not initialized yet
@@ -274,12 +289,6 @@ func determineRelevantPropertyFileKeyValues() map[string]string {
 func createMapFromSliceWithKeyValues(sliceToConvert []string) map[string]string {
 	result := make(map[string]string, len(sliceToConvert))
 
-	relevantKeyPrefixes := []string{DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME,
-		DEFAULT_LOG_FORMATTER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
-		PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME,
-		PACKAGE_LOG_FORMATTER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
-		LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME}
-
 	for _, entry := range sliceToConvert {
 		keyValue := strings.SplitN(entry, "=", 2)
 		if len(keyValue) == 2 && strings.TrimSpace(keyValue[1]) != "" {
@@ -300,48 +309,59 @@ func createMapFromSliceWithKeyValues(sliceToConvert []string) map[string]string 
 func createAppenderConfig(relevantKeyValues *map[string]string) {
 	config.Appender = append(config.Appender, AppenderConfig{IsDefault: true, PackageName: ""})
 	appenderIndex := len(config.Appender) - 1
-	configureAppender(relevantKeyValues, &config.Appender[appenderIndex], "")
+	configureAppender(relevantKeyValues, &config.Appender[appenderIndex], nil)
 
 	for key := range *relevantKeyValues {
 		packageOfAppender, found := strings.CutPrefix(key, PACKAGE_LOG_APPENDER_PROPERTY_NAME)
 		if found {
 			config.Appender = append(config.Appender, AppenderConfig{IsDefault: false, PackageName: packageOfAppender})
 			appenderIndex++
-			configureAppender(relevantKeyValues, &config.Appender[appenderIndex], packageOfAppender)
+			configureAppender(relevantKeyValues, &config.Appender[appenderIndex], &packageOfAppender)
 		}
 	}
 }
 
 // configures a given appender config element from properties concerning a given package name
-func configureAppender(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageName string) {
+func configureAppender(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageName *string) {
 	var appenderKey string
-	var appenderParameterKey string
-	if len(packageName) > 0 {
-		appenderKey = PACKAGE_LOG_APPENDER_PROPERTY_NAME + packageName
-		appenderParameterKey = PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME + packageName
+	if packageName != nil && len(*packageName) > 0 {
+		appenderKey = PACKAGE_LOG_APPENDER_PROPERTY_NAME + *packageName
 	} else {
 		appenderKey = DEFAULT_LOG_APPENDER_PROPERTY_NAME
-		appenderParameterKey = DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME
 	}
 
 	appenderName := getValueFromMapOrDefault(relevantKeyValues, appenderKey, APPENDER_STDOUT)
-
+	appenderConfig.AppenderType = appenderName
 	switch appenderName {
 	case APPENDER_STDOUT:
-		appenderConfig.AppenderType = appenderName
+		// Nothing to do
 	case APPENDER_FILE:
-		value, found := (*relevantKeyValues)[appenderParameterKey]
-		if found {
-			appenderConfig.AppenderType = appenderName
-			appenderConfig.PathToLogFile = value
-		} else {
-			fmt.Printf("Cannot use file appender, because there is no value at %s. Use %s appender instead", appenderParameterKey, APPENDER_STDOUT)
-			fmt.Println()
-			appenderConfig.AppenderType = APPENDER_STDOUT
-		}
+		setFileAppenderConfig(relevantKeyValues, appenderConfig, packageName)
 	default:
+		appenderConfig.AppenderType = ""
 		printHint(appenderName, appenderKey)
 	}
+}
+
+func setFileAppenderConfig(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageName *string) {
+	var fileParameterKey string
+
+	if packageName != nil && len(*packageName) > 0 {
+		fileParameterKey = PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME + *packageName
+	} else {
+		fileParameterKey = DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME
+	}
+
+	fileValue, fileFound := (*relevantKeyValues)[fileParameterKey]
+
+	if fileFound {
+		appenderConfig.PathToLogFile = fileValue
+	} else {
+		fmt.Printf("Cannot use file appender, because there is no value at %s. Use %s appender instead", fileParameterKey, APPENDER_STDOUT)
+		fmt.Println()
+		appenderConfig.AppenderType = APPENDER_STDOUT
+	}
+
 }
 
 // creates all relevant formatter config elements derived from relevant properties

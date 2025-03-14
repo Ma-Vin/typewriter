@@ -103,7 +103,7 @@ func TestGetLoggersCreateFromEnvDefaultFileAppender(t *testing.T) {
 	os.Clearenv()
 	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
 	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, config.APPENDER_FILE)
-	os.Setenv(config.DEFAULT_LOG_APPENDER_PARAMETER_PROPERTY_NAME, logFilePath)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
 	Reset()
 
 	result := getLoggers()
@@ -196,7 +196,7 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()
 	os.Setenv(config.PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, config.APPENDER_FILE)
-	os.Setenv(config.PACKAGE_LOG_APPENDER_PARAMETER_PROPERTY_NAME+packageName, logFilePath)
+	os.Setenv(config.PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
 	Reset()
 
 	result := getLoggers()
