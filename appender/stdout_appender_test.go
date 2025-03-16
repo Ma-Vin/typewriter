@@ -37,13 +37,13 @@ func TestWrite(t *testing.T) {
 
 func TestWriteWithCorrelation(t *testing.T) {
 	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
-	correleation := "someCorrelationId"
+	correlation := "someCorrelationId"
 
 	buf := new(bytes.Buffer)
 	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
-	logValuesToFormat := common.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correleation, "Testmessage")
+	logValuesToFormat := common.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correlation, "Testmessage")
 	appender.Write(&logValuesToFormat)
 
 	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - someCorrelationId - Testmessage", strings.TrimSpace(buf.String()), t, "WriteWithCorrelation")

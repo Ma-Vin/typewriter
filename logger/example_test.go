@@ -15,7 +15,7 @@ func ExampleLog_withDefaultConfiguration() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	Log().Debug("Debug will not be printed")
 	Log().Information("Information will not be printed")
 	Log().Warning("Warning will not be printed")
@@ -35,7 +35,7 @@ func ExampleLog_withDefaultConfigurationWithoutInterface() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	Debug("Debug will not be printed")
 	Information("Information will not be printed")
 	Warning("Warning will not be printed")
@@ -55,7 +55,7 @@ func ExampleLog_formatWithDefaultConfiguration() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	Log().Debugf("Debug %s %s %s %s", "will", "not", "be", "printed")
 	Log().Informationf("Information %s %s %s %s", "will", "not", "be", "printed")
 	Log().Warningf("Warning %s %s %s %s", "will", "not", "be ", "printed")
@@ -75,7 +75,7 @@ func ExampleLog_correlationIdWithDefaultConfiguration() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	Log().DebugWithCorrelation("CorrelationId123", "Debug will not be printed")
 	Log().InformationWithCorrelation("CorrelationId123", "Information will not be printed")
 	Log().WarningWithCorrelation("CorrelationId123", "Warning will not be printed")
@@ -95,7 +95,7 @@ func ExampleLog_customValuesWithDefaultConfiguration() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	customValueMap := make(map[string]any, 3)
 	customValueMap["b"] = true
 	customValueMap["c"] = 1.2
@@ -120,7 +120,7 @@ func ExampleLog_enableAllLevels() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "DEBUG")
 
 	Log().Debug("Debug will be printed")
@@ -145,7 +145,7 @@ func ExampleLog_levelRestrictedByPackage() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "DEBUG")
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_LEVEL_LOGGER", "WARN")
 
@@ -169,7 +169,7 @@ func ExampleLog_otherDelimiter() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "DELIMITER")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_DELIMITER", ",")
 
@@ -192,7 +192,7 @@ func ExampleLog_jsonFormatDefaultKeys() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "JSON")
 
@@ -221,7 +221,7 @@ func ExampleLog_jsonFormatCustomKeys() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "JSON")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_TIME_KEY", "the_time")
@@ -229,7 +229,7 @@ func ExampleLog_jsonFormatCustomKeys() {
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CORRELATION_KEY", "correlation_id")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_MESSAGE_KEY", "msg")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CUSTOM_VALUES_KEY", "my_values")
-	// Parameter 6 creates a subelement for the custom values
+	// Parameter 6 creates a sub element for the custom values
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CUSTOM_VALUES_SUB", "true")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TIME_LAYOUT", time.RFC822)
 
@@ -258,7 +258,7 @@ func ExampleLog_templateFormatDefaultTemplates() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "TEMPLATE")
 
@@ -287,7 +287,7 @@ func ExampleLog_templateFormatCustomTemplates() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "TEMPLATE")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE", "time=[%s], severity=[%s], msg=[%s]")
@@ -321,10 +321,10 @@ func ExampleLog_callerWithIndexedTemplate() {
 	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
 	common.SetLogValuesMockTime(&mockTime)
 
-	// Example beginn
+	// Example begin
 	os.Setenv("TYPEWRITER_LOG_CALLER", "true")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "TEMPLATE")
-	// Ignore file, because the system dependend path can not compared
+	// Ignore file, because the system depended path can not compared
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CALLER", "time:%[1]s, severity:%[2]s, caller:%[3]s line:%[5]d msg:%[6]s")
 
 	Log().Debug("Debug will not be printed")

@@ -9,7 +9,7 @@ import (
 	"github.com/ma-vin/typewriter/format"
 )
 
-// Writes message, formated by a given formatter, to the standard output
+// Writes message, formatted by a given formatter, to the standard output
 type StandardOutputAppender struct {
 	formatter *format.Formatter
 	writer    io.Writer
@@ -25,7 +25,7 @@ func (s StandardOutputAppender) Write(logValues *common.LogValues) {
 	fmt.Fprintln(s.writer, (*s.formatter).Format(logValues))
 }
 
-// Does nothing, but has to be declared to fullfill the interface
+// Does nothing, but has to be declared to fulfill the interface
 func (s StandardOutputAppender) Close() {
 	// Nothing to do. Closing os.Stdout may cause errors elsewhere: See documentation of os.Stdout
 }

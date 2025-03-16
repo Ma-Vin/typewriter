@@ -8,13 +8,13 @@ import (
 	"github.com/ma-vin/typewriter/common"
 )
 
-// Formatter which append given parameter with a delimter. Since name the of the parameter will not be contained, the keys of customValues at FormatCustom neither.
+// Formatter which append given parameter with a delimiter. Since name the of the parameter will not be contained, the keys of customValues at FormatCustom neither.
 type DelimiterFormatter struct {
 	delimiter  string
 	timeLayout string
 }
 
-// Creates a new formater with a given delimiter
+// Creates a new formatter with a given delimiter
 func CreateDelimiterFormatter(delimiter string, timeLayout string) Formatter {
 	return DelimiterFormatter{delimiter: delimiter, timeLayout: timeLayout}
 }

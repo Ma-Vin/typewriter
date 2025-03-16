@@ -27,15 +27,15 @@ func TestJsonFormat(t *testing.T) {
 		common.FATAL_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
-		testutil.AssertEquals(expexpectedMessage, jsonFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, jsonFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestJsonFormatCorrelation(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
-	correleation := "someCorrelationId"
+	correlation := "someCorrelationId"
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"DEBUG\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
@@ -45,9 +45,9 @@ func TestJsonFormatCorrelation(t *testing.T) {
 		common.FATAL_SEVERITY:       "{\"correlation\":\"someCorrelationId\",\"message\":\"Testmessage\",\"severity\":\"FATAL\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
-		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
-		testutil.AssertEquals(expexpectedMessage, jsonFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correlation, "Testmessage")
+		testutil.AssertEquals(expectedMessage, jsonFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -114,21 +114,21 @@ func TestJsonFormatCustomAllTypes(t *testing.T) {
 
 	result := jsonFormatter.Format(&logValuesToFormat)
 
-	testutil.AssertTrue(strings.Contains(result, "\"boolValue\":true"), t, "Format conatians bool")
-	testutil.AssertTrue(strings.Contains(result, "\"byteValue\":1"), t, "Format conatians byteValue")
-	testutil.AssertTrue(strings.Contains(result, "\"intValue\":2"), t, "Format conatians intValue")
-	testutil.AssertTrue(strings.Contains(result, "\"int8Value\":3"), t, "Format conatians int8Value")
-	testutil.AssertTrue(strings.Contains(result, "\"int16Value\":4"), t, "Format conatians int16Value")
-	testutil.AssertTrue(strings.Contains(result, "\"int32Value\":5"), t, "Format conatians int32Value")
-	testutil.AssertTrue(strings.Contains(result, "\"int64Value\":6"), t, "Format conatians int64Value")
-	testutil.AssertTrue(strings.Contains(result, "\"uintValue\":7"), t, "Format conatians uintValue")
-	testutil.AssertTrue(strings.Contains(result, "\"uint8Value\":8"), t, "Format conatians uint8Value")
-	testutil.AssertTrue(strings.Contains(result, "\"uint16Value\":9"), t, "Format conatians uint16Value")
-	testutil.AssertTrue(strings.Contains(result, "\"uint32Value\":10"), t, "Format conatians uint32Value")
-	testutil.AssertTrue(strings.Contains(result, "\"uint64Value\":11"), t, "Format conatians uint64Value")
-	testutil.AssertTrue(strings.Contains(result, "\"float32Value\":1.1"), t, "Format conatians float32Value")
-	testutil.AssertTrue(strings.Contains(result, "\"float64Value\":1.2"), t, "Format conatians float64Value")
-	testutil.AssertTrue(strings.Contains(result, "\"stringValue\":\"abc\""), t, "Format conatians stringValue")
+	testutil.AssertTrue(strings.Contains(result, "\"boolValue\":true"), t, "Format contains bool")
+	testutil.AssertTrue(strings.Contains(result, "\"byteValue\":1"), t, "Format contains byteValue")
+	testutil.AssertTrue(strings.Contains(result, "\"intValue\":2"), t, "Format contains intValue")
+	testutil.AssertTrue(strings.Contains(result, "\"int8Value\":3"), t, "Format contains int8Value")
+	testutil.AssertTrue(strings.Contains(result, "\"int16Value\":4"), t, "Format contains int16Value")
+	testutil.AssertTrue(strings.Contains(result, "\"int32Value\":5"), t, "Format contains int32Value")
+	testutil.AssertTrue(strings.Contains(result, "\"int64Value\":6"), t, "Format contains int64Value")
+	testutil.AssertTrue(strings.Contains(result, "\"uintValue\":7"), t, "Format contains uintValue")
+	testutil.AssertTrue(strings.Contains(result, "\"uint8Value\":8"), t, "Format contains uint8Value")
+	testutil.AssertTrue(strings.Contains(result, "\"uint16Value\":9"), t, "Format contains uint16Value")
+	testutil.AssertTrue(strings.Contains(result, "\"uint32Value\":10"), t, "Format contains uint32Value")
+	testutil.AssertTrue(strings.Contains(result, "\"uint64Value\":11"), t, "Format contains uint64Value")
+	testutil.AssertTrue(strings.Contains(result, "\"float32Value\":1.1"), t, "Format contains float32Value")
+	testutil.AssertTrue(strings.Contains(result, "\"float64Value\":1.2"), t, "Format contains float64Value")
+	testutil.AssertTrue(strings.Contains(result, "\"stringValue\":\"abc\""), t, "Format contains stringValue")
 }
 
 func TestJsonFormatUnsupported(t *testing.T) {

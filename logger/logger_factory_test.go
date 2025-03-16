@@ -39,7 +39,7 @@ func TestGetLoggersCreateFromEnvDefaultDelimiter(t *testing.T) {
 	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
 }
 
-func TestGetLoggersCreateFromEnvDefaulTemplate(t *testing.T) {
+func TestGetLoggersCreateFromEnvDefaultTemplate(t *testing.T) {
 	os.Clearenv()
 	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
 	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, config.APPENDER_STDOUT)
@@ -65,7 +65,7 @@ func TestGetLoggersCreateFromEnvDefaulTemplate(t *testing.T) {
 	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
 }
 
-func TestGetLoggersCreateFromEnvDefaulJson(t *testing.T) {
+func TestGetLoggersCreateFromEnvDefaultJson(t *testing.T) {
 	os.Clearenv()
 	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
 	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, config.APPENDER_STDOUT)
@@ -77,7 +77,7 @@ func TestGetLoggersCreateFromEnvDefaulJson(t *testing.T) {
 	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+config.JSON_CUSTOM_VALUES_KEY_PARAMETER, "customValues")
 	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+config.JSON_CUSTOM_VALUES_SUB_PARAMETER, "true")
 	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+config.TIME_LAYOUT_PARAMETER, time.RFC1123Z)
-	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+config.JSON_CALLER_FUNCTIOM_KEY_PARAMETER, "callerFunction")
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+config.JSON_CALLER_FUNCTION_KEY_PARAMETER, "callerFunction")
 	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+config.JSON_CALLER_FILE_KEY_PARAMETER, "callerFileName")
 	os.Setenv(config.DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+config.JSON_CALLER_LINE_KEY_PARAMETER, "callerFileLine")
 	Reset()
@@ -222,7 +222,7 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	testutil.AssertNotEquals(result.commonLogger.appender, result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender.")
 }
 
-func TestGetLoggersCreateFromEnvPackagePartialOnlyFromatterWithParamter(t *testing.T) {
+func TestGetLoggersCreateFromEnvPackagePartialOnlyFormatterWithParameter(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 	os.Clearenv()

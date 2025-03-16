@@ -31,7 +31,7 @@ func checkEmptyDayOfMonth(result *Crontab, t *testing.T) {
 func checkEmptyMonth(result *Crontab, t *testing.T) {
 	testutil.AssertEquals(0, len(result.months), t, "len(result.month)")
 }
-func checkEmptyDayOfWeekh(result *Crontab, t *testing.T) {
+func checkEmptyDayOfWeek(result *Crontab, t *testing.T) {
 	testutil.AssertEquals(0, len(result.daysOfWeek), t, "len(result.dayOfWeek)")
 }
 
@@ -43,12 +43,12 @@ func TestCreateCronCrontabAllAsterisk(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 11, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
 
-func TestCreateCronCrontabAllConstatnts(t *testing.T) {
+func TestCreateCronCrontabAllConstants(t *testing.T) {
 	SetLogValuesMockTime(&cronCrontabTestTime)
 	result := CreateCrontab("1 2 3 4 5")
 
@@ -69,7 +69,7 @@ func TestCreateCronCrontabAllDifferent(t *testing.T) {
 	checkSliceValues(6, 0, 4, &result.hours, t, "result.hour")
 	checkSliceValues(6, 5, 1, &result.daysOfMonth, t, "result.dayOfMonth")
 	checkSliceValues(3, 3, 3, &result.months, t, "result.month")
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 5, 0, 11, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -83,7 +83,7 @@ func TestCreateCronCrontabMinuteRange(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 30, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -96,7 +96,7 @@ func TestCreateCronCrontabMinuteRangeIncrement(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 30, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -109,7 +109,7 @@ func TestCreateCronCrontabMinuteList(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 30, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
@@ -123,7 +123,7 @@ func TestCreateCronCrontabMinuteAsteriskIncrement(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 20, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -137,7 +137,7 @@ func TestCreateCronCrontabHourRange(t *testing.T) {
 	checkSliceValues(5, 11, 1, &result.hours, t, "result.hour")
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 2, 11, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -150,7 +150,7 @@ func TestCreateCronCrontabHourRangeIncrement(t *testing.T) {
 	checkSliceValues(3, 8, 3, &result.hours, t, "result.hour")
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 2, 8, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -163,7 +163,7 @@ func TestCreateCronCrontabHourList(t *testing.T) {
 	checkSliceValues(4, 10, 2, &result.hours, t, "result.hour")
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 11, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -176,7 +176,7 @@ func TestCreateCronCrontabHourAsteriskIncrement(t *testing.T) {
 	checkSliceValues(8, 0, 3, &result.hours, t, "result.hour")
 	checkEmptyDayOfMonth(result, t)
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 18, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -191,7 +191,7 @@ func TestCreateCronCrontabDayOfMonthRange(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkSliceValues(11, 5, 1, &result.daysOfMonth, t, "result.dayOfMonth")
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.April, 5, 0, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -204,7 +204,7 @@ func TestCreateCronCrontabDayOfMonthRangeIncrement(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkSliceValues(4, 5, 5, &result.daysOfMonth, t, "result.dayOfMonth")
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 5, 0, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -217,7 +217,7 @@ func TestCreateCronCrontabDayOfMonthList(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkSliceValues(4, 10, 2, &result.daysOfMonth, t, "result.dayOfMonth")
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 10, 0, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -230,7 +230,7 @@ func TestCreateCronCrontabDayOfMonthAsteriskIncrement(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkSliceValues(8, 1, 4, &result.daysOfMonth, t, "result.dayOfMonth")
 	checkEmptyMonth(result, t)
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 11, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -244,7 +244,7 @@ func TestCreateCronCrontabMonthRange(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkEmptyDayOfMonth(result, t)
 	checkSliceValues(6, 3, 1, &result.months, t, "result.month")
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 11, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -257,7 +257,7 @@ func TestCreateCronCrontabMonthRangeIncrement(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkEmptyDayOfMonth(result, t)
 	checkSliceValues(3, 5, 3, &result.months, t, "result.month")
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.May, 1, 0, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -270,7 +270,7 @@ func TestCreateCronCrontabMonthList(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkEmptyDayOfMonth(result, t)
 	checkSliceValues(3, 8, 2, &result.months, t, "result.month")
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.August, 1, 0, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
@@ -283,7 +283,7 @@ func TestCreateCronCrontabMonthAsteriskIncrement(t *testing.T) {
 	checkEmptyHour(result, t)
 	checkEmptyDayOfMonth(result, t)
 	checkSliceValues(3, 1, 4, &result.months, t, "result.month")
-	checkEmptyDayOfWeekh(result, t)
+	checkEmptyDayOfWeek(result, t)
 
 	testutil.AssertEquals(time.Date(2025, time.May, 1, 0, 0, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }

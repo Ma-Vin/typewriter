@@ -47,7 +47,7 @@ In addition, there exists an indicator if the severity is enabled or not.
 
 Configuration is currently possible via environment variables or an properties file.
 
-#### Configauration by file
+#### Configuration by file
 
 To use a configuration file by setting an environment variable `TYPEWRITER_CONFIG_FILE` with a path to a properties file.
 If this environment variable is set, all others will be ignored. Nevertheless, the same property names are used by both.

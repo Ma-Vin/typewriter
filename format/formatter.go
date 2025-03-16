@@ -15,7 +15,7 @@ const (
 	FATAL_PREFIX            string = "FATAL"
 )
 
-// Interface to format recdord values
+// Interface to format record values
 type Formatter interface {
 	// Formats the given parameter to a string to log
 	Format(logValues *common.LogValues) string

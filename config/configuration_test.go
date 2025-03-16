@@ -122,7 +122,7 @@ func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
 	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
 }
 
-func TestGetConfiNonExistingFile(t *testing.T) {
+func TestGetConfigNonExistingFile(t *testing.T) {
 	os.Clearenv()
 	os.Setenv(LOG_CONFIG_FILE_ENV_NAME, "any/path/to/config.yaml")
 	configInitialized = false
@@ -302,7 +302,7 @@ func TestGetConfigDefaultJson(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CUSTOM_VALUES_KEY_PARAMETER, "customValues")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CUSTOM_VALUES_SUB_PARAMETER, "true")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
-		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_FUNCTIOM_KEY_PARAMETER, "callerFunction")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_FUNCTION_KEY_PARAMETER, "callerFunction")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_FILE_KEY_PARAMETER, "callerFile")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_LINE_KEY_PARAMETER, "callerFileLine")
 		allPostInitConfigTest[i](optionalFile)
@@ -438,7 +438,7 @@ func TestGetConfigDefaultFileAppenderMissingPath(t *testing.T) {
 	}
 }
 
-func TestGetConfigDefaultUnkown(t *testing.T) {
+func TestGetConfigDefaultUnknown(t *testing.T) {
 	for i := 0; i < countOfConfigTests; i++ {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
@@ -704,7 +704,7 @@ func TestGetConfigPackagePartialOnlyAppender(t *testing.T) {
 	}
 }
 
-func TestGetConfigPackagePartialOnlyFromatter(t *testing.T) {
+func TestGetConfigPackagePartialOnlyFormatter(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 
@@ -745,7 +745,7 @@ func TestGetConfigPackagePartialOnlyFromatter(t *testing.T) {
 	}
 }
 
-func TestGetConfigPackagePartialOnlyFromatterWithParamterDelimiter(t *testing.T) {
+func TestGetConfigPackagePartialOnlyFormatterWithParameterDelimiter(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 

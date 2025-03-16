@@ -13,7 +13,7 @@ const DEFAULT_CALLER_TEMPLATE="[%s] %s %s(%s.%d): %s"
 // Formatter which uses given different templates for Format, FormatWithCorrelation and FormatCustom
 // The templates will be used in combination with [fmt.Sprintf]
 //
-// The arguments of the templates will be passed in the following order (paramter skipped if not relevant)
+// The arguments of the templates will be passed in the following order (parameter skipped if not relevant)
 //
 //  1. time (derived by [time.Format] with timeLayout parameter)
 //  2. severity
@@ -33,7 +33,7 @@ type TemplateFormatter struct {
 	trimSeverityText            bool
 }
 
-// Creates a new formater with given templates and time layout
+// Creates a new formatter with given templates and time layout
 func CreateTemplateFormatter(template string, correlationIdTemplate string, customTemplate string,
 	callerTemplate string, callerCorrelationIdTemplate string, callerCustomTemplate string,
 	timeLayout string, trimSeverityText bool) Formatter {

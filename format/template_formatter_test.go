@@ -43,9 +43,9 @@ func TestTemplateFormat(t *testing.T) {
 		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
-		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -60,15 +60,15 @@ func TestTemplateFormatOrder(t *testing.T) {
 		common.FATAL_SEVERITY:       "severity: FATAL message: Testmessage time: " + templateFormatTestTimeText,
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
-		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatCorrelation(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
-	correleation := "someCorrelationId"
+	correlation := "someCorrelationId"
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG correlation: someCorrelationId message: Testmessage",
@@ -78,15 +78,15 @@ func TestTemplateFormatCorrelation(t *testing.T) {
 		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL correlation: someCorrelationId message: Testmessage",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
-		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
-		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correlation, "Testmessage")
+		testutil.AssertEquals(expectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatCorrelationOrder(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
-	correleation := "someCorrelationId"
+	correlation := "someCorrelationId"
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "severity: DEBUG correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
@@ -96,9 +96,9 @@ func TestTemplateFormatCorrelationOrder(t *testing.T) {
 		common.FATAL_SEVERITY:       "severity: FATAL correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
-		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
-		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correlation, "Testmessage")
+		testutil.AssertEquals(expectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -119,9 +119,9 @@ func TestTemplateFormatCustom(t *testing.T) {
 		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage first: abc second: 1 third: true",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
-		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -152,9 +152,9 @@ func TestTemplateFormatCustomDefaultFormat(t *testing.T) {
 		common.FATAL_SEVERITY:       "[" + templateFormatTestTimeText + "] FATAL: Testmessage [first]: abc [second]: 1 [third]: true",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
-		testutil.AssertEquals(expexpectedMessage, templateFormatterDefaultCustom.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatterDefaultCustom.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -175,9 +175,9 @@ func TestTemplateFormatCustomOrder(t *testing.T) {
 		common.FATAL_SEVERITY:       "severity: FATAL message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
-		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -202,9 +202,9 @@ func TestTemplateFormatTrimSeverity(t *testing.T) {
 		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL message: Testmessage",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
-		testutil.AssertEquals(expexpectedMessage, templateFormatterTrim.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatterTrim.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -219,10 +219,10 @@ func TestTemplateFormatCaller(t *testing.T) {
 		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL caller: someFunction file: someFile line: 42 message: Testmessage",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
 		setCallerValues(&logValuesToFormat)
-		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -237,16 +237,16 @@ func TestTemplateFormatOrderCaller(t *testing.T) {
 		common.FATAL_SEVERITY:       "caller: someFunction file: someFile line: 42 severity: FATAL message: Testmessage time: " + templateFormatTestTimeText,
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
 		setCallerValues(&logValuesToFormat)
-		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatCorrelationCaller(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
-	correleation := "someCorrelationId"
+	correlation := "someCorrelationId"
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG correlation: someCorrelationId caller: someFunction file: someFile line: 42 message: Testmessage",
@@ -256,16 +256,16 @@ func TestTemplateFormatCorrelationCaller(t *testing.T) {
 		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL correlation: someCorrelationId caller: someFunction file: someFile line: 42 message: Testmessage",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
-		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correlation, "Testmessage")
 		setCallerValues(&logValuesToFormat)
-		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
 func TestTemplateFormatCorrelationOrderCaller(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
-	correleation := "someCorrelationId"
+	correlation := "someCorrelationId"
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "caller: someFunction file: someFile line: 42 severity: DEBUG correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
@@ -275,10 +275,10 @@ func TestTemplateFormatCorrelationOrderCaller(t *testing.T) {
 		common.FATAL_SEVERITY:       "caller: someFunction file: someFile line: 42 severity: FATAL correlation: someCorrelationId message: Testmessage time: " + templateFormatTestTimeText,
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
-		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correlation, "Testmessage")
 		setCallerValues(&logValuesToFormat)
-		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -299,10 +299,10 @@ func TestTemplateFormatCustomCaller(t *testing.T) {
 		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: FATAL caller: someFunction file: someFile line: 42 message: Testmessage first: abc second: 1 third: true",
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
 		setCallerValues(&logValuesToFormat)
-		testutil.AssertEquals(expexpectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 
@@ -323,10 +323,10 @@ func TestTemplateFormatCustomOrderCaller(t *testing.T) {
 		common.FATAL_SEVERITY:       "caller: someFunction file: someFile line: 42 severity: FATAL message: Testmessage first: abc second: 1 third: true time: " + templateFormatTestTimeText,
 	}
 
-	for severity, expexpectedMessage := range expectedResults {
+	for severity, expectedMessage := range expectedResults {
 		logValuesToFormat := common.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
 		setCallerValues(&logValuesToFormat)
-		testutil.AssertEquals(expexpectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+		testutil.AssertEquals(expectedMessage, templateFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }
 

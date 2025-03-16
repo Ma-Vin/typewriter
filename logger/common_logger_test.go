@@ -49,7 +49,7 @@ func initTestCommonLogger(envLogLevel string) {
 	determineSeverityByLevel(&testCommonLogger, config.SeverityLevelMap[envLogLevel])
 	mockPanicAndExitAtCommonLogger = true
 	panicMockActivated = false
-	exitMockAcitvated = false
+	exitMockActivated = false
 	testCommonLoggerCounterAppenderClosed = 0
 	testCommonLoggerCounterAppenderClosedExpected = 1
 }
@@ -124,7 +124,7 @@ func TestDebugCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestDebugInaktiveCommonLogger(t *testing.T) {
+func TestDebugInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("INFO")
 
 	testCommonLogger.Debug("Test", "Message")
@@ -143,7 +143,7 @@ func TestDebugWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestDebugWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestDebugWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("INFO")
 
 	testCommonLogger.DebugWithCorrelation("1234", "Test", "Message")
@@ -162,7 +162,7 @@ func TestDebugCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestDebugCustomInaktiveCommonLogger(t *testing.T) {
+func TestDebugCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("INFO")
 
 	testCommonLogger.DebugCustom(map[string]any{"test": 123}, "Test", "Message")
@@ -181,7 +181,7 @@ func TestDebugfCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestDebugfInaktiveCommonLogger(t *testing.T) {
+func TestDebugfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("INFO")
 
 	testCommonLogger.Debugf("Test %s", "Message")
@@ -200,7 +200,7 @@ func TestDebugfWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestDebugfWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestDebugfWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("INFO")
 
 	testCommonLogger.DebugWithCorrelationf("1234", "Test %s", "Message")
@@ -219,7 +219,7 @@ func TestDebugfCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestDebugfCustomInaktiveCommonLogger(t *testing.T) {
+func TestDebugfCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("INFO")
 
 	testCommonLogger.DebugCustomf(map[string]any{"test": 123}, "Test %s", "Message")
@@ -238,7 +238,7 @@ func TestInformationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestInformationInaktiveCommonLogger(t *testing.T) {
+func TestInformationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("WARN")
 
 	testCommonLogger.Information("Test", "Message")
@@ -257,7 +257,7 @@ func TestInformationWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestInformationWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestInformationWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("WARN")
 
 	testCommonLogger.InformationWithCorrelation("1234", "Test", "Message")
@@ -276,7 +276,7 @@ func TestInformationCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestInformationCustomInaktiveCommonLogger(t *testing.T) {
+func TestInformationCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("WARN")
 
 	testCommonLogger.InformationCustom(map[string]any{"test": 123}, "Test", "Message")
@@ -295,7 +295,7 @@ func TestInformationfCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestInformationfInaktiveCommonLogger(t *testing.T) {
+func TestInformationfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("WARN")
 
 	testCommonLogger.Informationf("Test %s", "Message")
@@ -314,7 +314,7 @@ func TestInformationfWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestInformationfWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestInformationfWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("WARN")
 
 	testCommonLogger.InformationWithCorrelationf("1234", "Test %s", "Message")
@@ -333,7 +333,7 @@ func TestInformationfCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestInformationfCustomInaktiveCommonLogger(t *testing.T) {
+func TestInformationfCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("WARN")
 
 	testCommonLogger.InformationCustomf(map[string]any{"test": 123}, "Test %s", "Message")
@@ -352,7 +352,7 @@ func TestWarningCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestWarningInaktiveCommonLogger(t *testing.T) {
+func TestWarningInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.Warning("Test", "Message")
@@ -371,7 +371,7 @@ func TestWarningWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestWarningWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestWarningWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningWithCorrelation("1234", "Test", "Message")
@@ -390,7 +390,7 @@ func TestWarningCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestWarningCustomInaktiveCommonLogger(t *testing.T) {
+func TestWarningCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningCustom(map[string]any{"test": 123}, "Test", "Message")
@@ -409,7 +409,7 @@ func TestWarningfCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestWarningfInaktiveCommonLogger(t *testing.T) {
+func TestWarningfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.Warningf("Test %s", "Message")
@@ -428,7 +428,7 @@ func TestWarningfWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestWarningfWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestWarningfWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningWithCorrelationf("1234", "Test %s", "Message")
@@ -447,7 +447,7 @@ func TestWarningfCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestWarningfCustomInaktiveCommonLogger(t *testing.T) {
+func TestWarningfCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningCustomf(map[string]any{"test": 123}, "Test %s", "Message")
@@ -463,16 +463,16 @@ func TestWarningWithPanicCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningWithPanic: len(content)")
 	testutil.AssertEquals("3TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "warn: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestWarningWithPanicInaktiveCommonLogger(t *testing.T) {
+func TestWarningWithPanicInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningWithPanic("Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningWithPanic: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestWarningWithCorrelationAndPanicCommonLogger(t *testing.T) {
@@ -482,16 +482,16 @@ func TestWarningWithCorrelationAndPanicCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningWithCorrelationAndPanic: len(content)")
 	testutil.AssertEquals("31234TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "warn: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestWarningWithCorrelationAndPanicInaktiveCommonLogger(t *testing.T) {
+func TestWarningWithCorrelationAndPanicInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningWithCorrelationAndPanic("1234", "Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningWithCorrelationAndPanic: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestWarningCustomWithPanicCommonLogger(t *testing.T) {
@@ -501,16 +501,16 @@ func TestWarningCustomWithPanicCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningCustomWithPanic: len(content)")
 	testutil.AssertEquals("3 map[test:123]TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "warn: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestWarningCustomWithPanicInaktiveCommonLogger(t *testing.T) {
+func TestWarningCustomWithPanicInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningCustomWithPanic(map[string]any{"test": 123}, "Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningCustomWithPanic: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestWarningWithPanicfCommonLogger(t *testing.T) {
@@ -520,16 +520,16 @@ func TestWarningWithPanicfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningWithPanicf: len(content)")
 	testutil.AssertEquals("3Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "warn: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestWarningWithPanicfInaktiveCommonLogger(t *testing.T) {
+func TestWarningWithPanicfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningWithPanicf("Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningWithPanicf: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestWarningWithCorrelationAndPanicfCommonLogger(t *testing.T) {
@@ -539,16 +539,16 @@ func TestWarningWithCorrelationAndPanicfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningWithCorrelationAndPanicf: len(content)")
 	testutil.AssertEquals("31234Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "warn: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestWarningWithCorrelationAndPanicfInaktiveCommonLogger(t *testing.T) {
+func TestWarningWithCorrelationAndPanicfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningWithCorrelationAndPanicf("1234", "Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningWithCorrelationAndPanicf: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestWarningCustomWithPanicfCommonLogger(t *testing.T) {
@@ -558,16 +558,16 @@ func TestWarningCustomWithPanicfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningCustomWithPanicf: len(content)")
 	testutil.AssertEquals("3 map[test:123]Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "warn: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestWarningCustomWithPanicfInaktiveCommonLogger(t *testing.T) {
+func TestWarningCustomWithPanicfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("ERROR")
 
 	testCommonLogger.WarningCustomWithPanicf(map[string]any{"test": 123}, "Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "WarningCustomWithPanicf: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestErrorCommonLogger(t *testing.T) {
@@ -580,7 +580,7 @@ func TestErrorCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestErrorInaktiveCommonLogger(t *testing.T) {
+func TestErrorInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.Error("Test", "Message")
@@ -599,7 +599,7 @@ func TestErrorWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestErrorWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestErrorWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorWithCorrelation("1234", "Test", "Message")
@@ -618,7 +618,7 @@ func TestErrorCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestErrorCustomInaktiveCommonLogger(t *testing.T) {
+func TestErrorCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorCustom(map[string]any{"test": 123}, "Test", "Message")
@@ -637,7 +637,7 @@ func TestErrorfCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestErrorfInaktiveCommonLogger(t *testing.T) {
+func TestErrorfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.Errorf("Test %s", "Message")
@@ -656,7 +656,7 @@ func TestErrorfWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestErrorfWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestErrorfWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorWithCorrelationf("1234", "Test %s", "Message")
@@ -675,7 +675,7 @@ func TestErrorfCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestErrorfCustomInaktiveCommonLogger(t *testing.T) {
+func TestErrorfCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorCustomf(map[string]any{"test": 123}, "Test %s", "Message")
@@ -690,16 +690,16 @@ func TestErrorWithPanicCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorWithPanic: len(content)")
 	testutil.AssertEquals("2TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "error: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestErrorWithPanicInaktiveCommonLogger(t *testing.T) {
+func TestErrorWithPanicInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorWithPanic("Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorWithPanic: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestErrorWithCorrelationAndPanicCommonLogger(t *testing.T) {
@@ -709,16 +709,16 @@ func TestErrorWithCorrelationAndPanicCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorWithCorrelationAndPanic: len(content)")
 	testutil.AssertEquals("21234TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "error: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestErrorWithCorrelationAndPanicInaktiveCommonLogger(t *testing.T) {
+func TestErrorWithCorrelationAndPanicInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorWithCorrelationAndPanic("1234", "Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorWithCorrelationAndPanic: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestErrorCustomWithPanicCommonLogger(t *testing.T) {
@@ -728,16 +728,16 @@ func TestErrorCustomWithPanicCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorCustomWithPanic: len(content)")
 	testutil.AssertEquals("2 map[test:123]TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "error: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestErrorCustomWithPanicInaktiveCommonLogger(t *testing.T) {
+func TestErrorCustomWithPanicInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorCustomWithPanic(map[string]any{"test": 123}, "Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorCustomWithPanic: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestErrorWithPanicfCommonLogger(t *testing.T) {
@@ -747,16 +747,16 @@ func TestErrorWithPanicfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorWithPanicf: len(content)")
 	testutil.AssertEquals("2Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "error: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestErrorWithPanicfInaktiveCommonLogger(t *testing.T) {
+func TestErrorWithPanicfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorWithPanicf("Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorWithPanicf: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestErrorWithCorrelationAndPanicfCommonLogger(t *testing.T) {
@@ -766,16 +766,16 @@ func TestErrorWithCorrelationAndPanicfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorWithCorrelationAndPanicf: len(content)")
 	testutil.AssertEquals("21234Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "error: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestErrorWithCorrelationAndPanicfInaktiveCommonLogger(t *testing.T) {
+func TestErrorWithCorrelationAndPanicfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorWithCorrelationAndPanicf("1234", "Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorWithCorrelationAndPanicf: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestErrorCustomWithPanicfCommonLogger(t *testing.T) {
@@ -785,16 +785,16 @@ func TestErrorCustomWithPanicfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorCustomWithPanicf: len(content)")
 	testutil.AssertEquals("2 map[test:123]Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "error: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestErrorCustomWithPanicfInaktiveCommonLogger(t *testing.T) {
+func TestErrorCustomWithPanicfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("FATAL")
 
 	testCommonLogger.ErrorCustomWithPanicf(map[string]any{"test": 123}, "Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "ErrorCustomWithPanicf: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestFatalCommonLogger(t *testing.T) {
@@ -807,7 +807,7 @@ func TestFatalCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestFatalInaktiveCommonLogger(t *testing.T) {
+func TestFatalInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.Fatal("Test", "Message")
@@ -826,7 +826,7 @@ func TestFatalWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestFatalWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestFatalWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithCorrelation("1234", "Test", "Message")
@@ -845,7 +845,7 @@ func TestFatalCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestFatalCustomInaktiveCommonLogger(t *testing.T) {
+func TestFatalCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalCustom(map[string]any{"test": 123}, "Test", "Message")
@@ -864,7 +864,7 @@ func TestFatalfCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestFatalfInaktiveCommonLogger(t *testing.T) {
+func TestFatalfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.Fatalf("Test %s", "Message")
@@ -883,7 +883,7 @@ func TestFatalfWithCorrelationCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestFatalfWithCorrelationInaktiveCommonLogger(t *testing.T) {
+func TestFatalfWithCorrelationInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithCorrelationf("1234", "Test %s", "Message")
@@ -902,7 +902,7 @@ func TestFatalfCustomCommonLogger(t *testing.T) {
 	assertPanicAndExitMockNotActivated(t)
 }
 
-func TestFatalfCustomInaktiveCommonLogger(t *testing.T) {
+func TestFatalfCustomInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalCustomf(map[string]any{"test": 123}, "Test %s", "Message")
@@ -918,16 +918,16 @@ func TestFatalWithPanicCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithPanic: len(content)")
 	testutil.AssertEquals("1TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestFatalWithPanicInaktiveCommonLogger(t *testing.T) {
+func TestFatalWithPanicInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithPanic("Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithPanic: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestFatalWithCorrelationAndPanicCommonLogger(t *testing.T) {
@@ -937,16 +937,16 @@ func TestFatalWithCorrelationAndPanicCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithCorrelationAndPanic: len(content)")
 	testutil.AssertEquals("11234TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestFatalWithCorrelationAndPanicInaktiveCommonLogger(t *testing.T) {
+func TestFatalWithCorrelationAndPanicInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithCorrelationAndPanic("1234", "Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithCorrelationAndPanic: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestFatalCustomWithPanicCommonLogger(t *testing.T) {
@@ -956,16 +956,16 @@ func TestFatalCustomWithPanicCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalCustomWithPanic: len(content)")
 	testutil.AssertEquals("1 map[test:123]TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestFatalCustomWithPanicInaktiveCommonLogger(t *testing.T) {
+func TestFatalCustomWithPanicInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalCustomWithPanic(map[string]any{"test": 123}, "Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalCustomWithPanic: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestFatalWithPanicfCommonLogger(t *testing.T) {
@@ -975,16 +975,16 @@ func TestFatalWithPanicfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithPanicf: len(content)")
 	testutil.AssertEquals("1Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestFatalWithPanicfInaktiveCommonLogger(t *testing.T) {
+func TestFatalWithPanicfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithPanicf("Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithPanicf: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestFatalWithCorrelationAndPanicfCommonLogger(t *testing.T) {
@@ -994,16 +994,16 @@ func TestFatalWithCorrelationAndPanicfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithCorrelationAndPanicf: len(content)")
 	testutil.AssertEquals("11234Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestFatalWithCorrelationAndPanicfInaktiveCommonLogger(t *testing.T) {
+func TestFatalWithCorrelationAndPanicfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithCorrelationAndPanicf("1234", "Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithCorrelationAndPanicf: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestFatalCustomWithPanicfCommonLogger(t *testing.T) {
@@ -1013,16 +1013,16 @@ func TestFatalCustomWithPanicfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalCustomWithPanicf: len(content)")
 	testutil.AssertEquals("1 map[test:123]Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
-func TestFatalCustomWithPanicfInaktiveCommonLogger(t *testing.T) {
+func TestFatalCustomWithPanicfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalCustomWithPanicf(map[string]any{"test": 123}, "Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalCustomWithPanicf: len(content)")
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func TestFatalWithExitCommonLogger(t *testing.T) {
@@ -1032,16 +1032,16 @@ func TestFatalWithExitCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithExit: len(content)")
 	testutil.AssertEquals("1TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
-func TestFatalWithExitInaktiveCommonLogger(t *testing.T) {
+func TestFatalWithExitInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithExit("Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithExit: len(content)")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
 func TestFatalWithCorrelationAndExitCommonLogger(t *testing.T) {
@@ -1051,16 +1051,16 @@ func TestFatalWithCorrelationAndExitCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithCorrelationAndExit: len(content)")
 	testutil.AssertEquals("11234TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
-func TestFatalWithCorrelationAndExitInaktiveCommonLogger(t *testing.T) {
+func TestFatalWithCorrelationAndExitInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithCorrelationAndExit("1234", "Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithCorrelationAndExit: len(content)")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
 func TestFatalCustomWithExitCommonLogger(t *testing.T) {
@@ -1070,16 +1070,16 @@ func TestFatalCustomWithExitCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalCustomWithExit: len(content)")
 	testutil.AssertEquals("1 map[test:123]TestMessage", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
-func TestFatalCustomWithExitInaktiveCommonLogger(t *testing.T) {
+func TestFatalCustomWithExitInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalCustomWithExit(map[string]any{"test": 123}, "Test", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalCustomWithExit: len(content)")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
 func TestFatalWithExitfCommonLogger(t *testing.T) {
@@ -1089,16 +1089,16 @@ func TestFatalWithExitfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithExitf: len(content)")
 	testutil.AssertEquals("1Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
-func TestFatalWithExitfInaktiveCommonLogger(t *testing.T) {
+func TestFatalWithExitfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithExitf("Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithExitf: len(content)")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
 func TestFatalWithCorrelationAndExitfCommonLogger(t *testing.T) {
@@ -1108,16 +1108,16 @@ func TestFatalWithCorrelationAndExitfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithCorrelationAndExitf: len(content)")
 	testutil.AssertEquals("11234Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
-func TestFatalWithCorrelationAndExitfInaktiveCommonLogger(t *testing.T) {
+func TestFatalWithCorrelationAndExitfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalWithCorrelationAndExitf("1234", "Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalWithCorrelationAndExitf: len(content)")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
 func TestFatalCustomWithExitfCommonLogger(t *testing.T) {
@@ -1127,32 +1127,32 @@ func TestFatalCustomWithExitfCommonLogger(t *testing.T) {
 
 	testutil.AssertEquals(1, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalCustomWithExitf: len(content)")
 	testutil.AssertEquals("1 map[test:123]Test Message", (*testCommonLoggerAppender.(TestAppender).content)[0], t, "fatal: content[0]")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
-func TestFatalCustomWithExitfInaktiveCommonLogger(t *testing.T) {
+func TestFatalCustomWithExitfInactiveCommonLogger(t *testing.T) {
 	initTestCommonLogger("OFF")
 
 	testCommonLogger.FatalCustomWithExitf(map[string]any{"test": 123}, "Test %s", "Message")
 
 	testutil.AssertEquals(0, len(*testCommonLoggerAppender.(TestAppender).content), t, "FatalCustomWithExitf: len(content)")
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
 func assertPanicAndExitMockNotActivated(t *testing.T) {
 	testutil.AssertFalse(panicMockActivated, t, "panic")
-	testutil.AssertFalse(exitMockAcitvated, t, "exit")
+	testutil.AssertFalse(exitMockActivated, t, "exit")
 	testutil.AssertEquals(0, testCommonLoggerCounterAppenderClosed, t, "appenderClosed")
 }
 
-func assertPanicMockAcitvated(t *testing.T) {
+func assertPanicMockActivated(t *testing.T) {
 	testutil.AssertTrue(panicMockActivated, t, "panic")
-	testutil.AssertFalse(exitMockAcitvated, t, "exit")
+	testutil.AssertFalse(exitMockActivated, t, "exit")
 	testutil.AssertEquals(0, testCommonLoggerCounterAppenderClosed, t, "appenderClosed")
 }
 
-func assertExitMockAcitvated(t *testing.T) {
+func assertExitMockActivated(t *testing.T) {
 	testutil.AssertFalse(panicMockActivated, t, "panic")
-	testutil.AssertTrue(exitMockAcitvated, t, "exit")
+	testutil.AssertTrue(exitMockActivated, t, "exit")
 	testutil.AssertEquals(testCommonLoggerCounterAppenderClosedExpected, testCommonLoggerCounterAppenderClosed, t, "appenderClosed")
 }

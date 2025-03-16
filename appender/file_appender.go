@@ -9,7 +9,7 @@ import (
 	"github.com/ma-vin/typewriter/format"
 )
 
-// Writes message, formated by a given formatter, to the defined output file
+// Writes message, formatted by a given formatter, to the defined output file
 type FileAppender struct {
 	pathToLogFile string
 	formatter     *format.Formatter

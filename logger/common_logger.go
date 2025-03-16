@@ -24,7 +24,7 @@ type CommonLogger struct {
 
 var mockPanicAndExitAtCommonLogger = false
 var panicMockActivated = false
-var exitMockAcitvated = false
+var exitMockActivated = false
 
 // Creates a common logger which delegates messages to the given appender if the log level is enabled by given severity
 func CreateCommonLogger(appender *appender.Appender, severity int, isCallerToSet bool) CommonLogger {
@@ -491,7 +491,7 @@ func (l *CommonLogger) exitOrMock(code int) {
 	l.closeAppender()
 
 	if mockPanicAndExitAtCommonLogger {
-		exitMockAcitvated = true
+		exitMockActivated = true
 		return
 	}
 	os.Exit(code)

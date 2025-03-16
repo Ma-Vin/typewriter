@@ -22,7 +22,7 @@ type JsonFormatter struct {
 	customValuesAsSubElement bool
 }
 
-// Creates a new formater with given key names and time layout
+// Creates a new formatter with given key names and time layout
 func CreateJsonFormatter(timeKey string, severityKey string, messageKey string, correlationKey string,
 	customValuesKey string, timeLayout string,
 	callerFunctionKey string, callerFileKey string, callerFileLineKey string,

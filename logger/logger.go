@@ -216,7 +216,7 @@ type Logger interface {
 
 	// Logs a message derived from format together with a correlation id if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
-	FatalWithCorrelationAndExitf(fcorrelationId string, ormat string, args ...any)
+	FatalWithCorrelationAndExitf(correlationId string, format string, args ...any)
 
 	// Logs a message derived from format together with custom values if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
@@ -557,8 +557,8 @@ func FatalWithExitf(format string, args ...any) {
 
 // Logs a message derived from format together with a correlation id if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
-func FatalWithCorrelationAndExitf(fcorrelationId string, format string, args ...any) {
-	getLoggers().FatalWithCorrelationAndExitf(fcorrelationId, format, args...)
+func FatalWithCorrelationAndExitf(correlationId string, format string, args ...any) {
+	getLoggers().FatalWithCorrelationAndExitf(correlationId, format, args...)
 }
 
 // Logs a message derived from format together with custom values if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)

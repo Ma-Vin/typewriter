@@ -14,7 +14,7 @@ const (
 	CRON_LIST      string = ","
 )
 
-// Structure which represent a cron format expresion and provides the next point in time
+// Structure which represent a cron format expression and provides the next point in time
 type Crontab struct {
 	NextTime            *time.Time
 	location            *time.Location
@@ -57,9 +57,9 @@ func (s *Crontab) Year() int {
 }
 
 // determines the time value from a Crontab element
-func getTimeElement(timeUnitArray *[]int, index *int, zerobased bool) int {
+func getTimeElement(timeUnitArray *[]int, index *int, zeroBased bool) int {
 	if len(*timeUnitArray) == 0 {
-		if zerobased {
+		if zeroBased {
 			return *index
 		} else {
 			return *index + 1
@@ -78,7 +78,7 @@ func (s *Crontab) CalculateNextTime() {
 	s.setNextTime()
 }
 
-// initializes the crontab time inidices and the last NextTime derived from current time
+// initializes the crontab time indices and the last NextTime derived from current time
 func (s *Crontab) initializeNextTimeFromCurrentDate() {
 	base := getNow()
 
@@ -86,7 +86,7 @@ func (s *Crontab) initializeNextTimeFromCurrentDate() {
 	s.year = base.Year()
 
 	refMonth := int(base.Month())
-	interateToLastReachedTimeUnitIndex(&s.months, &s.monthIndex, refMonth, false)
+	iterateToLastReachedTimeUnitIndex(&s.months, &s.monthIndex, refMonth, false)
 	if s.Month() > refMonth {
 		s.allDaysOfMonthIndex = 0
 		s.hourIndex = 0
@@ -108,7 +108,7 @@ func (s *Crontab) initializeNextTimeFromCurrentDate() {
 
 	refDayOfMonth := base.Day()
 	s.determineAllDaysOfMonth()
-	interateToLastReachedTimeUnitIndex(&s.allDaysOfMonth, &s.allDaysOfMonthIndex, refDayOfMonth, false)
+	iterateToLastReachedTimeUnitIndex(&s.allDaysOfMonth, &s.allDaysOfMonthIndex, refDayOfMonth, false)
 	if s.DayOfMonth() > refDayOfMonth {
 		s.hourIndex = 0
 		s.minuteIndex = 0
@@ -125,7 +125,7 @@ func (s *Crontab) initializeNextTimeFromCurrentDate() {
 	}
 
 	refHour := base.Hour()
-	interateToLastReachedTimeUnitIndex(&s.hours, &s.hourIndex, refHour, true)
+	iterateToLastReachedTimeUnitIndex(&s.hours, &s.hourIndex, refHour, true)
 	if s.Hour() > refHour {
 		s.minuteIndex = 0
 		s.setNextTime()
@@ -140,7 +140,7 @@ func (s *Crontab) initializeNextTimeFromCurrentDate() {
 	}
 
 	refMinute := base.Minute()
-	interateToLastReachedTimeUnitIndex(&s.minutes, &s.minuteIndex, refMinute, true)
+	iterateToLastReachedTimeUnitIndex(&s.minutes, &s.minuteIndex, refMinute, true)
 	if s.Minute() < refMinute {
 		s.minuteIndex = 0
 		s.increaseHour()
@@ -202,9 +202,9 @@ func (s *Crontab) determineAllDaysOfMonthByMergeOfDaysOfWeekAndMonth() {
 }
 
 // adjust the index of a time elements to the last valid value compared to targetValue
-func interateToLastReachedTimeUnitIndex(timeUnitArray *[]int, index *int, targetValue int, zerobased bool) {
+func iterateToLastReachedTimeUnitIndex(timeUnitArray *[]int, index *int, targetValue int, zeroBased bool) {
 	if len(*timeUnitArray) == 0 {
-		if zerobased {
+		if zeroBased {
 			*index = targetValue
 		} else {
 			*index = targetValue - 1
@@ -253,10 +253,10 @@ func (s *Crontab) increaseMonth() {
 }
 
 // increases a time unit of a Crontab element  If the last element was reached already, the following unit will be increased by given nextIncrease
-func increaseTimeUnit(timeUnitArray *[]int, index *int, maxTimeUnitIndex int, zerobased bool, nextIncrease func()) {
+func increaseTimeUnit(timeUnitArray *[]int, index *int, maxTimeUnitIndex int, zeroBased bool, nextIncrease func()) {
 	(*index)++
-	if isUpperBoundExceededAllElements(timeUnitArray, index, maxTimeUnitIndex) || isUpperBoundExceededLengthlements(timeUnitArray, index) ||
-		isUpperBoundExceededMaxIndexlements(timeUnitArray, index, maxTimeUnitIndex, zerobased) {
+	if isUpperBoundExceededAllElements(timeUnitArray, index, maxTimeUnitIndex) || isUpperBoundExceededLengthElements(timeUnitArray, index) ||
+		isUpperBoundExceededMaxIndexElements(timeUnitArray, index, maxTimeUnitIndex, zeroBased) {
 
 		*index = 0
 		nextIncrease()
@@ -269,14 +269,14 @@ func isUpperBoundExceededAllElements(timeUnitArray *[]int, index *int, maxTimeUn
 }
 
 // Checks if the index is greater or equal compared to the length of a filled timeUnitArray
-func isUpperBoundExceededLengthlements(timeUnitArray *[]int, index *int) bool {
+func isUpperBoundExceededLengthElements(timeUnitArray *[]int, index *int) bool {
 	return len(*timeUnitArray) > 0 && len(*timeUnitArray) <= *index
 }
 
 // Checks if the maximum value defined by timeUnitArray is exceeded by the value at the index of a filled timeUnitArray
-func isUpperBoundExceededMaxIndexlements(timeUnitArray *[]int, index *int, maxTimeUnitIndex int, zerobased bool) bool {
+func isUpperBoundExceededMaxIndexElements(timeUnitArray *[]int, index *int, maxTimeUnitIndex int, zeroBased bool) bool {
 	var refMaxValue int
-	if zerobased {
+	if zeroBased {
 		refMaxValue = maxTimeUnitIndex
 	} else {
 		refMaxValue = maxTimeUnitIndex + 1
@@ -306,7 +306,7 @@ func (s *Crontab) getMaxIndexDayOfMonth() int {
 	}
 }
 
-// Parses the giuven cron expresion and creates a new Crontab element with initialized NextTime compared to [time.Now]
+// Parses the given cron expression and creates a new Crontab element with initialized NextTime compared to [time.Now]
 func CreateCrontab(cronExpression string) *Crontab {
 	cronParts := strings.Split(cronExpression, " ")
 	result := Crontab{nil, nil, []int{}, -1, []int{}, -1, []int{}, []int{}, -1, []int{}, 0, []int{}, -1}
@@ -332,7 +332,7 @@ func CreateCrontab(cronExpression string) *Crontab {
 	return &result
 }
 
-// Determines the array representation of a single element of a cron expression with respecet to its given lower and upper bounds
+// Determines the array representation of a single element of a cron expression with respect to its given lower and upper bounds
 func determineCronElement(cronElementExpression string, lowerBound int, upperBound int, cronRepresentation *[]int) {
 	if cronElementExpression == ASTERISK {
 		return
@@ -356,7 +356,7 @@ func determineCronElement(cronElementExpression string, lowerBound int, upperBou
 	determineCronConstantElement(&cronElementExpression, lowerBound, upperBound, cronRepresentation)
 }
 
-// Determines the array representation of a single element of a cron interval expression with respecet to its given lower and upper bounds
+// Determines the array representation of a single element of a cron interval expression with respect to its given lower and upper bounds
 func determineCronIntervalElement(cronElementExpression *string, lowerBound int, upperBound int, cronRepresentation *[]int) {
 	interval := strings.Split(*cronElementExpression, CRON_INTERVAL)
 	from := getIntOrDefault(interval[0], lowerBound, true)
@@ -369,7 +369,7 @@ func determineCronIntervalElement(cronElementExpression *string, lowerBound int,
 	}
 }
 
-// Determines the array representation of a single element of a cron list expression with respecet to its given lower and upper bounds
+// Determines the array representation of a single element of a cron list expression with respect to its given lower and upper bounds
 func determineCronListElement(cronElementExpression *string, lowerBound int, upperBound int, cronRepresentation *[]int) {
 	for _, entry := range strings.Split(*cronElementExpression, CRON_LIST) {
 		entryAsInt, err := strconv.Atoi(entry)
@@ -379,7 +379,7 @@ func determineCronListElement(cronElementExpression *string, lowerBound int, upp
 	}
 }
 
-// Determines the array representation of a single element of a cron increment expression with respecet to its given lower and upper bounds
+// Determines the array representation of a single element of a cron increment expression with respect to its given lower and upper bounds
 func determineCronIncrementElement(cronElementExpression *string, lowerBound int, upperBound int, cronRepresentation *[]int) {
 	incrementSplit := strings.Split(*cronElementExpression, CRON_INCREMENT)
 	increment := getIntOrDefault(incrementSplit[1], 1, true)
@@ -390,7 +390,7 @@ func determineCronIncrementElement(cronElementExpression *string, lowerBound int
 	}
 }
 
-// Determines the array representation of a single element of a cron constant expression with respecet to its given lower and upper bounds
+// Determines the array representation of a single element of a cron constant expression with respect to its given lower and upper bounds
 func determineCronConstantElement(cronElementExpression *string, lowerBound int, upperBound int, cronRepresentation *[]int) {
 	entryAsInt, err := strconv.Atoi(*cronElementExpression)
 	if err == nil && lowerBound <= entryAsInt && entryAsInt <= upperBound {
@@ -398,7 +398,7 @@ func determineCronConstantElement(cronElementExpression *string, lowerBound int,
 	}
 }
 
-// Returns the upper bound and the increament for an intervall for given values of rightside of ”-”
+// Returns the upper bound and the increment for an interval for given values of right side of ”-”
 func getIntervalBoundAndIncrement(boundAndIncrementExpression string, boundDefault int) (int, int) {
 	if strings.Contains(boundAndIncrementExpression, CRON_INCREMENT) {
 		boundAndIncrement := strings.Split(boundAndIncrementExpression, CRON_INCREMENT)

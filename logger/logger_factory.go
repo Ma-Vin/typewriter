@@ -35,7 +35,7 @@ func getLoggers() *MainLogger {
 	return &mLogger
 }
 
-// Creates the all relevant fromatters from config elements
+// Creates the all relevant formatters from config elements
 func createFormatters(formatterConfigs *[]config.FormatterConfig, formatterConfigMapping *map[string]*format.Formatter) {
 	for _, fc1 := range *formatterConfigs {
 		alreadyCreated := false

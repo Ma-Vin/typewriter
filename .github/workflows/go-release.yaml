@@ -21,7 +21,7 @@ jobs:
         run: go build ./...
       - name: Test
         run: go test ./...
-  analyse:
+  analyze:
     needs: build-test
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +39,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
   release-tag:
-    needs: analyse
+    needs: analyze
     runs-on: ubuntu-latest
     steps:
       - name: Check out

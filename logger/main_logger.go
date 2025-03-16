@@ -12,7 +12,7 @@ type MainLogger struct {
 	packageLoggers     map[string]*CommonLogger
 }
 
-// Determines which logger is relevant. If der exists a logger for a package equal to the callers package, this logger will be return, else the commonlogger.
+// Determines which logger is relevant. If der exists a logger for a package equal to the callers package, this logger will be return, else the common logger.
 func (l *MainLogger) determineLogger() *CommonLogger {
 	if l.existPackageLogger {
 		function, ok := determineCallerFunction()
@@ -49,7 +49,7 @@ func determineCallerFunction() (string, bool) {
 	return "", false
 }
 
-// extracts the packename from a given function name. E.g. the result with parameter "github.com/ma-vin/typewriter/logger.determinePackageName" would be "logger"
+// extracts the package name from a given function name. E.g. the result with parameter "github.com/ma-vin/typewriter/logger.determinePackageName" would be "logger"
 func determinePackageName(functionName string) string {
 	packageBegin := strings.LastIndex(functionName, "/") + 1
 	var functionNameSuffix string
@@ -432,7 +432,7 @@ func (l *MainLogger) closeOtherAppender(loggerToSkip *CommonLogger) {
 		l.commonLogger.closeAppender()
 	}
 	if !l.existPackageLogger {
-		// There exists only commonlogger: nothing to do
+		// There exists only common logger: nothing to do
 		return
 	}
 	for _, pLog := range l.packageLoggers {

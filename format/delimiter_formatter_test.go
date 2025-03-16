@@ -33,7 +33,7 @@ func TestDelimiterFormat(t *testing.T) {
 
 func TestDelimiterFormatCorrelation(t *testing.T) {
 	common.SetLogValuesMockTime(&delimiterFormatTestTime)
-	correleation := "someCorrelationId"
+	correlation := "someCorrelationId"
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - DEBUG - someCorrelationId - Testmessage",
@@ -44,7 +44,7 @@ func TestDelimiterFormatCorrelation(t *testing.T) {
 	}
 
 	for severity, expectedMessage := range expectedResults {
-		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correleation, "Testmessage")
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(severity, &correlation, "Testmessage")
 		testutil.AssertEquals(expectedMessage, delimiterFormatter.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }

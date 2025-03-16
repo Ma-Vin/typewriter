@@ -78,7 +78,7 @@ const (
 
 	TIME_LAYOUT_PARAMETER                 = "_TIME_LAYOUT"
 	DELIMITER_PARAMETER                   = "_DELIMITER"
-	JSON_CALLER_FUNCTIOM_KEY_PARAMETER    = "_JSON_CALLER_FUNCTIOM_KEY"
+	JSON_CALLER_FUNCTION_KEY_PARAMETER    = "_JSON_CALLER_FUNCTION_KEY"
 	JSON_CALLER_FILE_KEY_PARAMETER        = "_JSON_CALLER_FILE_KEY"
 	JSON_CALLER_LINE_KEY_PARAMETER        = "_JSON_CALLER_LINE_KEY"
 	JSON_CORRELATION_KEY_PARAMETER        = "_JSON_CORRELATION_KEY"
@@ -127,7 +127,7 @@ const (
 	DEFAULT_CORRELATION_KEY             = "correlation"
 	DEFAULT_CUSTOM_VALUES_KEY           = "custom"
 	DEFAULT_CUSTOM_AS_SUB_ELEMENT       = "false"
-	DEFAULT_CALLER_FUNCTIION_KEY        = "caller"
+	DEFAULT_CALLER_FUNCTION_KEY        = "caller"
 	DEFAULT_CALLER_FILE_KEY             = "file"
 	DEFAULT_CALLER_FILE_LINE_KEY        = "line"
 	DEFAULT_TIME_LAYOUT                 = time.RFC3339
@@ -223,7 +223,7 @@ func deriveConfigFromEnv() bool {
 		existsAnyPrefixAtEnv(PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
 }
 
-// Checks if least one entry environment variables matchs at least one entry of a given list of environment variables names
+// Checks if least one entry environment variables matches at least one entry of a given list of environment variables names
 func existsAnyAtEnv(envNames ...string) bool {
 	for _, envName := range envNames {
 		if strings.TrimSpace(os.Getenv(envName)) != "" {
@@ -233,7 +233,7 @@ func existsAnyAtEnv(envNames ...string) bool {
 	return false
 }
 
-// Checks if least one entry environment variables matchs as prefix at least one entry of a given list of environment variables names
+// Checks if least one entry environment variables matches as prefix at least one entry of a given list of environment variables names
 func existsAnyPrefixAtEnv(envNames ...string) bool {
 	for _, envEntry := range os.Environ() {
 		keyValue := strings.SplitN(strings.ToUpper(envEntry), "=", 2)
@@ -248,7 +248,7 @@ func existsAnyPrefixAtEnv(envNames ...string) bool {
 	return false
 }
 
-// Determines a reduced map of key-value pairs from enironment, which only contains relevant keys and non empty values
+// Determines a reduced map of key-value pairs from environment, which only contains relevant keys and non empty values
 func determineRelevantEnvKeyValues() map[string]string {
 	return createMapFromSliceWithKeyValues(os.Environ())
 }
@@ -258,7 +258,7 @@ func determineRelevantPropertyFileKeyValues() map[string]string {
 	pathToFile := os.Getenv(LOG_CONFIG_FILE_ENV_NAME)
 	propertiesFile, err := os.Open(pathToFile)
 	if err != nil {
-		fmt.Printf("Failed to load configuration file defined by enironment variable %s with value \"%s\". Use default config instead", LOG_CONFIG_FILE_ENV_NAME, pathToFile)
+		fmt.Printf("Failed to load configuration file defined by environment variable %s with value \"%s\". Use default config instead", LOG_CONFIG_FILE_ENV_NAME, pathToFile)
 		fmt.Println()
 	}
 	defer propertiesFile.Close()
@@ -417,7 +417,7 @@ func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *F
 		formatterConfig.CustomValuesKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_KEY_PARAMETER, DEFAULT_CUSTOM_VALUES_KEY)
 		formatterConfig.CustomValuesAsSubElement = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true"
 		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT)
-		formatterConfig.CallerFunctionKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FUNCTIOM_KEY_PARAMETER, DEFAULT_CALLER_FUNCTIION_KEY)
+		formatterConfig.CallerFunctionKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FUNCTION_KEY_PARAMETER, DEFAULT_CALLER_FUNCTION_KEY)
 		formatterConfig.CallerFileKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FILE_KEY_PARAMETER, DEFAULT_CALLER_FILE_KEY)
 		formatterConfig.CallerFileLineKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_LINE_KEY_PARAMETER, DEFAULT_CALLER_FILE_LINE_KEY)
 	default:
@@ -450,8 +450,8 @@ func configureLogger(relevantKeyValues *map[string]string, loggerConfig *LoggerC
 		formatterKey = DEFAULT_LOG_LEVEL_PROPERTY_NAME
 	}
 
-	loglevel := getValueFromMapOrDefault(relevantKeyValues, formatterKey, LOG_LEVEL_ERROR)
-	severity, found := SeverityLevelMap[loglevel]
+	logLevel := getValueFromMapOrDefault(relevantKeyValues, formatterKey, LOG_LEVEL_ERROR)
+	severity, found := SeverityLevelMap[logLevel]
 	if !found {
 		severity = common.ERROR_SEVERITY
 	}
@@ -470,10 +470,10 @@ func getValueFromMapOrDefault(source *map[string]string, key string, defaultValu
 }
 
 func printHint(propertyName string, objectType string) {
-	fmt.Println("Unkown \"", objectType, "\" value at property", propertyName)
+	fmt.Println("Unknown \"", objectType, "\" value at property", propertyName)
 }
 
-// creates default configs if missing and adds package specfic copies of defaults if at least one of the other config types exists as package variant
+// creates default configs if missing and adds package specific copies of defaults if at least one of the other config types exists as package variant
 func completeConfig() {
 	completeDefaults()
 

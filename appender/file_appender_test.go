@@ -64,11 +64,11 @@ func TestFileAppenderWrite(t *testing.T) {
 func TestFileAppenderWriteWithCorrelation(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("correlation")
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
-	correleation := "someCorrelationId"
+	correlation := "someCorrelationId"
 
 	appender := CreateFileAppender(logFilePath, &testJsonFormatter).(FileAppender)
 
-	logValuesToFormat := common.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correleation, "Testmessage")
+	logValuesToFormat := common.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correlation, "Testmessage")
 	appender.Write(&logValuesToFormat)
 	appender.Close()
 

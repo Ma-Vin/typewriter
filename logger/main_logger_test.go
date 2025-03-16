@@ -33,7 +33,7 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 
 	mockPanicAndExitAtCommonLogger = true
 	panicMockActivated = false
-	exitMockAcitvated = false
+	exitMockActivated = false
 	testCommonLoggerCounterAppenderClosed = 0
 	testCommonLoggerCounterAppenderClosedExpected = 2
 
@@ -2264,17 +2264,17 @@ func assertMessageViaCommon(t *testing.T, methodName string, message string) {
 
 func assertMessageWithPanic(t *testing.T, methodName string, message string) {
 	assertMessage(t, methodName, &testMainCommonLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func assertMessageWithExit(t *testing.T, methodName string, message string) {
 	assertMessage(t, methodName, &testMainCommonLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
 func assertMessageViaPackageWithExit(t *testing.T, methodName string, message string) {
 	assertMessage(t, methodName, &testMainPackageLoggerAppender, &testMainCommonLoggerAppender, "package", "common", message)
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
 func assertMessage(t *testing.T, methodName string, appenderWithMessage *appender.Appender, appenderWithoutMessage *appender.Appender, withMessageName string, withoutMessageName string, message string) {
@@ -2285,12 +2285,12 @@ func assertMessage(t *testing.T, methodName string, appenderWithMessage *appende
 
 func assertNoMessageWithPanic(t *testing.T, methodName string) {
 	assertNoMessage(t, methodName)
-	assertPanicMockAcitvated(t)
+	assertPanicMockActivated(t)
 }
 
 func assertNoMessageWithExit(t *testing.T, methodName string) {
 	assertNoMessage(t, methodName)
-	assertExitMockAcitvated(t)
+	assertExitMockActivated(t)
 }
 
 func assertNoMessage(t *testing.T, methodName string) {
