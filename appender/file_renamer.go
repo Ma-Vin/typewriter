@@ -50,17 +50,11 @@ func (c *CronFileNamer) CheckFile(logValues *common.LogValues) {
 	err := os.Rename(c.pathToLogFile, newPath)
 	if err != nil {
 		fmt.Println("Failed to rename log file from", c.pathToLogFile, "to", newPath)
-	}
-
-	if !SkipFileCreationForTest {
+	} else if !SkipFileCreationForTest {
 		file, err := os.OpenFile(c.pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 		if err == nil {
 			*c.writer = *file
 		}
-	}
-	if err != nil {
-		fmt.Printf("Fail to create file appender, use stdout instead: %s", err)
-		fmt.Println()
 	}
 
 	c.timeFileNameGenerator.referenceTime = c.crontab.NextTime
