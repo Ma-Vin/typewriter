@@ -11,7 +11,7 @@ import (
 	"github.com/ma-vin/typewriter/common"
 )
 
-type CronFileNamer struct {
+type CronFileRenamer struct {
 	pathToLogFile         string
 	writer                *os.File
 	crontab               *common.Crontab
@@ -26,15 +26,15 @@ type TimeFileNameGenerator struct {
 }
 
 // Creates a new CronFileNamer for a given path and crontab
-func CreateCronFileRenamer(pathToLogFile string, writer *os.File, crontab *common.Crontab, mu *sync.Mutex) *CronFileNamer {
+func CreateCronFileRenamer(pathToLogFile string, writer *os.File, crontab *common.Crontab, mu *sync.Mutex) *CronFileRenamer {
 	indexOfFileEnding := strings.LastIndex(pathToLogFile, ".")
 	refTime := time.Now()
 	fileNameCreator := TimeFileNameGenerator{pathToLogFile[:indexOfFileEnding], pathToLogFile[indexOfFileEnding+1:], &refTime}
-	return &CronFileNamer{pathToLogFile, writer, crontab, &fileNameCreator, mu}
+	return &CronFileRenamer{pathToLogFile, writer, crontab, &fileNameCreator, mu}
 }
 
 // Checks whether the next time of crontab is reached or not. In positive case the current file will be renamed to a name given by filename generator.
-func (c *CronFileNamer) CheckFile(logValues *common.LogValues) {
+func (c *CronFileRenamer) CheckFile(logValues *common.LogValues) {
 	if logValues.Time.Before(*c.crontab.NextTime) {
 		return
 	}

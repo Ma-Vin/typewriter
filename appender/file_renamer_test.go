@@ -33,8 +33,8 @@ func TestCheckFileNoRename(t *testing.T) {
 	testutil.AssertNil(err, t, "create log file")
 
 	fileRenamerCrontab.NextTime = timePtr(fileRenamerTestTime.Add(time.Second))
-	scheduler := CreateCronFileRenamer(logFileName, file, fileRenamerCrontab, &fileRenamerMu)
-	scheduler.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
+	renamer := CreateCronFileRenamer(logFileName, file, fileRenamerCrontab, &fileRenamerMu)
+	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
 
 	logFileName = filepath.Base(logFileName)
 	os.Remove(logFileName)
@@ -42,7 +42,7 @@ func TestCheckFileNoRename(t *testing.T) {
 	entriesBefore, err := os.ReadDir("./")
 	testutil.AssertNil(err, t, "read dir before")
 
-	scheduler.CheckFile(logValues)
+	renamer.CheckFile(logValues)
 
 	entriesAfter, err := os.ReadDir("./")
 	testutil.AssertNil(err, t, "read dir after")
