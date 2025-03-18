@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -30,11 +31,12 @@ type LoggerConfig struct {
 
 // config of an appender
 type AppenderConfig struct {
-	Id            string
-	AppenderType  string
-	IsDefault     bool
-	PackageName   string
-	PathToLogFile string
+	Id             string
+	AppenderType   string
+	IsDefault      bool
+	PackageName    string
+	PathToLogFile  string
+	CronExpression string
 }
 
 // config of a formatter
@@ -64,17 +66,19 @@ type FormatterConfig struct {
 }
 
 const (
-	DEFAULT_LOG_LEVEL_PROPERTY_NAME               = "TYPEWRITER_LOG_LEVEL"
-	DEFAULT_LOG_APPENDER_PROPERTY_NAME            = "TYPEWRITER_LOG_APPENDER_TYPE"
-	DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME       = "TYPEWRITER_LOG_APPENDER_FILE"
-	DEFAULT_LOG_FORMATTER_PROPERTY_NAME           = "TYPEWRITER_LOG_FORMATTER_TYPE"
-	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME = "TYPEWRITER_LOG_FORMATTER_PARAMETER"
+	DEFAULT_LOG_LEVEL_PROPERTY_NAME                  = "TYPEWRITER_LOG_LEVEL"
+	DEFAULT_LOG_APPENDER_PROPERTY_NAME               = "TYPEWRITER_LOG_APPENDER_TYPE"
+	DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME          = "TYPEWRITER_LOG_APPENDER_FILE"
+	DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME = "TYPEWRITER_LOG_APPENDER_CRON_RENAMING"
+	DEFAULT_LOG_FORMATTER_PROPERTY_NAME              = "TYPEWRITER_LOG_FORMATTER_TYPE"
+	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_LOG_FORMATTER_PARAMETER"
 
-	PACKAGE_LOG_LEVEL_PROPERTY_NAME               = "TYPEWRITER_PACKAGE_LOG_LEVEL_"
-	PACKAGE_LOG_APPENDER_PROPERTY_NAME            = "TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_"
-	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME       = "TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_"
-	PACKAGE_LOG_FORMATTER_PROPERTY_NAME           = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
-	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
+	PACKAGE_LOG_LEVEL_PROPERTY_NAME                  = "TYPEWRITER_PACKAGE_LOG_LEVEL_"
+	PACKAGE_LOG_APPENDER_PROPERTY_NAME               = "TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_"
+	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME          = "TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_"
+	PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_APPENDER_CRON_RENAMING_"
+	PACKAGE_LOG_FORMATTER_PROPERTY_NAME              = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
+	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
 
 	TIME_LAYOUT_PARAMETER                 = "_TIME_LAYOUT"
 	DELIMITER_PARAMETER                   = "_DELIMITER"
@@ -127,7 +131,7 @@ const (
 	DEFAULT_CORRELATION_KEY             = "correlation"
 	DEFAULT_CUSTOM_VALUES_KEY           = "custom"
 	DEFAULT_CUSTOM_AS_SUB_ELEMENT       = "false"
-	DEFAULT_CALLER_FUNCTION_KEY        = "caller"
+	DEFAULT_CALLER_FUNCTION_KEY         = "caller"
 	DEFAULT_CALLER_FILE_KEY             = "file"
 	DEFAULT_CALLER_FILE_LINE_KEY        = "line"
 	DEFAULT_TIME_LAYOUT                 = time.RFC3339
@@ -152,11 +156,13 @@ var relevantKeyPrefixes = []string{
 	DEFAULT_LOG_LEVEL_PROPERTY_NAME,
 	DEFAULT_LOG_APPENDER_PROPERTY_NAME,
 	DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME,
+	DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
 	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME,
+	PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
@@ -204,7 +210,7 @@ func FormatterConfigEquals(fc1 *FormatterConfig, fc2 *FormatterConfig) bool {
 
 // Checks whether two appender config equals without regarding pointers to appender or package
 func AppenderConfigEquals(ac1 *AppenderConfig, ac2 *AppenderConfig) bool {
-	return ac1.AppenderType == ac2.AppenderType
+	return ac1.AppenderType == ac2.AppenderType && (ac1.AppenderType != APPENDER_FILE || ac1.PathToLogFile == ac2.PathToLogFile)
 }
 
 // Checks whether two logger config equals without regarding pointers to logger or package
@@ -345,17 +351,21 @@ func configureAppender(relevantKeyValues *map[string]string, appenderConfig *App
 
 func setFileAppenderConfig(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageName *string) {
 	var fileParameterKey string
+	var cronParameterKey string
 
 	if packageName != nil && len(*packageName) > 0 {
 		fileParameterKey = PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME + *packageName
+		cronParameterKey = PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME + *packageName
 	} else {
 		fileParameterKey = DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME
+		cronParameterKey = DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME
 	}
 
-	fileValue, fileFound := (*relevantKeyValues)[fileParameterKey]
-
-	if fileFound {
+	if fileValue, fileFound := (*relevantKeyValues)[fileParameterKey]; fileFound {
 		appenderConfig.PathToLogFile = fileValue
+		if cronValue, cronFound := (*relevantKeyValues)[cronParameterKey]; cronFound {
+			appenderConfig.CronExpression = cronValue
+		}
 	} else {
 		fmt.Printf("Cannot use file appender, because there is no value at %s. Use %s appender instead", fileParameterKey, APPENDER_STDOUT)
 		fmt.Println()
@@ -483,6 +493,7 @@ func completeConfig() {
 	completeAppenderConfigPackageBackward()
 	completeLoggerConfigPackageBackward()
 
+	sortConfig()
 	determineIds()
 }
 
@@ -625,6 +636,19 @@ func createLoggerConfigIfNecessary(packageName *string) {
 			}
 		}
 	}
+}
+
+// Sorts the config put the default configs at first index. Because of this a potential cronRenamer of the default appender is used for all equal named files 
+func sortConfig() {
+	sort.Slice(config.Formatter, func(i, j int) bool {
+		return (config.Formatter[i].IsDefault && !config.Formatter[j].IsDefault) || (config.Formatter[i].IsDefault == config.Formatter[j].IsDefault && config.Formatter[i].PackageName < config.Formatter[j].PackageName)
+	})
+	sort.Slice(config.Appender, func(i, j int) bool {
+		return (config.Appender[i].IsDefault && !config.Appender[j].IsDefault) || (config.Appender[i].IsDefault == config.Appender[j].IsDefault && config.Appender[i].PackageName < config.Appender[j].PackageName)
+	})
+	sort.Slice(config.Logger, func(i, j int) bool {
+		return (config.Logger[i].IsDefault && !config.Logger[j].IsDefault) || (config.Logger[i].IsDefault == config.Logger[j].IsDefault && config.Logger[i].PackageName < config.Logger[j].PackageName)
+	})
 }
 
 func determineIds() {

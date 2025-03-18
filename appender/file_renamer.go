@@ -28,7 +28,7 @@ type TimeFileNameGenerator struct {
 // Creates a new CronFileNamer for a given path and crontab
 func CreateCronFileRenamer(pathToLogFile string, writer *os.File, crontab *common.Crontab, mu *sync.Mutex) *CronFileRenamer {
 	indexOfFileEnding := strings.LastIndex(pathToLogFile, ".")
-	refTime := time.Now()
+	refTime := common.GetNow()
 	fileNameCreator := TimeFileNameGenerator{pathToLogFile[:indexOfFileEnding], pathToLogFile[indexOfFileEnding+1:], &refTime}
 	return &CronFileRenamer{pathToLogFile, writer, crontab, &fileNameCreator, mu}
 }
@@ -47,16 +47,31 @@ func (c *CronFileRenamer) CheckFile(logValues *common.LogValues) {
 	}
 
 	newPath := c.timeFileNameGenerator.determineNextPathToLogFile()
-	err := os.Rename(c.pathToLogFile, newPath)
+
+	err := c.writer.Close()
+	if err != nil {
+		fmt.Println("Failed to close log file before renaming from", c.pathToLogFile, "to", newPath)
+		c.prepareNextInterval()
+		return
+	}
+
+	err = os.Rename(c.pathToLogFile, newPath)
 	if err != nil {
 		fmt.Println("Failed to rename log file from", c.pathToLogFile, "to", newPath)
-	} else if !SkipFileCreationForTest {
+		c.prepareNextInterval()
+		return
+	}
+
+	if !SkipFileCreationForTest {
 		file, err := os.OpenFile(c.pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 		if err == nil {
 			*c.writer = *file
 		}
 	}
+	c.prepareNextInterval()
+}
 
+func (c *CronFileRenamer) prepareNextInterval() {
 	c.timeFileNameGenerator.referenceTime = c.crontab.NextTime
 	c.crontab.CalculateNextTime()
 }

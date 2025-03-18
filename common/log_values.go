@@ -25,7 +25,7 @@ var lockValuesMockTime *time.Time = nil
 // Creates default log values
 func CreateLogValues(severity int, message string) LogValues {
 	return LogValues{
-		Time:           getNow(),
+		Time:           GetNow(),
 		Severity:       severity,
 		CorrelationId:  nil,
 		Message:        message,
@@ -51,7 +51,7 @@ func CreateLogValuesCustom(severity int, message string, customValues *map[strin
 	return rec
 }
 
-func getNow() time.Time {
+func GetNow() time.Time {
 	if lockValuesMockTime != nil {
 		return *lockValuesMockTime
 	}

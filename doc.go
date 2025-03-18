@@ -45,7 +45,8 @@ The log level can be set via “TYPEWRITER_LOG_LEVEL” with one of the followin
 There are two types of appender at the moment. They can be configured by setting “TYPEWRITER_LOG_APPENDER_TYPE” with one of the following values:
 
   - STDOUT: Standard output appender (The default appender)
-  - FILE: File appender which writes to a file. The target file of the appender has to be configured by setting the path to “TYPEWRITER_LOG_APPENDER_FILE”
+  - FILE: File appender which writes to a file. The target file of the appender has to be configured by setting the path to “TYPEWRITER_LOG_APPENDER_FILE”.
+    To rename the log file with existing entries at a specific point in time can be configured with a cron expression at “TYPEWRITER_LOG_APPENDER_CRON_RENAMING” (allowed characters are “* , - /”. The day of week is zero based)
 
 # 2.4 Formatter
 

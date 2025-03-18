@@ -179,7 +179,7 @@ func TestGetConfigCaller(t *testing.T) {
 }
 
 func TestGetConfigDefaultDelimiter(t *testing.T) {
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
@@ -212,7 +212,7 @@ func TestGetConfigDefaultDelimiter(t *testing.T) {
 }
 
 func TestGetConfigDefaultTemplate(t *testing.T) {
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
@@ -255,7 +255,7 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 }
 
 func TestGetConfigDefaultTemplateWithoutParameter(t *testing.T) {
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
@@ -290,7 +290,7 @@ func TestGetConfigDefaultTemplateWithoutParameter(t *testing.T) {
 }
 
 func TestGetConfigDefaultJson(t *testing.T) {
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
@@ -339,7 +339,7 @@ func TestGetConfigDefaultJson(t *testing.T) {
 }
 
 func TestGetConfigDefaultJsonWithoutParameter(t *testing.T) {
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
@@ -380,7 +380,7 @@ func TestGetConfigDefaultJsonWithoutParameter(t *testing.T) {
 func TestGetConfigDefaultFileAppender(t *testing.T) {
 	logFilePath := "pathToLogFile"
 	appender.SkipFileCreationForTest = true
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
@@ -401,6 +401,7 @@ func TestGetConfigDefaultFileAppender(t *testing.T) {
 		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
 		testutil.AssertEquals(APPENDER_FILE, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertEquals(logFilePath, result.Appender[0].PathToLogFile, t, "result.appender[0].pathToLogFile")
+		testutil.AssertEquals("", result.Appender[0].CronExpression, t, "result.appender[0].CronExpression")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
@@ -411,7 +412,7 @@ func TestGetConfigDefaultFileAppender(t *testing.T) {
 
 func TestGetConfigDefaultFileAppenderMissingPath(t *testing.T) {
 	appender.SkipFileCreationForTest = true
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
@@ -439,7 +440,7 @@ func TestGetConfigDefaultFileAppenderMissingPath(t *testing.T) {
 }
 
 func TestGetConfigDefaultUnknown(t *testing.T) {
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, "abc")
@@ -468,6 +469,41 @@ func TestGetConfigDefaultUnknown(t *testing.T) {
 	}
 }
 
+func TestGetConfigCronFileAppender(t *testing.T) {
+	logFilePath := "pathToLogFile"
+	cronExpression := "* * * * *"
+	appender.SkipFileCreationForTest = true
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME, cronExpression)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
+		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
+
+		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
+		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals(APPENDER_FILE, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
+		testutil.AssertEquals(logFilePath, result.Appender[0].PathToLogFile, t, "result.appender[0].pathToLogFile")
+		testutil.AssertEquals(cronExpression, result.Appender[0].CronExpression, t, "result.appender[0].CronExpression")
+
+		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
+		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
+		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+	}
+}
+
 //
 // Get Config with packages
 //
@@ -476,7 +512,7 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
@@ -520,7 +556,7 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
@@ -570,7 +606,7 @@ func TestGetConfigPackageJson(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
@@ -626,7 +662,7 @@ func TestGetConfigPackagePartialOnlyLevel(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
 		allPostInitConfigTest[i](optionalFile)
@@ -667,7 +703,7 @@ func TestGetConfigPackagePartialOnlyAppender(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
 		allPostInitConfigTest[i](optionalFile)
@@ -708,7 +744,7 @@ func TestGetConfigPackagePartialOnlyFormatter(t *testing.T) {
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
 		allPostInitConfigTest[i](optionalFile)
@@ -749,7 +785,7 @@ func TestGetConfigPackagePartialOnlyFormatterWithParameterDelimiter(t *testing.T
 	packageName := "testPackage"
 	packageNameUpper := strings.ToUpper(packageName)
 
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+DELIMITER_PARAMETER, "_")
@@ -793,7 +829,7 @@ func TestGetConfigPackageFileAppender(t *testing.T) {
 	logFilePath := "pathToLogFile"
 	packageNameUpper := strings.ToUpper(packageName)
 
-	for i := 0; i < countOfConfigTests; i++ {
+	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
@@ -819,6 +855,7 @@ func TestGetConfigPackageFileAppender(t *testing.T) {
 		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
 		testutil.AssertEquals(APPENDER_FILE, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 		testutil.AssertEquals(logFilePath, result.Appender[1].PathToLogFile, t, "result.appender[1].pathToLogFile")
+		testutil.AssertEquals("", result.Appender[1].CronExpression, t, "result.appender[1].pathToLogFile")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
@@ -870,4 +907,52 @@ func TestGetConfigFromFileButAllCommentOut(t *testing.T) {
 	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+}
+
+func TestGetConfigPackageCronFileAppender(t *testing.T) {
+	appender.SkipFileCreationForTest = true
+	packageName := "testPackage"
+	logFilePath := "pathToLogFile"
+	cronExpression := "* * * * *"
+	packageNameUpper := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME+packageName, cronExpression)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
+		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
+		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
+		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
+
+		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
+		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
+		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
+		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(APPENDER_FILE, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
+		testutil.AssertEquals(logFilePath, result.Appender[1].PathToLogFile, t, "result.appender[1].pathToLogFile")
+		testutil.AssertEquals(cronExpression, result.Appender[1].CronExpression, t, "result.appender[1].CronExpression")
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
+		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+	}
 }

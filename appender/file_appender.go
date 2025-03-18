@@ -13,27 +13,29 @@ import (
 type FileAppender struct {
 	pathToLogFile string
 	formatter     *format.Formatter
+	cronRenamer   *CronFileRenamer
 	writer        *os.File
 	isClosed      *bool
 	mu            *sync.Mutex
 }
 
-type fileMutex struct {
+type fileDeduction struct {
 	pathToLogFile *string
 	mu            *sync.Mutex
+	cronRenamer   *CronFileRenamer
 }
 
 // For test usage only! Indicator whether to skip creation of the target output file
 var SkipFileCreationForTest = false
-var fileToMutex = []fileMutex{}
+var fileDeductions = []fileDeduction{}
 
-// Removes all registered mutex for log file writing
-func CleanFileToMutex() {
-	fileToMutex = []fileMutex{}
+// Removes all registered mutex, renamer for log file writing
+func CleanFileDeductions() {
+	fileDeductions = []fileDeduction{}
 }
 
 // Creates a file appender to the file at “pathToLogFile” with a given formatter
-func CreateFileAppender(pathToLogFile string, formatter *format.Formatter) Appender {
+func CreateFileAppender(pathToLogFile string, formatter *format.Formatter, cronExpression string) Appender {
 	var file *os.File = nil
 	var err error = nil
 	var closed = false
@@ -45,22 +47,39 @@ func CreateFileAppender(pathToLogFile string, formatter *format.Formatter) Appen
 		fmt.Println()
 		return CreateStandardOutputAppender(formatter)
 	}
-	return FileAppender{pathToLogFile, formatter, file, &closed, getOrCreateMutexForFile(&pathToLogFile)}
+
+	mu, cronRenamer := getOrCreateDeductionForFile(&pathToLogFile, file, cronExpression)
+
+	return FileAppender{pathToLogFile, formatter, cronRenamer, file, &closed, mu}
 }
 
-func getOrCreateMutexForFile(pathToLogFile *string) *sync.Mutex {
-	for _, fm := range fileToMutex {
-		if *pathToLogFile == *fm.pathToLogFile {
-			return fm.mu
+// gets an existing struct of deduced elements from pathToLogFile or creates a new one
+func getOrCreateDeductionForFile(pathToLogFile *string, file *os.File, cronExpression string) (*sync.Mutex, *CronFileRenamer) {
+	for _, fd := range fileDeductions {
+		if *pathToLogFile == *fd.pathToLogFile {
+			return fd.mu, fd.cronRenamer
 		}
 	}
-	result := sync.Mutex{}
-	fileToMutex = append(fileToMutex, fileMutex{pathToLogFile, &result})
-	return &result
+	mu := sync.Mutex{}
+	renamer := createCrontabAndRenamer(*pathToLogFile, file, cronExpression, &mu)
+	fileDeductions = append(fileDeductions, fileDeduction{pathToLogFile, &mu, renamer})
+	return &mu, renamer
 }
 
-// Writes the given logValues to the defined output file
+// creates a new renamer and its crontab
+func createCrontabAndRenamer(pathToLogFile string, file *os.File, cronExpression string, mu *sync.Mutex) *CronFileRenamer {
+	if cronExpression == "" {
+		return nil
+	}
+	crontab := common.CreateCrontab(cronExpression)
+	return CreateCronFileRenamer(pathToLogFile, file, crontab, mu)
+}
+
+// Writes the given logValues to the defined output file and checks whether to rename existing log file or not
 func (f FileAppender) Write(logValues *common.LogValues) {
+	if f.cronRenamer != nil {
+		f.cronRenamer.CheckFile(logValues)
+	}
 	f.writeRecord((*f.formatter).Format(logValues))
 }
 

@@ -56,8 +56,8 @@ func createFormatters(formatterConfigs *[]config.FormatterConfig, formatterConfi
 			appendFormatter(format.CreateDelimiterFormatter(fc1.Delimiter, fc1.TimeLayout))
 			setLastFormatter(fc1.Id, formatterConfigMapping)
 		case config.FORMATTER_TEMPLATE:
-			appendFormatter(format.CreateTemplateFormatter(fc1.Template, fc1.CorrelationIdTemplate, fc1.CustomTemplate, 
-				fc1.CallerTemplate, fc1.CallerCorrelationIdTemplate, fc1.CallerCustomTemplate, 
+			appendFormatter(format.CreateTemplateFormatter(fc1.Template, fc1.CorrelationIdTemplate, fc1.CustomTemplate,
+				fc1.CallerTemplate, fc1.CallerCorrelationIdTemplate, fc1.CallerCustomTemplate,
 				fc1.TimeLayout, fc1.TrimSeverityText))
 			setLastFormatter(fc1.Id, formatterConfigMapping)
 		case config.FORMATTER_JSON:
@@ -80,7 +80,7 @@ func setLastFormatter(formatterId string, formatterConfigMapping *map[string]*fo
 
 // Creates the all relevant appenders from config elements
 func createAppenders(conf *config.Config, appenderConfigMapping *map[string]*appender.Appender, formatterConfigMapping *map[string]*format.Formatter) {
-	appender.CleanFileToMutex()
+	appender.CleanFileDeductions()
 	for _, ac1 := range conf.Appender {
 		alreadyCreated := false
 		ac1FormatterId := getFormatterConfigForPackage(&ac1.PackageName, &conf.Formatter).Id
@@ -103,7 +103,7 @@ func createAppenders(conf *config.Config, appenderConfigMapping *map[string]*app
 			appendAppender(appender.CreateStandardOutputAppender(formatter))
 			setLastAppender(ac1.Id+ac1FormatterId, appenderConfigMapping)
 		case config.APPENDER_FILE:
-			appendAppender(appender.CreateFileAppender(ac1.PathToLogFile, formatter))
+			appendAppender(appender.CreateFileAppender(ac1.PathToLogFile, formatter, ac1.CronExpression))
 			setLastAppender(ac1.Id+ac1FormatterId, appenderConfigMapping)
 		default:
 			// not relevant: handled at config load
