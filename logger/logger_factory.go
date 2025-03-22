@@ -103,7 +103,7 @@ func createAppenders(conf *config.Config, appenderConfigMapping *map[string]*app
 			appendAppender(appender.CreateStandardOutputAppender(formatter))
 			setLastAppender(ac1.Id+ac1FormatterId, appenderConfigMapping)
 		case config.APPENDER_FILE:
-			appendAppender(appender.CreateFileAppender(ac1.PathToLogFile, formatter, ac1.CronExpression))
+			appendAppender(appender.CreateFileAppender(ac1.PathToLogFile, formatter, ac1.CronExpression, ac1.LimitByteSize))
 			setLastAppender(ac1.Id+ac1FormatterId, appenderConfigMapping)
 		default:
 			// not relevant: handled at config load

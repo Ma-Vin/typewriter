@@ -3,8 +3,8 @@ package appender
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -19,16 +19,15 @@ var fileRenamerTestTime = time.Date(2025, time.March, 14, 20, 1, 0, 0, time.UTC)
 var fileRenamerMu = sync.Mutex{}
 var logValues = &common.LogValues{Time: fileRenamerTestTime}
 
-func getCronFileSchedulerTestLogFile(testCase string) string {
+func getFileRenamerTestLogFile(testCase string) string {
 	SkipFileCreationForTest = false
-	_, filename, _, _ := runtime.Caller(0)
-	result := strings.Replace(filename, ".go", "_"+testCase+"_scratch.log", 1)
+	result := testutil.GetTestCaseFilePath(testCase, true)
 	os.Create(result)
 	return result
 }
 
-func TestCheckFileNoRename(t *testing.T) {
-	logFileName := getCronFileSchedulerTestLogFile("noRename")
+func TestCheckCronFileNoRename(t *testing.T) {
+	logFileName := getFileRenamerTestLogFile("CronNoRename")
 	file, err := os.OpenFile(logFileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	testutil.AssertNil(err, t, "create log file")
 
@@ -36,13 +35,70 @@ func TestCheckFileNoRename(t *testing.T) {
 	renamer := CreateCronFileRenamer(logFileName, file, fileRenamerCrontab, &fileRenamerMu)
 	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
 
-	logFileName = filepath.Base(logFileName)
-	os.Remove(logFileName)
+	checkNoRenaming(logFileName, t, func() {
+		fmt.Fprintln(file, "first test entry")
+		renamer.CheckFile(logValues)
+	})
+}
 
-	entriesBefore, err := os.ReadDir("./")
+func TestCheckCronFileRename(t *testing.T) {
+	logFileName := getFileRenamerTestLogFile("CronRename")
+	file, err := os.OpenFile(logFileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	testutil.AssertNil(err, t, "create log file")
+
+	fileRenamerCrontab.NextTime = timePtr(fileRenamerTestTime.Add(-time.Second))
+	renamer := CreateCronFileRenamer(logFileName, file, fileRenamerCrontab, &fileRenamerMu)
+	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
+
+	logFileName = filepath.Base(logFileName)
+	indexOfFileEnding := strings.LastIndex(logFileName, ".")
+	expectedNewFileName := logFileName[:indexOfFileEnding] + "_20250314_200100" + logFileName[indexOfFileEnding:]
+
+	checkRenaming(file, logFileName, expectedNewFileName, t, func() {
+		fmt.Fprintln(file, "first test entry")
+		renamer.CheckFile(logValues)
+	})
+}
+
+func TestCheckSizeFileNoRename(t *testing.T) {
+	logFileName := getFileRenamerTestLogFile("SizeNoRename")
+	file, err := os.OpenFile(logFileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	testutil.AssertNil(err, t, "create log file")
+
+	renamer := CreateSizeFileRenamer(logFileName, file, 64, &fileRenamerMu)
+	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
+
+	checkNoRenaming(logFileName, t, func() {
+		fmt.Fprintln(file, "first test entry")
+		renamer.CheckFile("second test entry")
+	})
+}
+
+func TestCheckSizeFileRename(t *testing.T) {
+	logFileName := getFileRenamerTestLogFile("SizeRename")
+	file, err := os.OpenFile(logFileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	testutil.AssertNil(err, t, "create log file")
+
+	renamer := CreateSizeFileRenamer(logFileName, file, 20, &fileRenamerMu)
+	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
+
+	logFileName = filepath.Base(logFileName)
+	expectedNewFileName := logFileName[:len(logFileName)-4] + "_20250314_200100.log"
+
+	checkRenaming(file, logFileName, expectedNewFileName, t, func() {
+		fmt.Fprintln(file, "first test entry")
+		stat, err := os.Stat(logFileName)
+		testutil.AssertNil(err, t, "os.Stat(logFileName)")
+		renamer.currentByteSize = stat.Size()
+		renamer.CheckFile("second test entry")
+	})
+}
+
+func checkNoRenaming(logFileName string, t *testing.T, toBeExecutedForTest func()) {
+	entriesBefore, err := os.ReadDir(path.Dir(logFileName))
 	testutil.AssertNil(err, t, "read dir before")
 
-	renamer.CheckFile(logValues)
+	toBeExecutedForTest()
 
 	entriesAfter, err := os.ReadDir("./")
 	testutil.AssertNil(err, t, "read dir after")
@@ -57,29 +113,13 @@ func TestCheckFileNoRename(t *testing.T) {
 	}
 }
 
-func TestCheckFileRename(t *testing.T) {
-	logFileName := getCronFileSchedulerTestLogFile("rename")
-	os.Remove(logFileName)
-	file, err := os.OpenFile(logFileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
-	testutil.AssertNil(err, t, "create log file")
-
-	fileRenamerCrontab.NextTime = timePtr(fileRenamerTestTime.Add(-time.Second))
-	renamer := CreateCronFileRenamer(logFileName, file, fileRenamerCrontab, &fileRenamerMu)
-	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
-
-	fmt.Fprintln(file, "first test entry")
-
-	logFileName = filepath.Base(logFileName)
-	indexOfFileEnding := strings.LastIndex(logFileName, ".")
-	expectedNewFileName := logFileName[:indexOfFileEnding] + "_20250314_200100" + logFileName[indexOfFileEnding:]
-	os.Remove(expectedNewFileName)
-
-	entriesBefore, err := os.ReadDir("./")
+func checkRenaming(file *os.File, logFileName string, expectedNewFileName string, t *testing.T, toBeExecutedForTest func()) {
+	entriesBefore, err := os.ReadDir(path.Dir(logFileName))
 	testutil.AssertNil(err, t, "read dir before")
 
-	renamer.CheckFile(logValues)
+	toBeExecutedForTest()
 
-	entriesAfter, err := os.ReadDir("./")
+	entriesAfter, err := os.ReadDir(path.Dir(logFileName))
 	testutil.AssertNil(err, t, "read dir after")
 
 	testutil.AssertEquals(len(entriesBefore)+1, len(entriesAfter), t, "compare dirs")

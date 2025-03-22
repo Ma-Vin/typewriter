@@ -37,6 +37,7 @@ type AppenderConfig struct {
 	PackageName    string
 	PathToLogFile  string
 	CronExpression string
+	LimitByteSize  string
 }
 
 // config of a formatter
@@ -70,6 +71,7 @@ const (
 	DEFAULT_LOG_APPENDER_PROPERTY_NAME               = "TYPEWRITER_LOG_APPENDER_TYPE"
 	DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME          = "TYPEWRITER_LOG_APPENDER_FILE"
 	DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME = "TYPEWRITER_LOG_APPENDER_CRON_RENAMING"
+	DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME = "TYPEWRITER_LOG_APPENDER_SIZE_RENAMING"
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME              = "TYPEWRITER_LOG_FORMATTER_TYPE"
 	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_LOG_FORMATTER_PARAMETER"
 
@@ -77,6 +79,7 @@ const (
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME               = "TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_"
 	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME          = "TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_"
 	PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_APPENDER_CRON_RENAMING_"
+	PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_APPENDER_SIZE_RENAMING_"
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME              = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
 
@@ -157,12 +160,14 @@ var relevantKeyPrefixes = []string{
 	DEFAULT_LOG_APPENDER_PROPERTY_NAME,
 	DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME,
 	DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
+	DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME,
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
 	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
+	PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME,
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
@@ -352,19 +357,25 @@ func configureAppender(relevantKeyValues *map[string]string, appenderConfig *App
 func setFileAppenderConfig(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageName *string) {
 	var fileParameterKey string
 	var cronParameterKey string
+	var sizeParameterKey string
 
 	if packageName != nil && len(*packageName) > 0 {
 		fileParameterKey = PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME + *packageName
 		cronParameterKey = PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME + *packageName
+		sizeParameterKey = PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME + *packageName
 	} else {
 		fileParameterKey = DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME
 		cronParameterKey = DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME
+		sizeParameterKey = DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME
 	}
 
 	if fileValue, fileFound := (*relevantKeyValues)[fileParameterKey]; fileFound {
 		appenderConfig.PathToLogFile = fileValue
 		if cronValue, cronFound := (*relevantKeyValues)[cronParameterKey]; cronFound {
 			appenderConfig.CronExpression = cronValue
+		}
+		if sizeValue, sizeFound := (*relevantKeyValues)[sizeParameterKey]; sizeFound {
+			appenderConfig.LimitByteSize = sizeValue
 		}
 	} else {
 		fmt.Printf("Cannot use file appender, because there is no value at %s. Use %s appender instead", fileParameterKey, APPENDER_STDOUT)
@@ -638,7 +649,7 @@ func createLoggerConfigIfNecessary(packageName *string) {
 	}
 }
 
-// Sorts the config put the default configs at first index. Because of this a potential cronRenamer of the default appender is used for all equal named files 
+// Sorts the config put the default configs at first index. Because of this a potential cronRenamer of the default appender is used for all equal named files
 func sortConfig() {
 	sort.Slice(config.Formatter, func(i, j int) bool {
 		return (config.Formatter[i].IsDefault && !config.Formatter[j].IsDefault) || (config.Formatter[i].IsDefault == config.Formatter[j].IsDefault && config.Formatter[i].PackageName < config.Formatter[j].PackageName)

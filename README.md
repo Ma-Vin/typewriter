@@ -72,7 +72,8 @@ There are two types of appender at the moment. They can be configured by setting
 * `STDOUT`: Standard output appender
 * `FILE`: File appender which writes to a file
   * The target file of the appender has to be configured by setting the path to `TYPEWRITER_LOG_APPENDER_FILE`
-  * To rename the log file with existing entries at a specific point in time can be configured with a cron expression at `TYPEWRITER_LOG_APPENDER_CRON_RENAMING` (allowed characters are `* , - /`. The day of week is zero based)
+  * Renaming of the log file with existing entries at a specific point in time can be configured with a cron expression at `TYPEWRITER_LOG_APPENDER_CRON_RENAMING` (allowed characters are `* , - /`. The day of week is zero based)
+  * Renaming of the log file with existing entries, if a limit of bytes will be exceeded by next log entry, can be configured by an integer at `TYPEWRITER_LOG_APPENDER_SIZE_RENAMING`. This value will be ignored if `TYPEWRITER_LOG_APPENDER_CRON_RENAMING` is set also.
 
 The default appender is the standard output one
 
@@ -81,7 +82,7 @@ The default appender is the standard output one
 There are three types of formatter which provides the texts to log for the appender. They can be configured by setting `TYPEWRITER_LOG_FORMATTER_TYPE` with one of the following values:
 
 * `DELIMITER`: The record information will be appended and delimited with a given sign. They can be set `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>` has to be replaced by the following values:
-  1. `DELIMITER` the delimiting signs. The default value of the delimiter is ` - `. 
+  1. `DELIMITER` the delimiting signs. The default value of the delimiter is ` - `.
   2. `TIME_LAYOUT` time layout. Default value of `time.RFC3339`
 * `TEMPLATE`: The records will be derived from three templates and time layout. They can be set `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>` has to be replaced by the following values:
   1. `TEMPLATE` template for writing time, severity and the message. Default `[%s] %s: %s`

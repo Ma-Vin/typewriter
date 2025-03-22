@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/ma-vin/typewriter/common"
 )
@@ -19,6 +20,15 @@ type CronFileRenamer struct {
 	mu                    *sync.Mutex
 }
 
+type SizeFileRenamer struct {
+	pathToLogFile         string
+	writer                *os.File
+	limitByteSize         int64
+	currentByteSize       int64
+	timeFileNameGenerator *TimeFileNameGenerator
+	mu                    *sync.Mutex
+}
+
 type TimeFileNameGenerator struct {
 	basePath      string
 	fileEnding    string
@@ -27,10 +37,7 @@ type TimeFileNameGenerator struct {
 
 // Creates a new CronFileNamer for a given path and crontab
 func CreateCronFileRenamer(pathToLogFile string, writer *os.File, crontab *common.Crontab, mu *sync.Mutex) *CronFileRenamer {
-	indexOfFileEnding := strings.LastIndex(pathToLogFile, ".")
-	refTime := common.GetNow()
-	fileNameCreator := TimeFileNameGenerator{pathToLogFile[:indexOfFileEnding], pathToLogFile[indexOfFileEnding+1:], &refTime}
-	return &CronFileRenamer{pathToLogFile, writer, crontab, &fileNameCreator, mu}
+	return &CronFileRenamer{pathToLogFile, writer, crontab, CreateTimeFileNameGenerator(pathToLogFile), mu}
 }
 
 // Checks whether the next time of crontab is reached or not. In positive case the current file will be renamed to a name given by filename generator.
@@ -38,42 +45,82 @@ func (c *CronFileRenamer) CheckFile(logValues *common.LogValues) {
 	if logValues.Time.Before(*c.crontab.NextTime) {
 		return
 	}
-
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
-	if _, err := os.Stat(c.pathToLogFile); err != nil {
-		return
-	}
-
-	newPath := c.timeFileNameGenerator.determineNextPathToLogFile()
-
-	err := c.writer.Close()
-	if err != nil {
-		fmt.Println("Failed to close log file before renaming from", c.pathToLogFile, "to", newPath)
-		c.prepareNextInterval()
-		return
-	}
-
-	err = os.Rename(c.pathToLogFile, newPath)
-	if err != nil {
-		fmt.Println("Failed to rename log file from", c.pathToLogFile, "to", newPath)
-		c.prepareNextInterval()
-		return
-	}
-
-	if !SkipFileCreationForTest {
-		file, err := os.OpenFile(c.pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
-		if err == nil {
-			*c.writer = *file
-		}
-	}
-	c.prepareNextInterval()
+	renameLogFile(&c.pathToLogFile, c.writer, c.timeFileNameGenerator, c.prepareNextInterval)
 }
 
 func (c *CronFileRenamer) prepareNextInterval() {
 	c.timeFileNameGenerator.referenceTime = c.crontab.NextTime
 	c.crontab.CalculateNextTime()
+}
+
+// Creates a new SizeFileRenamer for a given path and size limit
+func CreateSizeFileRenamer(pathToLogFile string, writer *os.File, limitByteSize int64, mu *sync.Mutex) *SizeFileRenamer {
+	stat, err := os.Stat(pathToLogFile)
+	var currentSize int64 = 0
+	if err == nil {
+		currentSize = stat.Size()
+	}
+	return &SizeFileRenamer{pathToLogFile, writer, limitByteSize, currentSize, CreateTimeFileNameGenerator(pathToLogFile), mu}
+}
+
+// Checks whether the size limit is reached or not. In positive case the current file will be renamed to a name given by filename generator.
+func (c *SizeFileRenamer) CheckFile(formattedRecord string) {
+	sizeToAdd := int64(utf8.RuneCountInString(formattedRecord))
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.currentByteSize+sizeToAdd < c.limitByteSize {
+		c.currentByteSize += sizeToAdd
+		return
+	}
+
+	renameLogFile(&c.pathToLogFile, c.writer, c.timeFileNameGenerator, c.prepareNextInterval)
+	c.currentByteSize = sizeToAdd
+}
+
+func (c *SizeFileRenamer) prepareNextInterval() {
+	referenceTime := common.GetNow()
+	c.timeFileNameGenerator.referenceTime = &referenceTime
+	c.currentByteSize = 0
+}
+
+func renameLogFile(pathToLogFile *string, writer *os.File, timeFileNameGenerator *TimeFileNameGenerator, prepareNextInterval func()) {
+
+	if _, err := os.Stat(*pathToLogFile); err != nil {
+		return
+	}
+
+	newPath := timeFileNameGenerator.determineNextPathToLogFile()
+
+	err := writer.Close()
+	if err != nil {
+		fmt.Println("Failed to close log file before renaming from", pathToLogFile, "to", newPath)
+		prepareNextInterval()
+		return
+	}
+
+	err = os.Rename(*pathToLogFile, newPath)
+	if err != nil {
+		fmt.Println("Failed to rename log file from", pathToLogFile, "to", newPath)
+		prepareNextInterval()
+		return
+	}
+
+	if !SkipFileCreationForTest {
+		file, err := os.OpenFile(*pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+		if err == nil {
+			*writer = *file
+		}
+	}
+	prepareNextInterval()
+}
+
+// Creates a new TimeFileNameGenerator
+func CreateTimeFileNameGenerator(pathToLogFile string) *TimeFileNameGenerator {
+	indexOfFileEnding := strings.LastIndex(pathToLogFile, ".")
+	refTime := common.GetNow()
+	return &TimeFileNameGenerator{pathToLogFile[:indexOfFileEnding], pathToLogFile[indexOfFileEnding+1:], &refTime}
 }
 
 // creates the next path of log file

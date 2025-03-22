@@ -3,6 +3,7 @@ package appender
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"sync"
 
 	"github.com/ma-vin/typewriter/common"
@@ -14,6 +15,7 @@ type FileAppender struct {
 	pathToLogFile string
 	formatter     *format.Formatter
 	cronRenamer   *CronFileRenamer
+	sizeRenamer   *SizeFileRenamer
 	writer        *os.File
 	isClosed      *bool
 	mu            *sync.Mutex
@@ -23,6 +25,7 @@ type fileDeduction struct {
 	pathToLogFile *string
 	mu            *sync.Mutex
 	cronRenamer   *CronFileRenamer
+	sizeRenamer   *SizeFileRenamer
 }
 
 // For test usage only! Indicator whether to skip creation of the target output file
@@ -35,7 +38,7 @@ func CleanFileDeductions() {
 }
 
 // Creates a file appender to the file at “pathToLogFile” with a given formatter
-func CreateFileAppender(pathToLogFile string, formatter *format.Formatter, cronExpression string) Appender {
+func CreateFileAppender(pathToLogFile string, formatter *format.Formatter, cronExpression string, limitByteSize string) Appender {
 	var file *os.File = nil
 	var err error = nil
 	var closed = false
@@ -48,31 +51,46 @@ func CreateFileAppender(pathToLogFile string, formatter *format.Formatter, cronE
 		return CreateStandardOutputAppender(formatter)
 	}
 
-	mu, cronRenamer := getOrCreateDeductionForFile(&pathToLogFile, file, cronExpression)
+	mu, cronRenamer, sizeRenamer := getOrCreateDeductionForFile(&pathToLogFile, file, cronExpression, limitByteSize)
 
-	return FileAppender{pathToLogFile, formatter, cronRenamer, file, &closed, mu}
+	return FileAppender{pathToLogFile, formatter, cronRenamer, sizeRenamer, file, &closed, mu}
 }
 
 // gets an existing struct of deduced elements from pathToLogFile or creates a new one
-func getOrCreateDeductionForFile(pathToLogFile *string, file *os.File, cronExpression string) (*sync.Mutex, *CronFileRenamer) {
+func getOrCreateDeductionForFile(pathToLogFile *string, file *os.File, cronExpression string, limitByteSize string) (*sync.Mutex, *CronFileRenamer, *SizeFileRenamer) {
 	for _, fd := range fileDeductions {
 		if *pathToLogFile == *fd.pathToLogFile {
-			return fd.mu, fd.cronRenamer
+			return fd.mu, fd.cronRenamer, fd.sizeRenamer
 		}
 	}
 	mu := sync.Mutex{}
-	renamer := createCrontabAndRenamer(*pathToLogFile, file, cronExpression, &mu)
-	fileDeductions = append(fileDeductions, fileDeduction{pathToLogFile, &mu, renamer})
-	return &mu, renamer
+	cronRenamer := createCrontabAndRenamer(*pathToLogFile, file, cronExpression, &mu)
+	sizeRenamer := createSizeRenamer(*pathToLogFile, file, limitByteSize, &mu, cronRenamer)
+	fileDeductions = append(fileDeductions, fileDeduction{pathToLogFile, &mu, cronRenamer, sizeRenamer})
+	return &mu, cronRenamer, sizeRenamer
 }
 
-// creates a new renamer and its crontab
+// creates a new cron renamer and its crontab
 func createCrontabAndRenamer(pathToLogFile string, file *os.File, cronExpression string, mu *sync.Mutex) *CronFileRenamer {
 	if cronExpression == "" {
 		return nil
 	}
 	crontab := common.CreateCrontab(cronExpression)
 	return CreateCronFileRenamer(pathToLogFile, file, crontab, mu)
+}
+
+// creates a new size renamer
+func createSizeRenamer(pathToLogFile string, file *os.File, limitByteSizeText string, mu *sync.Mutex, cronRenamer *CronFileRenamer) *SizeFileRenamer {
+	if cronRenamer != nil || limitByteSizeText == "" {
+		return nil
+	}
+	limitByteSize, err := strconv.Atoi(limitByteSizeText)
+	if err != nil {
+		fmt.Printf("Fail to parse byte size limit for log file renaming %s: %s", limitByteSizeText, err)
+		fmt.Println()
+		return nil
+	}
+	return CreateSizeFileRenamer(pathToLogFile, file, int64(limitByteSize), mu)
 }
 
 // Writes the given logValues to the defined output file and checks whether to rename existing log file or not
@@ -97,6 +115,9 @@ func (f FileAppender) Close() {
 }
 
 func (f *FileAppender) writeRecord(formattedRecord string) {
+	if f.sizeRenamer != nil {
+		f.sizeRenamer.CheckFile(formattedRecord)
+	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	fmt.Fprintln(f.writer, formattedRecord)

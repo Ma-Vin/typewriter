@@ -2,7 +2,10 @@
 package testutil
 
 import (
+	"os"
+	"path"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -65,4 +68,21 @@ func isNil(toCheck any) bool {
 	default:
 		return toCheck == nil
 	}
+}
+
+func GetTestCaseFilePath(testCase string, clean bool) string {
+	_, filename, _, _ := runtime.Caller(1)
+	if clean {
+		dirPath := path.Dir(filename)
+		dirEntries, err := os.ReadDir(dirPath)
+		if err == nil {
+			prefixToRemove := filename[len(dirPath)+1:len(filename)-3] + "_" + testCase
+			for _, dirEntry := range dirEntries {
+				if strings.HasPrefix(dirEntry.Name(), prefixToRemove) {
+					os.Remove(path.Join(dirPath, dirEntry.Name()))
+				}
+			}
+		}
+	}
+	return filename[:len(filename)-3] + "_" + testCase + "_scratch.log"
 }

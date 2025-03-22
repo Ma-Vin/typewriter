@@ -472,6 +472,7 @@ func TestGetConfigDefaultUnknown(t *testing.T) {
 func TestGetConfigCronFileAppender(t *testing.T) {
 	logFilePath := "pathToLogFile"
 	cronExpression := "* * * * *"
+	limitByteSize := "64"
 	appender.SkipFileCreationForTest = true
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
@@ -479,6 +480,7 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME, cronExpression)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME, limitByteSize)
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -496,6 +498,7 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 		testutil.AssertEquals(APPENDER_FILE, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertEquals(logFilePath, result.Appender[0].PathToLogFile, t, "result.appender[0].pathToLogFile")
 		testutil.AssertEquals(cronExpression, result.Appender[0].CronExpression, t, "result.appender[0].CronExpression")
+		testutil.AssertEquals(limitByteSize, result.Appender[0].LimitByteSize, t, "result.appender[0].LimitByteSize")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
@@ -909,11 +912,12 @@ func TestGetConfigFromFileButAllCommentOut(t *testing.T) {
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 }
 
-func TestGetConfigPackageCronFileAppender(t *testing.T) {
+func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 	appender.SkipFileCreationForTest = true
 	packageName := "testPackage"
 	logFilePath := "pathToLogFile"
 	cronExpression := "* * * * *"
+	limitByteSize := "64"
 	packageNameUpper := strings.ToUpper(packageName)
 
 	for i := range countOfConfigTests {
@@ -921,6 +925,7 @@ func TestGetConfigPackageCronFileAppender(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME+packageName, cronExpression)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME+packageName, limitByteSize)
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -944,6 +949,7 @@ func TestGetConfigPackageCronFileAppender(t *testing.T) {
 		testutil.AssertEquals(APPENDER_FILE, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 		testutil.AssertEquals(logFilePath, result.Appender[1].PathToLogFile, t, "result.appender[1].pathToLogFile")
 		testutil.AssertEquals(cronExpression, result.Appender[1].CronExpression, t, "result.appender[1].CronExpression")
+		testutil.AssertEquals(limitByteSize, result.Appender[1].LimitByteSize, t, "result.appender[1].LimitByteSize")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
