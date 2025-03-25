@@ -87,7 +87,10 @@ The default formatter is the delimiter one.
 
 # 2.5 Package specific configuration
 
-Each configuration element can be declared package specific by replacing “TYPEWRITER” with “TYPEWRITER_PACKAGE” and adding the package as postfix at environment variable names.
+Each configuration element can be declared package specific by replacing “TYPEWRITER” with “TYPEWRITER_PACKAGE” and adding the package identifier as postfix at environment variable names.
+The identifier is mapped to the package by setting the package name at “TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>”.
+If the package name should be interpreted as a full qualified name, the variable vTYPEWRITER_PACKAGE_FULL_QUALIFIED” is to set with value “true”.
+If “TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>” is not defined but an other package specific element. The “identifier” in lower case will be used as package name instead.
 
   - “TYPEWRITER_LOG_LEVEL” -> “TYPEWRITER_PACKAGE_LOG_LEVEL_LOGGER”
   - “TYPEWRITER_LOG_APPENDER_TYPE” -> “TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_LOGGER”

@@ -115,7 +115,7 @@ The logging of the caller function, file and line can be activated by setting `t
 
 #### Package specific configuration
 
-Each configuration element can be declared package specific by replacing `TYPEWRITER` with `TYPEWRITER_PACKAGE` and adding the package as postfix at environment variable names.
+Each configuration element can be declared package specific by replacing `TYPEWRITER` with `TYPEWRITER_PACKAGE` and adding an package identifier as postfix at environment variable names. The identifier is mapped to the package by setting the package name at `TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>`. If the package name should be interpreted as a full qualified name, the variable `TYPEWRITER_PACKAGE_FULL_QUALIFIED` is to set with value `true`.
 
 The table shows the corresponding variable names for the example package *logger*
 
@@ -127,6 +127,8 @@ The table shows the corresponding variable names for the example package *logger
 | `TYPEWRITER_LOG_FORMATTER_TYPE`                | `TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_LOGGER`                |
 | `TYPEWRITER_LOG_FORMATTER_PARAMETER`           | `TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER`           |
 | `TYPEWRITER_LOG_FORMATTER_PARAMETER_DELIMITER` | `TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER_DELIMITER` |
+
+If `TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>` is not defined but an other package specific element. The `identifier` in lower case will be used as package name instead.
 
 ## Examples
 

@@ -45,7 +45,7 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 }
 
 func initMainLoggerViaPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
-	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "LOGGER", false)
+	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "logger", false)
 }
 
 func initMainLoggerViaFullQualifiedPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
@@ -53,7 +53,7 @@ func initMainLoggerViaFullQualifiedPackageTest(envCommonLogLevel string, envPack
 }
 
 func initMainLoggerViaCommonTest(envCommonLogLevel string, envPackageLogLevel string) {
-	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "OTHER", false)
+	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "other", false)
 }
 
 func initMainLoggerViaCommonFullQualifiedTest(envCommonLogLevel string, envPackageLogLevel string) {

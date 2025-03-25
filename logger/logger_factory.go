@@ -83,10 +83,10 @@ func createAppenders(conf *config.Config, appenderConfigMapping *map[string]*app
 	appender.CleanFileDeductions()
 	for _, ac1 := range conf.Appender {
 		alreadyCreated := false
-		ac1FormatterId := getFormatterConfigForPackage(&ac1.PackageName, &conf.Formatter).Id
+		ac1FormatterId := getFormatterConfigForPackage(&ac1.PackageParameter, &conf.Formatter).Id
 
 		for _, ac2 := range conf.Appender {
-			if ac1.Id == ac2.Id && ac1FormatterId == getFormatterConfigForPackage(&ac2.PackageName, &conf.Formatter).Id {
+			if ac1.Id == ac2.Id && ac1FormatterId == getFormatterConfigForPackage(&ac2.PackageParameter, &conf.Formatter).Id {
 
 				_, alreadyCreated = (*appenderConfigMapping)[ac1.Id+ac1FormatterId]
 				break
@@ -123,13 +123,13 @@ func setLastAppender(appenderId string, appenderConfigMapping *map[string]*appen
 func createCommonLoggers(conf *config.Config, loggerConfigMapping *map[string]*CommonLogger, appenderConfigMapping *map[string]*appender.Appender) {
 	for _, lc1 := range (*conf).Logger {
 		alreadyCreated := false
-		lc1FormatterId := getFormatterConfigForPackage(&lc1.PackageName, &conf.Formatter).Id
-		lc1AppenderId := getAppenderConfigForPackage(&lc1.PackageName, &conf.Appender).Id
+		lc1FormatterId := getFormatterConfigForPackage(&lc1.PackageParameter, &conf.Formatter).Id
+		lc1AppenderId := getAppenderConfigForPackage(&lc1.PackageParameter, &conf.Appender).Id
 
 		for _, lc2 := range (*conf).Logger {
 			if lc1.Id == lc2.Id &&
-				lc1FormatterId == getAppenderConfigForPackage(&lc2.PackageName, &conf.Appender).Id &&
-				lc1AppenderId == getFormatterConfigForPackage(&lc2.PackageName, &conf.Formatter).Id {
+				lc1FormatterId == getAppenderConfigForPackage(&lc2.PackageParameter, &conf.Appender).Id &&
+				lc1AppenderId == getFormatterConfigForPackage(&lc2.PackageParameter, &conf.Formatter).Id {
 
 				_, alreadyCreated = (*loggerConfigMapping)[lc1.Id+lc1AppenderId+lc1FormatterId]
 				break
@@ -151,35 +151,26 @@ func createCommonLoggers(conf *config.Config, loggerConfigMapping *map[string]*C
 func createMainLogger(conf *config.Config, loggerConfigMapping *map[string]*CommonLogger) {
 	mLogger = MainLogger{}
 	mLogger.existPackageLogger = len(conf.Logger) > 1
+	mLogger.useFullQualifiedPackage = conf.UseFullQualifiedPackageName
 	mLogger.packageLoggers = make(map[string]*CommonLogger, len(conf.Logger)-1)
 
 	for _, lc := range conf.Logger {
-		lc1FormatterId := getFormatterConfigForPackage(&lc.PackageName, &conf.Formatter).Id
-		lc1AppenderId := getAppenderConfigForPackage(&lc.PackageName, &conf.Appender).Id
+		lc1FormatterId := getFormatterConfigForPackage(&lc.PackageParameter, &conf.Formatter).Id
+		lc1AppenderId := getAppenderConfigForPackage(&lc.PackageParameter, &conf.Appender).Id
 		if lc.IsDefault {
 			mLogger.commonLogger = (*loggerConfigMapping)[lc.Id+lc1AppenderId+lc1FormatterId]
 		} else {
-			packageKey := determinePackageKey(&lc, &mLogger)
-			mLogger.packageLoggers[packageKey] = (*loggerConfigMapping)[lc.Id+lc1AppenderId+lc1FormatterId]
+			mLogger.packageLoggers[lc.PackageName] = (*loggerConfigMapping)[lc.Id+lc1AppenderId+lc1FormatterId]
 		}
 	}
 
 	loggersInitialized = true
 }
 
-// determines the package for a logger. This can be the simple or full qualified name. the indicator which one is to use is set at main logger too.
-func determinePackageKey(loggerConfig *config.LoggerConfig, mLogger *MainLogger) string {
-	if len(loggerConfig.FullQualifiedPackageName) > 0 {
-		mLogger.useFullQualifiedPackage = true
-		return loggerConfig.FullQualifiedPackageName
-	}
-	return loggerConfig.PackageName
-}
-
 // returns a pointer to the formatter config for a given package
-func getFormatterConfigForPackage(packageName *string, formatterConfig *[]config.FormatterConfig) *config.FormatterConfig {
+func getFormatterConfigForPackage(PackageParameter *string, formatterConfig *[]config.FormatterConfig) *config.FormatterConfig {
 	for i, fc := range *formatterConfig {
-		if fc.PackageName == *packageName {
+		if fc.PackageParameter == *PackageParameter {
 			return &(*formatterConfig)[i]
 		}
 	}
@@ -187,9 +178,9 @@ func getFormatterConfigForPackage(packageName *string, formatterConfig *[]config
 }
 
 // returns a pointer to the appender config for a given package
-func getAppenderConfigForPackage(packageName *string, appenderConfig *[]config.AppenderConfig) *config.AppenderConfig {
+func getAppenderConfigForPackage(PackageParameter *string, appenderConfig *[]config.AppenderConfig) *config.AppenderConfig {
 	for i, ac := range *appenderConfig {
-		if ac.PackageName == *packageName {
+		if ac.PackageParameter == *PackageParameter {
 			return &(*appenderConfig)[i]
 		}
 	}

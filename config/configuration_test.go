@@ -74,19 +74,19 @@ func TestGetConfigNoEnv(t *testing.T) {
 
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+	testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 	testutil.AssertFalse(result.Logger[0].IsCallerToSet, t, "result.logger[0].IsCallerToSet")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-	testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
@@ -108,17 +108,17 @@ func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
 
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+	testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-	testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
@@ -135,18 +135,18 @@ func TestGetConfigNonExistingFile(t *testing.T) {
 
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+	testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-	testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
@@ -164,19 +164,19 @@ func TestGetConfigCaller(t *testing.T) {
 
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+	testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 	testutil.AssertTrue(result.Logger[0].IsCallerToSet, t, "result.logger[0].IsCallerToSet")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-	testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
@@ -198,18 +198,18 @@ func TestGetConfigDefaultDelimiter(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(":", result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
@@ -237,18 +237,18 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals("time: %s severity: %s message: %s", result.Formatter[0].Template, t, "result.formatter[0].template")
 		testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[0].CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
@@ -273,18 +273,18 @@ func TestGetConfigDefaultTemplateWithoutParameter(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals("[%s] %s: %s", result.Formatter[0].Template, t, "result.formatter[0].template")
 		testutil.AssertEquals("[%s] %s %s: %s", result.Formatter[0].CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
@@ -320,18 +320,18 @@ func TestGetConfigDefaultJson(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals("timing", result.Formatter[0].TimeKey, t, "result.formatter[0].timeKey")
 		testutil.AssertEquals("level", result.Formatter[0].SeverityKey, t, "result.formatter[0].severityKey")
@@ -360,18 +360,18 @@ func TestGetConfigDefaultJsonWithoutParameter(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals("time", result.Formatter[0].TimeKey, t, "result.formatter[0].timeKey")
 		testutil.AssertEquals("severity", result.Formatter[0].SeverityKey, t, "result.formatter[0].severityKey")
@@ -402,20 +402,20 @@ func TestGetConfigDefaultFileAppender(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_FILE, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertEquals(logFilePath, result.Appender[0].PathToLogFile, t, "result.appender[0].pathToLogFile")
 		testutil.AssertEquals("", result.Appender[0].CronExpression, t, "result.appender[0].CronExpression")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 	}
 }
@@ -434,18 +434,18 @@ func TestGetConfigDefaultFileAppenderMissingPath(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 	}
 }
@@ -464,18 +464,18 @@ func TestGetConfigDefaultUnknown(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals("", result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals("", result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals("", result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 	}
@@ -501,13 +501,13 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_FILE, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertEquals(logFilePath, result.Appender[0].PathToLogFile, t, "result.appender[0].pathToLogFile")
 		testutil.AssertEquals(cronExpression, result.Appender[0].CronExpression, t, "result.appender[0].CronExpression")
@@ -515,7 +515,7 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 	}
 }
@@ -526,10 +526,11 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 
 func TestGetConfigPackageDelimiter(t *testing.T) {
 	packageName := "testPackage"
-	packageNameUpper := strings.ToUpper(packageName)
+	packageParameter := strings.ToUpper(packageName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
@@ -540,31 +541,33 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 
 		result := GetConfig()
 
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageName, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals("_", result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
 	}
@@ -573,10 +576,11 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 func TestGetConfigPackageDelimiterFullQualifiedPackageName(t *testing.T) {
 	packageParameterName := "testPackage"
 	fullQualifiedPackageName := "github.com/ma-vin/typewriter/testPackage"
-	packageParameterNameUpper := strings.ToUpper(packageParameterName)
+	packageParameterUpperName := strings.ToUpper(packageParameterName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME, "true")
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageParameterName, fullQualifiedPackageName)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageParameterName, LOG_LEVEL_DEBUG)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageParameterName, APPENDER_STDOUT)
@@ -588,31 +592,33 @@ func TestGetConfigPackageDelimiterFullQualifiedPackageName(t *testing.T) {
 
 		result := GetConfig()
 
+		testutil.AssertTrue(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageParameterNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals(fullQualifiedPackageName, result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameterUpperName, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(fullQualifiedPackageName, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageParameterNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameterUpperName, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameterNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameterUpperName, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals("_", result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
 	}
@@ -620,10 +626,11 @@ func TestGetConfigPackageDelimiterFullQualifiedPackageName(t *testing.T) {
 
 func TestGetConfigPackageTemplate(t *testing.T) {
 	packageName := "testPackage"
-	packageNameUpper := strings.ToUpper(packageName)
+	packageParameter := strings.ToUpper(packageName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_TEMPLATE)
@@ -637,31 +644,33 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 
 		result := GetConfig()
 
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageName, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals("time: %s severity: %s message: %s", result.Formatter[1].Template, t, "result.formatter[1].template")
 		testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[1].CorrelationIdTemplate, t, "result.formatter[1].correlationIdTemplate")
@@ -672,10 +681,11 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 
 func TestGetConfigPackageJson(t *testing.T) {
 	packageName := "testPackage"
-	packageNameUpper := strings.ToUpper(packageName)
+	packageParameter := strings.ToUpper(packageName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_JSON)
@@ -692,31 +702,33 @@ func TestGetConfigPackageJson(t *testing.T) {
 
 		result := GetConfig()
 
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageName, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals("timing", result.Formatter[1].TimeKey, t, "result.formatter[1].timeKey")
 		testutil.AssertEquals("level", result.Formatter[1].SeverityKey, t, "result.formatter[1].severityKey")
@@ -730,7 +742,8 @@ func TestGetConfigPackageJson(t *testing.T) {
 
 func TestGetConfigPackagePartialOnlyLevel(t *testing.T) {
 	packageName := "testPackage"
-	packageNameUpper := strings.ToUpper(packageName)
+	packageParameter := strings.ToUpper(packageName)
+	packageNameLower := strings.ToLower(packageName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
@@ -741,31 +754,33 @@ func TestGetConfigPackagePartialOnlyLevel(t *testing.T) {
 
 		result := GetConfig()
 
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageNameLower, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
 	}
@@ -773,7 +788,8 @@ func TestGetConfigPackagePartialOnlyLevel(t *testing.T) {
 
 func TestGetConfigPackagePartialOnlyAppender(t *testing.T) {
 	packageName := "testPackage"
-	packageNameUpper := strings.ToUpper(packageName)
+	packageParameter := strings.ToUpper(packageName)
+	packageNameLower := strings.ToLower(packageName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
@@ -784,31 +800,33 @@ func TestGetConfigPackagePartialOnlyAppender(t *testing.T) {
 
 		result := GetConfig()
 
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageNameLower, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
 	}
@@ -816,7 +834,8 @@ func TestGetConfigPackagePartialOnlyAppender(t *testing.T) {
 
 func TestGetConfigPackagePartialOnlyFormatter(t *testing.T) {
 	packageName := "testPackage"
-	packageNameUpper := strings.ToUpper(packageName)
+	packageParameter := strings.ToUpper(packageName)
+	packageNameLower := strings.ToLower(packageName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
@@ -827,31 +846,33 @@ func TestGetConfigPackagePartialOnlyFormatter(t *testing.T) {
 
 		result := GetConfig()
 
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageNameLower, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
 	}
@@ -859,7 +880,8 @@ func TestGetConfigPackagePartialOnlyFormatter(t *testing.T) {
 
 func TestGetConfigPackagePartialOnlyFormatterWithParameterDelimiter(t *testing.T) {
 	packageName := "testPackage"
-	packageNameUpper := strings.ToUpper(packageName)
+	packageParameter := strings.ToUpper(packageName)
+	packageNameLower := strings.ToLower(packageName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
@@ -871,31 +893,33 @@ func TestGetConfigPackagePartialOnlyFormatterWithParameterDelimiter(t *testing.T
 
 		result := GetConfig()
 
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageNameLower, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals("_", result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
 	}
@@ -905,10 +929,11 @@ func TestGetConfigPackageFileAppender(t *testing.T) {
 	appender.SkipFileCreationForTest = true
 	packageName := "testPackage"
 	logFilePath := "pathToLogFile"
-	packageNameUpper := strings.ToUpper(packageName)
+	packageParameter := strings.ToUpper(packageName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
 		allPostInitConfigTest[i](optionalFile)
@@ -917,33 +942,35 @@ func TestGetConfigPackageFileAppender(t *testing.T) {
 
 		result := GetConfig()
 
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageName, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_FILE, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 		testutil.AssertEquals(logFilePath, result.Appender[1].PathToLogFile, t, "result.appender[1].pathToLogFile")
 		testutil.AssertEquals("", result.Appender[1].CronExpression, t, "result.appender[1].pathToLogFile")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
 	}
@@ -972,20 +999,22 @@ func TestGetConfigFromFileButAllCommentOut(t *testing.T) {
 
 	testutil.AssertNotNil(result, t, "result")
 
+	testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+	testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-	testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+	testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 }
@@ -996,10 +1025,11 @@ func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 	logFilePath := "pathToLogFile"
 	cronExpression := "* * * * *"
 	limitByteSize := "64"
-	packageNameUpper := strings.ToUpper(packageName)
+	packageParameter := strings.ToUpper(packageName)
 
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME+packageName, cronExpression)
@@ -1010,22 +1040,24 @@ func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 
 		result := GetConfig()
 
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
-		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
-		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter, t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
-		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter, t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageName, result.Logger[1].PackageName, t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
-		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter, t, "result.appender[0].PackageParameter")
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter, t, "result.appender[1].PackageParameter")
 		testutil.AssertEquals(APPENDER_FILE, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 		testutil.AssertEquals(logFilePath, result.Appender[1].PathToLogFile, t, "result.appender[1].pathToLogFile")
 		testutil.AssertEquals(cronExpression, result.Appender[1].CronExpression, t, "result.appender[1].CronExpression")
@@ -1033,11 +1065,11 @@ func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
 	}

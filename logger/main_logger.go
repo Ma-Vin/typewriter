@@ -60,14 +60,10 @@ func determinePackageName(functionName string, useFullQualifiedName bool) string
 		}
 	}
 	packageEnd := strings.LastIndex(functionNameSuffix, ".")
-	result := functionNameSuffix
 	if packageEnd > -1 {
-		result = functionNameSuffix[:packageEnd]
+		return functionNameSuffix[:packageEnd]
 	}
-	if useFullQualifiedName {
-		return result
-	}
-	return strings.ToUpper(result)
+	return functionNameSuffix
 
 }
 

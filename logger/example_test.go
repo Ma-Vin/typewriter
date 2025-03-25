@@ -147,6 +147,33 @@ func ExampleLog_levelRestrictedByPackage() {
 
 	// Example begin
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "DEBUG")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_PACKAGE_LOGGER", "logger")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_LEVEL_LOGGER", "WARN")
+
+	Log().Debug("Debug will not be printed")
+	Log().Information("Information will not be printed")
+	Log().Warning("Warning will be printed")
+	Log().Error("Error will be printed")
+	Log().Fatal("Fatal will be printed")
+
+	// Output:
+	// 2024-11-25T08:30:00Z - WARN  - Warning will be printed
+	// 2024-11-25T08:30:00Z - ERROR - Error will be printed
+	// 2024-11-25T08:30:00Z - FATAL - Fatal will be printed
+}
+
+func ExampleLog_levelRestrictedByPackageFullQualified() {
+	// Clear test environment
+	os.Clearenv()
+	Reset()
+	// use fixed time for output compare
+	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
+	common.SetLogValuesMockTime(&mockTime)
+
+	// Example begin
+	os.Setenv("TYPEWRITER_LOG_LEVEL", "DEBUG")
+	os.Setenv("TYPEWRITER_PACKAGE_FULL_QUALIFIED", "TRUE")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_PACKAGE_LOGGER", "github.com/ma-vin/typewriter/logger")
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_LEVEL_LOGGER", "WARN")
 
 	Log().Debug("Debug will not be printed")
@@ -334,6 +361,6 @@ func ExampleLog_callerWithIndexedTemplate() {
 	Log().Fatal("Fatal will be ", "printed")
 
 	// Output:
-	// time:2024-11-25T08:30:00Z, severity:ERROR, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:333 msg:Error will be printed
-	// time:2024-11-25T08:30:00Z, severity:FATAL, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:334 msg:Fatal will be printed
+	// time:2024-11-25T08:30:00Z, severity:ERROR, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:360 msg:Error will be printed
+	// time:2024-11-25T08:30:00Z, severity:FATAL, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:361 msg:Fatal will be printed
 }

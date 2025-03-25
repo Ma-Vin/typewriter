@@ -15,30 +15,31 @@ import (
 
 // root config element
 type Config struct {
-	Logger    []LoggerConfig
-	Appender  []AppenderConfig
-	Formatter []FormatterConfig
+	Logger                      []LoggerConfig
+	Appender                    []AppenderConfig
+	Formatter                   []FormatterConfig
+	UseFullQualifiedPackageName bool
 }
 
 // config of a single logger
 type LoggerConfig struct {
-	Id                       string
-	IsDefault                bool
-	PackageName              string
-	FullQualifiedPackageName string
-	Severity                 int
-	IsCallerToSet            bool
+	Id               string
+	IsDefault        bool
+	PackageParameter string
+	PackageName      string
+	Severity         int
+	IsCallerToSet    bool
 }
 
 // config of an appender
 type AppenderConfig struct {
-	Id             string
-	AppenderType   string
-	IsDefault      bool
-	PackageName    string
-	PathToLogFile  string
-	CronExpression string
-	LimitByteSize  string
+	Id               string
+	AppenderType     string
+	IsDefault        bool
+	PackageParameter string
+	PathToLogFile    string
+	CronExpression   string
+	LimitByteSize    string
 }
 
 // config of a formatter
@@ -46,7 +47,7 @@ type FormatterConfig struct {
 	Id                          string
 	FormatterType               string
 	IsDefault                   bool
-	PackageName                 string
+	PackageParameter            string
 	Delimiter                   string
 	Template                    string
 	CorrelationIdTemplate       string
@@ -104,8 +105,9 @@ const (
 	TEMPLATE_CALLER_CORRELATION_PARAMETER = "_TEMPLATE_CALLER_CORRELATION"
 	TEMPLATE_CALLER_CUSTOM_PARAMETER      = "_TEMPLATE_CALLER_CUSTOM"
 
-	LOG_CONFIG_FILE_ENV_NAME             = "TYPEWRITER_CONFIG_FILE"
-	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME = "TYPEWRITER_LOG_CALLER"
+	LOG_CONFIG_FILE_ENV_NAME                   = "TYPEWRITER_CONFIG_FILE"
+	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME       = "TYPEWRITER_LOG_CALLER"
+	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME = "TYPEWRITER_PACKAGE_FULL_QUALIFIED"
 
 	LOG_LEVEL_DEBUG       = "DEBUG"
 	LOG_LEVEL_INFO        = "INFO"
@@ -174,6 +176,7 @@ var relevantKeyPrefixes = []string{
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
+	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
 }
 
 // returns the config or creates it if it was not initialized yet
@@ -197,7 +200,7 @@ func GetConfig() *Config {
 		createAppenderConfig(&relevantKeyValues)
 		createLoggerConfig(&relevantKeyValues)
 	}
-	completeConfig()
+	completeConfig(&relevantKeyValues)
 
 	configInitialized = true
 	return &config
@@ -321,14 +324,14 @@ func createMapFromSliceWithKeyValues(sliceToConvert []string) map[string]string 
 
 // creates all relevant appender config elements derived from relevant properties
 func createAppenderConfig(relevantKeyValues *map[string]string) {
-	config.Appender = append(config.Appender, AppenderConfig{IsDefault: true, PackageName: ""})
+	config.Appender = append(config.Appender, AppenderConfig{IsDefault: true, PackageParameter: ""})
 	appenderIndex := len(config.Appender) - 1
 	configureAppender(relevantKeyValues, &config.Appender[appenderIndex], nil)
 
 	for key := range *relevantKeyValues {
 		packageOfAppender, found := strings.CutPrefix(key, PACKAGE_LOG_APPENDER_PROPERTY_NAME)
 		if found {
-			config.Appender = append(config.Appender, AppenderConfig{IsDefault: false, PackageName: packageOfAppender})
+			config.Appender = append(config.Appender, AppenderConfig{IsDefault: false, PackageParameter: packageOfAppender})
 			appenderIndex++
 			configureAppender(relevantKeyValues, &config.Appender[appenderIndex], &packageOfAppender)
 		}
@@ -336,10 +339,10 @@ func createAppenderConfig(relevantKeyValues *map[string]string) {
 }
 
 // configures a given appender config element from properties concerning a given package name
-func configureAppender(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageName *string) {
+func configureAppender(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageParameter *string) {
 	var appenderKey string
-	if packageName != nil && len(*packageName) > 0 {
-		appenderKey = PACKAGE_LOG_APPENDER_PROPERTY_NAME + *packageName
+	if packageParameter != nil && len(*packageParameter) > 0 {
+		appenderKey = PACKAGE_LOG_APPENDER_PROPERTY_NAME + *packageParameter
 	} else {
 		appenderKey = DEFAULT_LOG_APPENDER_PROPERTY_NAME
 	}
@@ -350,22 +353,22 @@ func configureAppender(relevantKeyValues *map[string]string, appenderConfig *App
 	case APPENDER_STDOUT:
 		// Nothing to do
 	case APPENDER_FILE:
-		setFileAppenderConfig(relevantKeyValues, appenderConfig, packageName)
+		setFileAppenderConfig(relevantKeyValues, appenderConfig, packageParameter)
 	default:
 		appenderConfig.AppenderType = ""
 		printHint(appenderName, appenderKey)
 	}
 }
 
-func setFileAppenderConfig(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageName *string) {
+func setFileAppenderConfig(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageParameter *string) {
 	var fileParameterKey string
 	var cronParameterKey string
 	var sizeParameterKey string
 
-	if packageName != nil && len(*packageName) > 0 {
-		fileParameterKey = PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME + *packageName
-		cronParameterKey = PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME + *packageName
-		sizeParameterKey = PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME + *packageName
+	if packageParameter != nil && len(*packageParameter) > 0 {
+		fileParameterKey = PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME + *packageParameter
+		cronParameterKey = PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME + *packageParameter
+		sizeParameterKey = PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME + *packageParameter
 	} else {
 		fileParameterKey = DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME
 		cronParameterKey = DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME
@@ -390,14 +393,14 @@ func setFileAppenderConfig(relevantKeyValues *map[string]string, appenderConfig 
 
 // creates all relevant formatter config elements derived from relevant properties
 func createFormatterConfig(relevantKeyValues *map[string]string) {
-	config.Formatter = append(config.Formatter, FormatterConfig{IsDefault: true, PackageName: ""})
+	config.Formatter = append(config.Formatter, FormatterConfig{IsDefault: true, PackageParameter: ""})
 	formatterIndex := len(config.Formatter) - 1
 	configureFormatter(relevantKeyValues, &config.Formatter[formatterIndex], "")
 
 	for key := range *relevantKeyValues {
 		packageOfFormatter, found := strings.CutPrefix(key, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
 		if found {
-			config.Formatter = append(config.Formatter, FormatterConfig{IsDefault: false, PackageName: packageOfFormatter})
+			config.Formatter = append(config.Formatter, FormatterConfig{IsDefault: false, PackageParameter: packageOfFormatter})
 			formatterIndex++
 			configureFormatter(relevantKeyValues, &config.Formatter[formatterIndex], packageOfFormatter)
 		}
@@ -405,12 +408,12 @@ func createFormatterConfig(relevantKeyValues *map[string]string) {
 }
 
 // configures a given formatter config element from properties concerning a given package name
-func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *FormatterConfig, packageName string) {
+func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *FormatterConfig, packageParameter string) {
 	var formatterKey string
 	var formatterParameterKey string
-	if len(packageName) > 0 {
-		formatterKey = PACKAGE_LOG_FORMATTER_PROPERTY_NAME + packageName
-		formatterParameterKey = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + packageName
+	if len(packageParameter) > 0 {
+		formatterKey = PACKAGE_LOG_FORMATTER_PROPERTY_NAME + packageParameter
+		formatterParameterKey = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + packageParameter
 	} else {
 		formatterKey = DEFAULT_LOG_FORMATTER_PROPERTY_NAME
 		formatterParameterKey = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
@@ -451,26 +454,30 @@ func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *F
 
 // creates all relevant logger config elements derived from relevant properties
 func createLoggerConfig(relevantKeyValues *map[string]string) {
-	config.Logger = append(config.Logger, LoggerConfig{IsDefault: true, PackageName: ""})
+	config.Logger = append(config.Logger, LoggerConfig{IsDefault: true, PackageParameter: ""})
 	loggerIndex := len(config.Logger) - 1
 	configureLogger(relevantKeyValues, &config.Logger[loggerIndex], "")
 
 	for key := range *relevantKeyValues {
-		packageName, found := strings.CutPrefix(key, PACKAGE_LOG_LEVEL_PROPERTY_NAME)
+		packageParameter, found := strings.CutPrefix(key, PACKAGE_LOG_LEVEL_PROPERTY_NAME)
 		if found {
-			fullQualifiedPackageName := (*relevantKeyValues)[PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName]
-			config.Logger = append(config.Logger, LoggerConfig{IsDefault: false, PackageName: packageName, FullQualifiedPackageName: fullQualifiedPackageName})
+			packageName := getValueFromMapOrDefault(relevantKeyValues, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageParameter, strings.ToLower(packageParameter))
+			config.Logger = append(config.Logger, LoggerConfig{IsDefault: false, PackageParameter: packageParameter, PackageName: packageName})
 			loggerIndex++
-			configureLogger(relevantKeyValues, &config.Logger[loggerIndex], packageName)
+			configureLogger(relevantKeyValues, &config.Logger[loggerIndex], packageParameter)
 		}
+	}
+
+	if fullQualifiedText, found := (*relevantKeyValues)[LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME]; found {
+		config.UseFullQualifiedPackageName = strings.ToUpper(fullQualifiedText) == "TRUE"
 	}
 }
 
 // configures a given logger config element from properties concerning a given package name
-func configureLogger(relevantKeyValues *map[string]string, loggerConfig *LoggerConfig, packageName string) {
+func configureLogger(relevantKeyValues *map[string]string, loggerConfig *LoggerConfig, packageParameter string) {
 	var formatterKey string
-	if len(packageName) > 0 {
-		formatterKey = PACKAGE_LOG_LEVEL_PROPERTY_NAME + packageName
+	if len(packageParameter) > 0 {
+		formatterKey = PACKAGE_LOG_LEVEL_PROPERTY_NAME + packageParameter
 	} else {
 		formatterKey = DEFAULT_LOG_LEVEL_PROPERTY_NAME
 	}
@@ -499,14 +506,14 @@ func printHint(propertyName string, objectType string) {
 }
 
 // creates default configs if missing and adds package specific copies of defaults if at least one of the other config types exists as package variant
-func completeConfig() {
+func completeConfig(relevantKeyValues *map[string]string) {
 	completeDefaults()
 
 	completeAppenderConfigPackageForward()
 	completeFormatterConfigPackageForward()
 
 	completeAppenderConfigPackageBackward()
-	completeLoggerConfigPackageBackward()
+	completeLoggerConfigPackageBackward(relevantKeyValues)
 
 	sortConfig()
 	determineIds()
@@ -523,7 +530,7 @@ func completeDefaults() {
 		}
 	}
 	if !found {
-		config.Formatter = append(config.Formatter, FormatterConfig{FormatterType: FORMATTER_DELIMITER, IsDefault: true, PackageName: "", Delimiter: DEFAULT_DELIMITER, TimeLayout: DEFAULT_TIME_LAYOUT})
+		config.Formatter = append(config.Formatter, FormatterConfig{FormatterType: FORMATTER_DELIMITER, IsDefault: true, PackageParameter: "", Delimiter: DEFAULT_DELIMITER, TimeLayout: DEFAULT_TIME_LAYOUT})
 	}
 
 	for _, ac := range config.Appender {
@@ -533,7 +540,7 @@ func completeDefaults() {
 		}
 	}
 	if !found {
-		config.Appender = append(config.Appender, AppenderConfig{AppenderType: APPENDER_STDOUT, IsDefault: true, PackageName: ""})
+		config.Appender = append(config.Appender, AppenderConfig{AppenderType: APPENDER_STDOUT, IsDefault: true, PackageParameter: ""})
 	}
 
 	for _, lc := range config.Logger {
@@ -543,7 +550,7 @@ func completeDefaults() {
 		}
 	}
 	if !found {
-		config.Logger = append(config.Logger, LoggerConfig{IsDefault: true, PackageName: "", Severity: common.ERROR_SEVERITY})
+		config.Logger = append(config.Logger, LoggerConfig{IsDefault: true, PackageParameter: "", Severity: common.ERROR_SEVERITY})
 	}
 }
 
@@ -553,7 +560,7 @@ func completeAppenderConfigPackageForward() {
 		if lc.IsDefault {
 			continue
 		}
-		createAppenderConfigIfNecessary(&lc.PackageName)
+		createAppenderConfigIfNecessary(&lc.PackageParameter)
 	}
 }
 
@@ -563,15 +570,15 @@ func completeAppenderConfigPackageBackward() {
 		if fc.IsDefault {
 			continue
 		}
-		createAppenderConfigIfNecessary(&fc.PackageName)
+		createAppenderConfigIfNecessary(&fc.PackageParameter)
 	}
 }
 
 // creates an appender config if it does not exists for a given package name
-func createAppenderConfigIfNecessary(packageName *string) {
+func createAppenderConfigIfNecessary(packageParameter *string) {
 	found := false
 	for _, ac := range config.Appender {
-		if ac.PackageName == *packageName {
+		if ac.PackageParameter == *packageParameter {
 			found = true
 			break
 		}
@@ -581,7 +588,7 @@ func createAppenderConfigIfNecessary(packageName *string) {
 			if ac.IsDefault {
 				acp := ac
 				acp.IsDefault = false
-				acp.PackageName = *packageName
+				acp.PackageParameter = *packageParameter
 				config.Appender = append(config.Appender, acp)
 				break
 			}
@@ -595,15 +602,15 @@ func completeFormatterConfigPackageForward() {
 		if ac.IsDefault {
 			continue
 		}
-		createFormatterConfigIfNecessary(&ac.PackageName)
+		createFormatterConfigIfNecessary(&ac.PackageParameter)
 	}
 }
 
 // creates an formatter config if it does not exists for a given package name
-func createFormatterConfigIfNecessary(packageName *string) {
+func createFormatterConfigIfNecessary(packageParameter *string) {
 	found := false
 	for _, fc := range config.Formatter {
-		if fc.PackageName == *packageName {
+		if fc.PackageParameter == *packageParameter {
 			found = true
 			break
 		}
@@ -613,7 +620,7 @@ func createFormatterConfigIfNecessary(packageName *string) {
 			if fc.IsDefault {
 				fcp := fc
 				fcp.IsDefault = false
-				fcp.PackageName = *packageName
+				fcp.PackageParameter = *packageParameter
 				config.Formatter = append(config.Formatter, fcp)
 				break
 			}
@@ -622,20 +629,20 @@ func createFormatterConfigIfNecessary(packageName *string) {
 }
 
 // creates logger configs if there exists a appender package variant
-func completeLoggerConfigPackageBackward() {
+func completeLoggerConfigPackageBackward(relevantKeyValues *map[string]string) {
 	for _, ac := range config.Appender {
 		if ac.IsDefault {
 			continue
 		}
-		createLoggerConfigIfNecessary(&ac.PackageName)
+		createLoggerConfigIfNecessary(relevantKeyValues, &ac.PackageParameter)
 	}
 }
 
 // creates an logger config if it does not exists for a given package name
-func createLoggerConfigIfNecessary(packageName *string) {
+func createLoggerConfigIfNecessary(relevantKeyValues *map[string]string, packageParameter *string) {
 	found := false
 	for _, lc := range config.Logger {
-		if lc.PackageName == *packageName {
+		if lc.PackageParameter == *packageParameter {
 			found = true
 			break
 		}
@@ -645,7 +652,8 @@ func createLoggerConfigIfNecessary(packageName *string) {
 			if lc.IsDefault {
 				lcp := lc
 				lcp.IsDefault = false
-				lcp.PackageName = *packageName
+				lcp.PackageParameter = *packageParameter
+				lcp.PackageName = getValueFromMapOrDefault(relevantKeyValues, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+*packageParameter, strings.ToLower(*packageParameter))
 				config.Logger = append(config.Logger, lcp)
 				break
 			}
@@ -656,13 +664,13 @@ func createLoggerConfigIfNecessary(packageName *string) {
 // Sorts the config put the default configs at first index. Because of this a potential cronRenamer of the default appender is used for all equal named files
 func sortConfig() {
 	sort.Slice(config.Formatter, func(i, j int) bool {
-		return (config.Formatter[i].IsDefault && !config.Formatter[j].IsDefault) || (config.Formatter[i].IsDefault == config.Formatter[j].IsDefault && config.Formatter[i].PackageName < config.Formatter[j].PackageName)
+		return (config.Formatter[i].IsDefault && !config.Formatter[j].IsDefault) || (config.Formatter[i].IsDefault == config.Formatter[j].IsDefault && config.Formatter[i].PackageParameter < config.Formatter[j].PackageParameter)
 	})
 	sort.Slice(config.Appender, func(i, j int) bool {
-		return (config.Appender[i].IsDefault && !config.Appender[j].IsDefault) || (config.Appender[i].IsDefault == config.Appender[j].IsDefault && config.Appender[i].PackageName < config.Appender[j].PackageName)
+		return (config.Appender[i].IsDefault && !config.Appender[j].IsDefault) || (config.Appender[i].IsDefault == config.Appender[j].IsDefault && config.Appender[i].PackageParameter < config.Appender[j].PackageParameter)
 	})
 	sort.Slice(config.Logger, func(i, j int) bool {
-		return (config.Logger[i].IsDefault && !config.Logger[j].IsDefault) || (config.Logger[i].IsDefault == config.Logger[j].IsDefault && config.Logger[i].PackageName < config.Logger[j].PackageName)
+		return (config.Logger[i].IsDefault && !config.Logger[j].IsDefault) || (config.Logger[i].IsDefault == config.Logger[j].IsDefault && config.Logger[i].PackageParameter < config.Logger[j].PackageParameter)
 	})
 }
 
