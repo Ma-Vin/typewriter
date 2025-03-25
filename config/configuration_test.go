@@ -75,6 +75,7 @@ func TestGetConfigNoEnv(t *testing.T) {
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 	testutil.AssertFalse(result.Logger[0].IsCallerToSet, t, "result.logger[0].IsCallerToSet")
 
@@ -108,6 +109,7 @@ func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
@@ -134,6 +136,7 @@ func TestGetConfigNonExistingFile(t *testing.T) {
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -162,6 +165,7 @@ func TestGetConfigCaller(t *testing.T) {
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 	testutil.AssertTrue(result.Logger[0].IsCallerToSet, t, "result.logger[0].IsCallerToSet")
 
@@ -195,6 +199,7 @@ func TestGetConfigDefaultDelimiter(t *testing.T) {
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -233,6 +238,7 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -268,6 +274,7 @@ func TestGetConfigDefaultTemplateWithoutParameter(t *testing.T) {
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -314,6 +321,7 @@ func TestGetConfigDefaultJson(t *testing.T) {
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -353,6 +361,7 @@ func TestGetConfigDefaultJsonWithoutParameter(t *testing.T) {
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -394,6 +403,7 @@ func TestGetConfigDefaultFileAppender(t *testing.T) {
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -425,6 +435,7 @@ func TestGetConfigDefaultFileAppenderMissingPath(t *testing.T) {
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -454,6 +465,7 @@ func TestGetConfigDefaultUnknown(t *testing.T) {
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -490,6 +502,7 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -530,9 +543,11 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
@@ -550,6 +565,54 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
+		testutil.AssertEquals("_", result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+	}
+}
+
+func TestGetConfigPackageDelimiterFullQualifiedPackageName(t *testing.T) {
+	packageParameterName := "testPackage"
+	fullQualifiedPackageName := "github.com/ma-vin/typewriter/testPackage"
+	packageParameterNameUpper := strings.ToUpper(packageParameterName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageParameterName, fullQualifiedPackageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageParameterName, LOG_LEVEL_DEBUG)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageParameterName, APPENDER_STDOUT)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageParameterName, FORMATTER_DELIMITER)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageParameterName+DELIMITER_PARAMETER, "_")
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
+		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
+		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
+		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
+		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
+		testutil.AssertEquals(packageParameterNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals(fullQualifiedPackageName, result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
+		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
+
+		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
+		testutil.AssertTrue(result.Appender[0].IsDefault, t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageName, t, "result.appender[0].packageName")
+		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
+		testutil.AssertFalse(result.Appender[1].IsDefault, t, "result.appender[1].isDefault")
+		testutil.AssertEquals(packageParameterNameUpper, result.Appender[1].PackageName, t, "result.appender[1].packageName")
+		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
+		testutil.AssertEquals("", result.Formatter[0].PackageName, t, "result.formatter[0].packageName")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameterNameUpper, result.Formatter[1].PackageName, t, "result.formatter[1].packageName")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
 		testutil.AssertEquals("_", result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
 	}
@@ -577,9 +640,11 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
@@ -630,9 +695,11 @@ func TestGetConfigPackageJson(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
@@ -677,9 +744,11 @@ func TestGetConfigPackagePartialOnlyLevel(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
@@ -718,9 +787,11 @@ func TestGetConfigPackagePartialOnlyAppender(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
@@ -759,9 +830,11 @@ func TestGetConfigPackagePartialOnlyFormatter(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
@@ -801,9 +874,11 @@ func TestGetConfigPackagePartialOnlyFormatterWithParameterDelimiter(t *testing.T
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
@@ -845,9 +920,11 @@ func TestGetConfigPackageFileAppender(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
@@ -898,6 +975,7 @@ func TestGetConfigFromFileButAllCommentOut(t *testing.T) {
 	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
 	testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+	testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -935,9 +1013,11 @@ func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
 		testutil.AssertTrue(result.Logger[0].IsDefault, t, "result.logger[0].isDefault")
 		testutil.AssertEquals("", result.Logger[0].PackageName, t, "result.logger[0].packageName")
+		testutil.AssertEquals("", result.Logger[0].FullQualifiedPackageName, t, "result.logger[0].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].Severity, t, "result.logger[0].severity")
 		testutil.AssertFalse(result.Logger[1].IsDefault, t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageNameUpper, result.Logger[1].PackageName, t, "result.logger[1].packageName")
+		testutil.AssertEquals("", result.Logger[1].FullQualifiedPackageName, t, "result.logger[1].FullQualifiedPackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].Severity, t, "result.logger[1].severity")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")

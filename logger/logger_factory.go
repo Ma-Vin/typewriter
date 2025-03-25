@@ -159,11 +159,21 @@ func createMainLogger(conf *config.Config, loggerConfigMapping *map[string]*Comm
 		if lc.IsDefault {
 			mLogger.commonLogger = (*loggerConfigMapping)[lc.Id+lc1AppenderId+lc1FormatterId]
 		} else {
-			mLogger.packageLoggers[lc.PackageName] = (*loggerConfigMapping)[lc.Id+lc1AppenderId+lc1FormatterId]
+			packageKey := determinePackageKey(&lc, &mLogger)
+			mLogger.packageLoggers[packageKey] = (*loggerConfigMapping)[lc.Id+lc1AppenderId+lc1FormatterId]
 		}
 	}
 
 	loggersInitialized = true
+}
+
+// determines the package for a logger. This can be the simple or full qualified name. the indicator which one is to use is set at main logger too.
+func determinePackageKey(loggerConfig *config.LoggerConfig, mLogger *MainLogger) string {
+	if len(loggerConfig.FullQualifiedPackageName) > 0 {
+		mLogger.useFullQualifiedPackage = true
+		return loggerConfig.FullQualifiedPackageName
+	}
+	return loggerConfig.PackageName
 }
 
 // returns a pointer to the formatter config for a given package

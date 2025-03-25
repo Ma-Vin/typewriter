@@ -36,6 +36,7 @@ func TestGetLoggersCreateFromEnvDefaultDelimiter(t *testing.T) {
 	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.commonLogger.appender).Name(), t, "commonLogger.appender.Name")
 
 	testutil.AssertFalse(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
 	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
 }
 
@@ -62,6 +63,7 @@ func TestGetLoggersCreateFromEnvDefaultTemplate(t *testing.T) {
 	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.commonLogger.appender).Name(), t, "commonLogger.appender.Name")
 
 	testutil.AssertFalse(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
 	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
 }
 
@@ -94,6 +96,7 @@ func TestGetLoggersCreateFromEnvDefaultJson(t *testing.T) {
 	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.commonLogger.appender).Name(), t, "commonLogger.appender.Name")
 
 	testutil.AssertFalse(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
 	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
 }
 
@@ -118,6 +121,7 @@ func TestGetLoggersCreateFromEnvDefaultFileAppender(t *testing.T) {
 	testutil.AssertEquals("FileAppender", reflect.TypeOf(*result.commonLogger.appender).Name(), t, "commonLogger.appender.Name")
 
 	testutil.AssertFalse(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
 	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
 }
 
@@ -146,6 +150,7 @@ func TestGetLoggersCreateFromEnvPackage(t *testing.T) {
 	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
 
 	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
 	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
 	testutil.AssertNotNil(result.packageLoggers[packageNameUpper], t, "packageLoggers[lowerPackageName]")
 	testutil.AssertTrue(result.packageLoggers[packageNameUpper].debugEnabled, t, "packageLoggers[lowerPackageName].debugEnabled")
@@ -157,6 +162,42 @@ func TestGetLoggersCreateFromEnvPackage(t *testing.T) {
 	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.packageLoggers[packageNameUpper].appender).Name(), t, "packageLoggers[lowerPackageName].appender.Name")
 
 	testutil.AssertNotEquals(result.commonLogger.appender, result.packageLoggers[packageNameUpper].appender, t, "packageLoggers[lowerPackageName].appender.")
+}
+
+func TestGetLoggersCreateFromEnvPackageFullQualified(t *testing.T) {
+	packageParameterName := "testPackage"
+	fullQualifiedPackageName := "github.com/ma-vin/typewriter/testPackage"
+	os.Clearenv()
+	os.Setenv(config.PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageParameterName, fullQualifiedPackageName)
+	os.Setenv(config.PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageParameterName, config.LOG_LEVEL_DEBUG)
+	os.Setenv(config.PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageParameterName, config.APPENDER_STDOUT)
+	os.Setenv(config.PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageParameterName, config.FORMATTER_DELIMITER)
+	os.Setenv(config.PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageParameterName+config.DELIMITER_PARAMETER, "_")
+	Reset()
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.commonLogger, t, "commonLogger")
+	testutil.AssertFalse(result.commonLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertFalse(result.commonLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertFalse(result.commonLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.commonLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.commonLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
+
+	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertTrue(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
+	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
+	testutil.AssertNotNil(result.packageLoggers[fullQualifiedPackageName], t, "packageLoggers[lowerPackageName]")
+	testutil.AssertTrue(result.packageLoggers[fullQualifiedPackageName].debugEnabled, t, "packageLoggers[lowerPackageName].debugEnabled")
+	testutil.AssertTrue(result.packageLoggers[fullQualifiedPackageName].informationEnabled, t, "packageLoggers[lowerPackageName].informationEnabled")
+	testutil.AssertTrue(result.packageLoggers[fullQualifiedPackageName].warningEnabled, t, "packageLoggers[lowerPackageName].warningEnabled")
+	testutil.AssertTrue(result.packageLoggers[fullQualifiedPackageName].errorEnabled, t, "packageLoggers[lowerPackageName].errorEnabled")
+	testutil.AssertTrue(result.packageLoggers[fullQualifiedPackageName].fatalEnabled, t, "packageLoggers[lowerPackageName].fatalEnabled")
+	testutil.AssertNotNil(result.packageLoggers[fullQualifiedPackageName].appender, t, "packageLoggers[lowerPackageName].appender")
+	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.packageLoggers[fullQualifiedPackageName].appender).Name(), t, "packageLoggers[lowerPackageName].appender.Name")
+
+	testutil.AssertNotEquals(result.commonLogger.appender, result.packageLoggers[fullQualifiedPackageName].appender, t, "packageLoggers[lowerPackageName].appender.")
 }
 
 func TestGetLoggersCreateFromEnvPackagePartialOnlyLevel(t *testing.T) {
@@ -177,6 +218,7 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyLevel(t *testing.T) {
 	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
 
 	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
 	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
 	testutil.AssertNotNil(result.packageLoggers[packageNameUpper], t, "packageLoggers[lowerPackageName]")
 	testutil.AssertTrue(result.packageLoggers[packageNameUpper].debugEnabled, t, "packageLoggers[lowerPackageName].debugEnabled")
@@ -210,6 +252,7 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
 
 	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
 	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
 	testutil.AssertNotNil(result.packageLoggers[packageNameUpper], t, "packageLoggers[lowerPackageName]")
 	testutil.AssertFalse(result.packageLoggers[packageNameUpper].debugEnabled, t, "packageLoggers[lowerPackageName].debugEnabled")
@@ -241,6 +284,7 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyFormatterWithParameter(t *test
 	testutil.AssertNotNil(result.commonLogger.appender, t, "commonLogger.appender")
 
 	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
 	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
 	testutil.AssertNotNil(result.packageLoggers[packageNameUpper], t, "packageLoggers[lowerPackageName]")
 	testutil.AssertFalse(result.packageLoggers[packageNameUpper].debugEnabled, t, "packageLoggers[lowerPackageName].debugEnabled")

@@ -2,7 +2,6 @@ package logger
 
 import (
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/ma-vin/typewriter/appender"
@@ -22,7 +21,7 @@ func clearMainLoggerTestEnv() {
 	os.Unsetenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME + "_LOGGER")
 }
 
-func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, packageName string) {
+func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, packageName string, isFullQualified bool) {
 	clearMainLoggerTestEnv()
 
 	*testMainCommonLoggerAppender.(TestAppender).content = []string{}
@@ -38,18 +37,27 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 	testCommonLoggerCounterAppenderClosedExpected = 2
 
 	mainLogger = MainLogger{
-		commonLogger:       &testMainCommonLogger,
-		existPackageLogger: true,
-		packageLoggers:     map[string]*CommonLogger{strings.ToUpper(packageName): &testMainPackageLogger},
+		commonLogger:            &testMainCommonLogger,
+		existPackageLogger:      true,
+		useFullQualifiedPackage: isFullQualified,
+		packageLoggers:          map[string]*CommonLogger{packageName: &testMainPackageLogger},
 	}
 }
 
 func initMainLoggerViaPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
-	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "LOGGER")
+	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "LOGGER", false)
+}
+
+func initMainLoggerViaFullQualifiedPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
+	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "github.com/ma-vin/typewriter/logger", true)
 }
 
 func initMainLoggerViaCommonTest(envCommonLogLevel string, envPackageLogLevel string) {
-	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "OTHER")
+	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "OTHER", false)
+}
+
+func initMainLoggerViaCommonFullQualifiedTest(envCommonLogLevel string, envPackageLogLevel string) {
+	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "github.com/ma-vin/typewriter/other", true)
 }
 
 func initMainLoggerOnlyCommonTest(envCommonLogLevel string) {
@@ -328,6 +336,108 @@ func TestMainLoggerViaPackageInactiveDebugCustomf(t *testing.T) {
 
 // -------------------
 //
+// Debug Full Qualified Package Block
+//
+// -------------------
+
+func TestMainLoggerViaFullQualifiedPackageDebug(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.Debug("debug test message")
+
+	assertMessageViaPackage(t, "Debug", "5debug test message")
+}
+
+func TestMainLoggerViaFullQualifiedPackageInactiveDebug(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("INFO", "INFO")
+
+	mainLogger.Debug("debug test message")
+
+	assertNoMessage(t, "Debug")
+}
+
+func TestMainLoggerViaFullQualifiedPackageDebugWithCorrelation(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugWithCorrelation("1234", "debug test message")
+
+	assertMessageViaPackage(t, "DebugWithCorrelation", "51234debug test message")
+}
+
+func TestMainLoggerViaFullQualifiedPackageInactiveDebugWithCorrelation(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("INFO", "INFO")
+
+	mainLogger.DebugWithCorrelation("1234", "debug test message")
+
+	assertNoMessage(t, "DebugWithCorrelation")
+}
+
+func TestMainLoggerViaFullQualifiedPackageDebugCustom(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCustom(map[string]any{"test": 123}, "debug test message")
+
+	assertMessageViaPackage(t, "DebugCustom", "5 map[test:123]debug test message")
+}
+
+func TestMainLoggerViaFullQualifiedPackageInactiveDebugCustom(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("INFO", "INFO")
+
+	mainLogger.DebugCustom(map[string]any{"test": 123}, "debug test message")
+
+	assertNoMessage(t, "DebugCustom")
+}
+
+func TestMainLoggerViaFullQualifiedPackageDebugf(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.Debugf("debug test %s", "message")
+
+	assertMessageViaPackage(t, "Debugf", "5debug test message")
+}
+
+func TestMainLoggerViaFullQualifiedPackageInactiveDebugf(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("INFO", "INFO")
+
+	mainLogger.Debugf("debug test %s", "message")
+
+	assertNoMessage(t, "Debugf")
+}
+
+func TestMainLoggerViaFullQualifiedPackageDebugWithCorrelationf(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugWithCorrelationf("1234", "debug test %s", "message")
+
+	assertMessageViaPackage(t, "DebugWithCorrelationf", "51234debug test message")
+}
+
+func TestMainLoggerViaFullQualifiedPackageInactiveDebugWithCorrelationf(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("INFO", "INFO")
+
+	mainLogger.DebugWithCorrelationf("1234", "debug test %s", "message")
+
+	assertNoMessage(t, "DebugWithCorrelationf")
+}
+
+func TestMainLoggerViaFullQualifiedPackageDebugCustomf(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
+
+	assertMessageViaPackage(t, "DebugCustomf", "5 map[test:123]debug test message")
+}
+
+func TestMainLoggerViaFullQualifiedPackageInactiveDebugCustomf(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("INFO", "INFO")
+
+	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
+
+	assertNoMessage(t, "DebugCustomf")
+}
+
+// -------------------
+//
 // Debug Common Block
 //
 // -------------------
@@ -422,6 +532,108 @@ func TestMainLoggerViaCommonDebugCustomf(t *testing.T) {
 
 func TestMainLoggerViaCommonInactiveDebugCustomf(t *testing.T) {
 	initMainLoggerViaCommonTest("INFO", "INFO")
+
+	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
+
+	assertNoMessage(t, "DebugCustomf")
+}
+
+// -------------------
+//
+// Debug Common Block and given full qualified package
+//
+// -------------------
+
+func TestMainLoggerViaCommonFullQualifiedDebug(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("DEBUG", "DEBUG")
+
+	mainLogger.Debug("debug test message")
+
+	assertMessageViaCommon(t, "Debug", "5debug test message")
+}
+
+func TestMainLoggerViaCommonFullQualifiedInactiveDebug(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("INFO", "INFO")
+
+	mainLogger.Debug("debug test message")
+
+	assertNoMessage(t, "Debug")
+}
+
+func TestMainLoggerViaCommonFullQualifiedDebugWithCorrelation(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugWithCorrelation("1234", "debug test message")
+
+	assertMessageViaCommon(t, "DebugWithCorrelation", "51234debug test message")
+}
+
+func TestMainLoggerViaCommonFullQualifiedInactiveDebugWithCorrelation(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("INFO", "INFO")
+
+	mainLogger.DebugWithCorrelation("1234", "debug test message")
+
+	assertNoMessage(t, "DebugWithCorrelation")
+}
+
+func TestMainLoggerViaCommonFullQualifiedDebugCustom(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCustom(map[string]any{"test": 123}, "debug test message")
+
+	assertMessageViaCommon(t, "DebugCustom", "5 map[test:123]debug test message")
+}
+
+func TestMainLoggerViaCommonFullQualifiedInactiveDebugCustom(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("INFO", "INFO")
+
+	mainLogger.DebugCustom(map[string]any{"test": 123}, "debug test message")
+
+	assertNoMessage(t, "DebugCustom")
+}
+
+func TestMainLoggerViaCommonFullQualifiedDebugf(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("DEBUG", "DEBUG")
+
+	mainLogger.Debugf("debug test %s", "message")
+
+	assertMessageViaCommon(t, "Debugf", "5debug test message")
+}
+
+func TestMainLoggerViaCommonFullQualifiedInactiveDebugf(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("INFO", "INFO")
+
+	mainLogger.Debugf("debug test %s", "message")
+
+	assertNoMessage(t, "Debugf")
+}
+
+func TestMainLoggerViaCommonFullQualifiedDebugWithCorrelationf(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugWithCorrelationf("1234", "debug test %s", "message")
+
+	assertMessageViaCommon(t, "DebugWithCorrelationf", "51234debug test message")
+}
+
+func TestMainLoggerViaCommonFullQualifiedInactiveDebugWithCorrelationf(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("INFO", "INFO")
+
+	mainLogger.DebugWithCorrelationf("1234", "debug test %s", "message")
+
+	assertNoMessage(t, "DebugWithCorrelationf")
+}
+
+func TestMainLoggerViaCommonFullQualifiedDebugCustomf(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
+
+	assertMessageViaCommon(t, "DebugCustomf", "5 map[test:123]debug test message")
+}
+
+func TestMainLoggerViaCommonFullQualifiedInactiveDebugCustomf(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("INFO", "INFO")
 
 	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
 

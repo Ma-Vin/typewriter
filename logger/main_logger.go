@@ -7,9 +7,10 @@ import (
 
 // Main logger which delegates messages to default or package specific common loggers
 type MainLogger struct {
-	commonLogger       *CommonLogger
-	existPackageLogger bool
-	packageLoggers     map[string]*CommonLogger
+	commonLogger            *CommonLogger
+	existPackageLogger      bool
+	useFullQualifiedPackage bool
+	packageLoggers          map[string]*CommonLogger
 }
 
 // Determines which logger is relevant. If der exists a logger for a package equal to the callers package, this logger will be return, else the common logger.
@@ -20,7 +21,7 @@ func (l *MainLogger) determineLogger() *CommonLogger {
 			return l.commonLogger
 		}
 
-		pl, found := l.packageLoggers[determinePackageName(function)]
+		pl, found := l.packageLoggers[determinePackageName(function, l.useFullQualifiedPackage)]
 		if found {
 			return pl
 		}
@@ -50,19 +51,23 @@ func determineCallerFunction() (string, bool) {
 }
 
 // extracts the package name from a given function name. E.g. the result with parameter "github.com/ma-vin/typewriter/logger.determinePackageName" would be "logger"
-func determinePackageName(functionName string) string {
-	packageBegin := strings.LastIndex(functionName, "/") + 1
-	var functionNameSuffix string
-	if packageBegin > 0 {
-		functionNameSuffix = functionName[packageBegin:]
-	} else {
-		functionNameSuffix = functionName
+func determinePackageName(functionName string, useFullQualifiedName bool) string {
+	functionNameSuffix := functionName
+	if !useFullQualifiedName {
+		packageBegin := strings.LastIndex(functionName, "/") + 1
+		if packageBegin > 0 {
+			functionNameSuffix = functionName[packageBegin:]
+		}
 	}
-	packageEnd := strings.Index(functionNameSuffix, ".")
+	packageEnd := strings.LastIndex(functionNameSuffix, ".")
+	result := functionNameSuffix
 	if packageEnd > -1 {
-		return strings.ToUpper(functionNameSuffix[:packageEnd])
+		result = functionNameSuffix[:packageEnd]
 	}
-	return strings.ToUpper(functionNameSuffix)
+	if useFullQualifiedName {
+		return result
+	}
+	return strings.ToUpper(result)
 
 }
 

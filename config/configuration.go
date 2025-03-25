@@ -22,11 +22,12 @@ type Config struct {
 
 // config of a single logger
 type LoggerConfig struct {
-	Id            string
-	IsDefault     bool
-	PackageName   string
-	Severity      int
-	IsCallerToSet bool
+	Id                       string
+	IsDefault                bool
+	PackageName              string
+	FullQualifiedPackageName string
+	Severity                 int
+	IsCallerToSet            bool
 }
 
 // config of an appender
@@ -75,6 +76,7 @@ const (
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME              = "TYPEWRITER_LOG_FORMATTER_TYPE"
 	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_LOG_FORMATTER_PARAMETER"
 
+	PACKAGE_LOG_PACKAGE_PROPERTY_NAME                = "TYPEWRITER_PACKAGE_LOG_PACKAGE_"
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME                  = "TYPEWRITER_PACKAGE_LOG_LEVEL_"
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME               = "TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_"
 	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME          = "TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_"
@@ -163,6 +165,7 @@ var relevantKeyPrefixes = []string{
 	DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME,
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
 	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
+	PACKAGE_LOG_PACKAGE_PROPERTY_NAME,
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME,
@@ -453,11 +456,12 @@ func createLoggerConfig(relevantKeyValues *map[string]string) {
 	configureLogger(relevantKeyValues, &config.Logger[loggerIndex], "")
 
 	for key := range *relevantKeyValues {
-		packageOfLogger, found := strings.CutPrefix(key, PACKAGE_LOG_LEVEL_PROPERTY_NAME)
+		packageName, found := strings.CutPrefix(key, PACKAGE_LOG_LEVEL_PROPERTY_NAME)
 		if found {
-			config.Logger = append(config.Logger, LoggerConfig{IsDefault: false, PackageName: packageOfLogger})
+			fullQualifiedPackageName := (*relevantKeyValues)[PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName]
+			config.Logger = append(config.Logger, LoggerConfig{IsDefault: false, PackageName: packageName, FullQualifiedPackageName: fullQualifiedPackageName})
 			loggerIndex++
-			configureLogger(relevantKeyValues, &config.Logger[loggerIndex], packageOfLogger)
+			configureLogger(relevantKeyValues, &config.Logger[loggerIndex], packageName)
 		}
 	}
 }
