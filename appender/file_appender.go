@@ -30,6 +30,7 @@ type fileDeduction struct {
 
 // For test usage only! Indicator whether to skip creation of the target output file
 var SkipFileCreationForTest = false
+var fileAppenderMu = sync.Mutex{}
 var fileDeductions = []fileDeduction{}
 
 // Removes all registered mutex, renamer for log file writing
@@ -43,6 +44,8 @@ func CreateFileAppender(pathToLogFile string, formatter *format.Formatter, cronE
 	var err error = nil
 	var closed = false
 	if !SkipFileCreationForTest {
+		fileAppenderMu.Lock()
+		defer fileAppenderMu.Unlock()
 		file, err = os.OpenFile(pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	}
 	if err != nil {

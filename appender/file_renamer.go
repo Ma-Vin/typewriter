@@ -42,11 +42,11 @@ func CreateCronFileRenamer(pathToLogFile string, writer *os.File, crontab *commo
 
 // Checks whether the next time of crontab is reached or not. In positive case the current file will be renamed to a name given by filename generator.
 func (c *CronFileRenamer) CheckFile(logValues *common.LogValues) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	if logValues.Time.Before(*c.crontab.NextTime) {
 		return
 	}
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	renameLogFile(&c.pathToLogFile, c.writer, c.timeFileNameGenerator, c.prepareNextInterval)
 }
 
@@ -111,6 +111,8 @@ func renameLogFile(pathToLogFile *string, writer *os.File, timeFileNameGenerator
 		file, err := os.OpenFile(*pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 		if err == nil {
 			*writer = *file
+		} else{
+			fmt.Println("Failed to create new log file from", pathToLogFile, " after renaming to", newPath)
 		}
 	}
 	prepareNextInterval()

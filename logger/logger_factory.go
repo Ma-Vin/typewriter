@@ -1,12 +1,15 @@
 package logger
 
 import (
+	"sync"
+
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/format"
 )
 
 var loggersInitialized = false
+var loggerCreationMu = sync.Mutex{}
 var mLogger MainLogger
 var cLoggers []CommonLogger
 var appenders []appender.Appender
@@ -17,6 +20,9 @@ func getLoggers() *MainLogger {
 	if loggersInitialized {
 		return &mLogger
 	}
+
+	loggerCreationMu.Lock()
+	defer loggerCreationMu.Unlock()
 
 	conf := config.GetConfig()
 	if conf == nil {
