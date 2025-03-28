@@ -73,16 +73,31 @@ func isNil(toCheck any) bool {
 func GetTestCaseFilePath(testCase string, clean bool) string {
 	_, filename, _, _ := runtime.Caller(1)
 	if clean {
-		dirPath := path.Dir(filename)
-		dirEntries, err := os.ReadDir(dirPath)
-		if err == nil {
-			prefixToRemove := filename[len(dirPath)+1:len(filename)-3] + "_" + testCase
-			for _, dirEntry := range dirEntries {
-				if strings.HasPrefix(dirEntry.Name(), prefixToRemove) {
-					os.Remove(path.Join(dirPath, dirEntry.Name()))
-				}
-			}
+		for _, filePath := range getExistingFilePaths(testCase, filename) {
+			os.Remove(filePath)
 		}
 	}
 	return filename[:len(filename)-3] + "_" + testCase + "_scratch.log"
+}
+
+func GetExistingTestCaseFilePaths(testCase string) []string {
+	_, filename, _, _ := runtime.Caller(1)
+	return getExistingFilePaths(testCase, filename)
+}
+
+func getExistingFilePaths(testCase string, callerFilename string) []string {
+	dirPath := path.Dir(callerFilename)
+	dirEntries, err := os.ReadDir(dirPath)
+
+	res := make([]string, 0)
+	if err == nil {
+		prefixToRemove := callerFilename[len(dirPath)+1:len(callerFilename)-3] + "_" + testCase
+		for _, dirEntry := range dirEntries {
+			if strings.HasPrefix(dirEntry.Name(), prefixToRemove) {
+				res = append(res, path.Join(dirPath, dirEntry.Name()))
+			}
+		}
+	}
+
+	return res
 }
