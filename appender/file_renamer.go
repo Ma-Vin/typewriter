@@ -127,12 +127,21 @@ func CreateTimeFileNameGenerator(pathToLogFile string) *TimeFileNameGenerator {
 	return &TimeFileNameGenerator{pathToLogFile[:indexOfFileEnding], pathToLogFile[indexOfFileEnding+1:], &refTime}
 }
 
-// creates the next path of log file
+// creates the next path of log file. If the file exists a count from 1 to 10 will be tried to append
 func (t *TimeFileNameGenerator) determineNextPathToLogFile() string {
-	return fmt.Sprintf("%s_%d%s%s_%s%s%s.%s", t.basePath,
+	withoutFileEnding := fmt.Sprintf("%s_%d%s%s_%s%s%s", t.basePath,
 		t.referenceTime.Year(), determineTwoDigits(int(t.referenceTime.Month())), determineTwoDigits(t.referenceTime.Day()),
-		determineTwoDigits(t.referenceTime.Hour()), determineTwoDigits(t.referenceTime.Minute()), determineTwoDigits(t.referenceTime.Second()),
-		t.fileEnding)
+		determineTwoDigits(t.referenceTime.Hour()), determineTwoDigits(t.referenceTime.Minute()), determineTwoDigits(t.referenceTime.Second()))
+
+	result := withoutFileEnding + "." + t.fileEnding
+
+	for i := range 10 {
+		if _, err := os.Stat(result); err != nil {
+			break
+		}
+		result = fmt.Sprintf("%s_%d.%s", withoutFileEnding, i+1, t.fileEnding)
+	}
+	return result
 }
 
 // puts a zero at front if the number is lower than ten
