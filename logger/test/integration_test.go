@@ -38,7 +38,7 @@ func TestFileAppenderCronRenameLongRun(t *testing.T) {
 	waitForStartTime()
 	fmt.Println("start go routines")
 	for i := range goRoutineCount {
-		go log(i, c)
+		go logForFileAppenderCronRename(i, c)
 	}
 
 	var logEntryCount int
@@ -57,9 +57,12 @@ func TestFileAppenderCronRenameLongRun(t *testing.T) {
 		file, err := os.Open(filePath)
 		testutil.AssertNil(err, t, "os.Open(filePath)")
 		fileScanner := bufio.NewScanner(file)
+		lineCountPerFile := 0
 		for fileScanner.Scan() {
-			lineCount++
+			lineCountPerFile++
 		}
+		testutil.AssertTrue(lineCountPerFile > 0, t, "lineCount positive at "+filePath)
+		lineCount += lineCountPerFile
 	}
 
 	testutil.AssertEquals(logEntryCount, lineCount, t, "lineCount")
@@ -74,8 +77,8 @@ func waitForStartTime() {
 	time.Sleep(time.Duration(70-second) * time.Second)
 }
 
-func log(thread int, c chan []int) {
-	millisPerIteration := 101 + rand.IntN(900) 
+func logForFileAppenderCronRename(thread int, c chan []int) {
+	millisPerIteration := 101 + rand.IntN(900)
 	iterations := calcMillisToRun() / millisPerIteration
 
 	fmt.Println("thread", thread, "with", iterations, "iterations every", millisPerIteration, "millis")
