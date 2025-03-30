@@ -65,12 +65,16 @@ func TestCheckSizeFileNoRename(t *testing.T) {
 	file, err := os.OpenFile(logFileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	testutil.AssertNil(err, t, "create log file")
 
-	renamer := CreateSizeFileRenamer(logFileName, file, 64, &fileRenamerMu)
+	firstEntry := "first test entry"
+	secondEntry := "second test entry"
+	limitByteSize := len(firstEntry) + len(secondEntry) + 2*len(fmt.Sprintln()) + 1
+
+	renamer := CreateSizeFileRenamer(logFileName, file, int64(limitByteSize), &fileRenamerMu)
 	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
 
 	checkNoRenaming(logFileName, t, func() {
-		fmt.Fprintln(file, "first test entry")
-		renamer.CheckFile("second test entry")
+		fmt.Fprintln(file, firstEntry)
+		renamer.CheckFile(secondEntry)
 	})
 }
 
@@ -79,18 +83,22 @@ func TestCheckSizeFileRename(t *testing.T) {
 	file, err := os.OpenFile(logFileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	testutil.AssertNil(err, t, "create log file")
 
-	renamer := CreateSizeFileRenamer(logFileName, file, 20, &fileRenamerMu)
+	firstEntry := "first test entry"
+	secondEntry := "second test entry"
+	limitByteSize := len(firstEntry) + len(secondEntry) + 2*len(fmt.Sprintln())
+
+	renamer := CreateSizeFileRenamer(logFileName, file, int64(limitByteSize), &fileRenamerMu)
 	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
 
 	logFileName = filepath.Base(logFileName)
 	expectedNewFileName := logFileName[:len(logFileName)-4] + "_20250314_200100.log"
 
 	checkRenaming(file, logFileName, expectedNewFileName, t, func() {
-		fmt.Fprintln(file, "first test entry")
+		fmt.Fprintln(file, firstEntry)
 		stat, err := os.Stat(logFileName)
 		testutil.AssertNil(err, t, "os.Stat(logFileName)")
 		renamer.currentByteSize = stat.Size()
-		renamer.CheckFile("second test entry")
+		renamer.CheckFile(secondEntry)
 	})
 }
 

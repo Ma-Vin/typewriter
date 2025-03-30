@@ -35,6 +35,8 @@ type TimeFileNameGenerator struct {
 	referenceTime *time.Time
 }
 
+var newLineUtf8Size int = utf8.RuneCountInString(fmt.Sprintln())
+
 // Creates a new CronFileNamer for a given path and crontab
 func CreateCronFileRenamer(pathToLogFile string, writer *os.File, crontab *common.Crontab, mu *sync.Mutex) *CronFileRenamer {
 	return &CronFileRenamer{pathToLogFile, writer, crontab, CreateTimeFileNameGenerator(pathToLogFile), mu}
@@ -67,7 +69,7 @@ func CreateSizeFileRenamer(pathToLogFile string, writer *os.File, limitByteSize 
 
 // Checks whether the size limit is reached or not. In positive case the current file will be renamed to a name given by filename generator.
 func (c *SizeFileRenamer) CheckFile(formattedRecord string) {
-	sizeToAdd := int64(utf8.RuneCountInString(formattedRecord))
+	sizeToAdd := int64(utf8.RuneCountInString(formattedRecord) + newLineUtf8Size)
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.currentByteSize+sizeToAdd < c.limitByteSize {
@@ -111,7 +113,7 @@ func renameLogFile(pathToLogFile *string, writer *os.File, timeFileNameGenerator
 		file, err := os.OpenFile(*pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 		if err == nil {
 			*writer = *file
-		} else{
+		} else {
 			fmt.Println("Failed to create new log file from", pathToLogFile, " after renaming to", newPath)
 		}
 	}
