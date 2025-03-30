@@ -74,7 +74,8 @@ func TestFileAppenderSizeRenameLongRun(t *testing.T) {
 	}
 
 	logFilePath := testutil.GetTestCaseFilePath("sizeLongRun", true)
-	renamingByteSize := 4000
+	renamingKiloByteSize := 4
+	renamingByteSize := renamingKiloByteSize * 1000
 
 	os.Clearenv()
 	logger.Reset()
@@ -85,7 +86,7 @@ func TestFileAppenderSizeRenameLongRun(t *testing.T) {
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_LEVEL_IT", "INFO")
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_IT", "FILE")
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_IT", logFilePath)
-	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_SIZE_RENAMING_IT", strconv.Itoa(renamingByteSize))
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_SIZE_RENAMING_IT", strconv.Itoa(renamingKiloByteSize)+"kb")
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_IT", "JSON")
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_IT_TIME_LAYOUT", "2006-01-02T15:04:05")
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/ma-vin/typewriter/common"
@@ -87,13 +88,23 @@ func createSizeRenamer(pathToLogFile string, file *os.File, limitByteSizeText st
 	if cronRenamer != nil || limitByteSizeText == "" {
 		return nil
 	}
+
+	sizeFactor := 1
+	if strings.HasSuffix(limitByteSizeText, "kb") || strings.HasSuffix(limitByteSizeText, "KB") {
+		limitByteSizeText = strings.TrimSpace(limitByteSizeText[:len(limitByteSizeText)-2])
+		sizeFactor = 1000
+	} else if strings.HasSuffix(limitByteSizeText, "mb") || strings.HasSuffix(limitByteSizeText, "MB") {
+		limitByteSizeText = strings.TrimSpace(limitByteSizeText[:len(limitByteSizeText)-2])
+		sizeFactor = 1000000
+	}
+
 	limitByteSize, err := strconv.Atoi(limitByteSizeText)
 	if err != nil {
 		fmt.Printf("Fail to parse byte size limit for log file renaming %s: %s", limitByteSizeText, err)
 		fmt.Println()
 		return nil
 	}
-	return CreateSizeFileRenamer(pathToLogFile, file, int64(limitByteSize), mu)
+	return CreateSizeFileRenamer(pathToLogFile, file, int64(limitByteSize*sizeFactor), mu)
 }
 
 // Writes the given logValues to the defined output file and checks whether to rename existing log file or not

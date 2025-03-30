@@ -124,6 +124,34 @@ func TestFileAppenderWriteSizeRenameFile(t *testing.T) {
 	checkLogFileEntry(logFilePath, "{\"message\":\"OtherTestmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
 }
 
+func TestFileAppenderSizeRenamerByteFactor(t *testing.T) {
+	SkipFileCreationForTest = true
+
+	CleanFileDeductions()
+	appender := CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10kb").(FileAppender)
+	testutil.AssertEquals(int64(10000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10kb")
+
+	CleanFileDeductions()
+	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10 kb").(FileAppender)
+	testutil.AssertEquals(int64(10000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10 kb")
+
+	CleanFileDeductions()
+	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10KB").(FileAppender)
+	testutil.AssertEquals(int64(10000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10KB")
+
+	CleanFileDeductions()
+	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10mb").(FileAppender)
+	testutil.AssertEquals(int64(10000000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10mb")
+
+	CleanFileDeductions()
+	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10 mb").(FileAppender)
+	testutil.AssertEquals(int64(10000000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10 mb")
+
+	CleanFileDeductions()
+	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10MB").(FileAppender)
+	testutil.AssertEquals(int64(10000000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10MB")
+}
+
 func TestFileAppenderWriteSizeRenameFileInvalid(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("writeInvalidSizeRename")
 	indexOfFileEnding := strings.LastIndex(logFilePath, ".")
