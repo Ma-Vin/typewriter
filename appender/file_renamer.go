@@ -11,6 +11,7 @@ import (
 	"github.com/ma-vin/typewriter/common"
 )
 
+// Renames the current log file at a point in time given by a crontab and sets the pointer of writer to a new file
 type CronFileRenamer struct {
 	pathToLogFile         string
 	writer                *os.File
@@ -19,6 +20,7 @@ type CronFileRenamer struct {
 	mu                    *sync.Mutex
 }
 
+// Renames the current log file, if a given file size in bytes will be exceeded by adding the next entry, and sets the pointer of writer to a new file
 type SizeFileRenamer struct {
 	pathToLogFile         string
 	writer                *os.File
@@ -28,6 +30,7 @@ type SizeFileRenamer struct {
 	mu                    *sync.Mutex
 }
 
+// Generates the path of the file for the old log entries. Date and time will be append to the file name.
 type TimeFileNameGenerator struct {
 	basePath      string
 	fileEnding    string
@@ -86,6 +89,7 @@ func (c *SizeFileRenamer) prepareNextInterval() {
 	c.currentByteSize = 0
 }
 
+// renames the current log file given by the pointer writer and set the new file to writer afterwards
 func renameLogFile(pathToLogFile *string, writer *os.File, timeFileNameGenerator *TimeFileNameGenerator, prepareNextInterval func()) {
 
 	if _, err := os.Stat(*pathToLogFile); err != nil {

@@ -132,4 +132,5 @@ If `TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>` is not defined but an other pac
 
 ## Examples
 
-Examples are available at godoc [logger/example_test.go](logger/example_test.go)
+* Examples are available at godoc [logger/example_test.go](logger/example_test.go)
+* Some multi threading file appender test to verify renaming of log files [logger/test/integration_test.go](logger/test/integration_test.go)

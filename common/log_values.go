@@ -20,7 +20,7 @@ type LogValues struct {
 	CallerFunction string
 }
 
-var lockValuesMockTime *time.Time = nil
+var logValuesMockTime *time.Time = nil
 
 // Creates default log values
 func CreateLogValues(severity int, message string) LogValues {
@@ -51,14 +51,15 @@ func CreateLogValuesCustom(severity int, message string, customValues *map[strin
 	return rec
 }
 
+// returns the current time. Or a mock time if set.
 func GetNow() time.Time {
-	if lockValuesMockTime != nil {
-		return *lockValuesMockTime
+	if logValuesMockTime != nil {
+		return *logValuesMockTime
 	}
 	return time.Now()
 }
 
 // For test usage only! Sets constant mock time. If this parameter is nil [time.Now] will be calculated
 func SetLogValuesMockTime(mockTime *time.Time) {
-	lockValuesMockTime = mockTime
+	logValuesMockTime = mockTime
 }
