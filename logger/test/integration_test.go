@@ -24,7 +24,7 @@ func TestFileAppenderCronRenameLongRun(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	logFilePath := testutil.GetTestCaseFilePath("longRun", true)
+	logFilePath := testutil.GetTestCaseFilePath("cronLongRun", true)
 
 	os.Clearenv()
 	logger.Reset()
@@ -44,11 +44,11 @@ func TestFileAppenderCronRenameLongRun(t *testing.T) {
 	var logEntryCount int
 	for i := range goRoutineCount {
 		r := <-c
-		fmt.Println(i, "thread", r[0], "with", r[1], "log entries done")
+		fmt.Println(i, ": thread", r[0], "with", r[1], "log entries done")
 		logEntryCount += r[1]
 	}
 
-	logFilePaths := testutil.GetExistingTestCaseFilePaths("longRun")
+	logFilePaths := testutil.GetExistingTestCaseFilePaths("cronLongRun")
 
 	testutil.AssertEquals(minutesToRun+1, len(logFilePaths), t, "len(logFilePaths)")
 
@@ -66,6 +66,53 @@ func TestFileAppenderCronRenameLongRun(t *testing.T) {
 	}
 
 	testutil.AssertEquals(logEntryCount, lineCount, t, "lineCount")
+}
+
+func TestFileAppenderSizeRenameLongRun(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
+
+	logFilePath := testutil.GetTestCaseFilePath("sizeLongRun", true)
+	renamingByteSize := 4000
+
+	os.Clearenv()
+	logger.Reset()
+	os.Setenv("TYPEWRITER_LOG_LEVEL", "DEBUG")
+	os.Setenv("TYPEWRITER_LOG_APPENDER_TYPE", "STDOUT")
+	os.Setenv("TYPEWRITER_PACKAGE_FULL_QUALIFIED", "TRUE")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_PACKAGE_IT", "github.com/ma-vin/typewriter/logger/test")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_LEVEL_IT", "INFO")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_IT", "FILE")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_IT", logFilePath)
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_SIZE_RENAMING_IT", strconv.Itoa(renamingByteSize))
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_IT", "JSON")
+
+	c := make(chan []int, goRoutineCount)
+
+	for i := range goRoutineCount {
+		go logForFileAppenderSizeRename(i, c)
+	}
+
+	logSize := int64(0)
+	for i := range goRoutineCount {
+		r := <-c
+		fmt.Println(i, ": thread", r[0], "with", r[1], "log entries and", r[2], "written bytes done")
+		logSize += int64(r[2])
+	}
+
+	logFilePaths := testutil.GetExistingTestCaseFilePaths("sizeLongRun")
+	expectedFileCount := (int(logSize) + renamingByteSize - 1) / renamingByteSize
+	testutil.AssertEquals(expectedFileCount, len(logFilePaths), t, "len(logFilePaths)")
+
+	expectedLogSize := int64(0)
+	for _, filePath := range logFilePaths {
+		stat, err := os.Stat(filePath)
+		testutil.AssertNil(err, t, "err of os.Stat(filePath)")
+		testutil.AssertTrue(stat.Size() <= int64(renamingByteSize), t, "max size of "+filePath)
+		expectedLogSize += stat.Size()
+	}
+	testutil.AssertEquals(expectedLogSize, logSize, t, "logSize")
 }
 
 func waitForStartTime() {
@@ -112,6 +159,48 @@ func logForFileAppenderCronRename(thread int, c chan []int) {
 	}
 
 	c <- []int{thread, iterations}
+}
+
+func logForFileAppenderSizeRename(thread int, c chan []int) {
+	millisPerIteration := 101 + rand.IntN(900)
+	iterations := 10
+	messageText := "SomeTestMessage"
+	writtenSize := 0
+	baseSize := 102 + len(fmt.Sprintln())
+	if thread > 9 {
+		baseSize++
+	}
+
+	fmt.Println("thread", thread, "with", iterations, "iterations every", millisPerIteration, "millis")
+
+	customProperties := map[string]any{
+		"thread": thread,
+	}
+
+	for i := range iterations {
+		customProperties["item"] = i
+		level := rand.IntN(4) + 1
+		switch level {
+		case common.DEBUG_SEVERITY:
+			logger.DebugCustom(customProperties, messageText)
+		case common.INFORMATION_SEVERITY:
+			logger.InformationCustom(customProperties, messageText)
+			writtenSize += baseSize
+		case common.WARNING_SEVERITY:
+			logger.WarningCustom(customProperties, messageText)
+			writtenSize += baseSize
+		case common.ERROR_SEVERITY:
+			logger.ErrorCustom(customProperties, messageText)
+			writtenSize += baseSize + 1
+		case common.FATAL_SEVERITY:
+			logger.FatalCustom(customProperties, messageText)
+			writtenSize += baseSize + 1
+		}
+
+		time.Sleep(time.Duration(millisPerIteration) * time.Millisecond)
+	}
+
+	c <- []int{thread, iterations, writtenSize}
 }
 
 func calcMillisToRun() int {
