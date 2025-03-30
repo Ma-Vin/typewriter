@@ -7,7 +7,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"unicode/utf8"
 
 	"github.com/ma-vin/typewriter/common"
 )
@@ -35,7 +34,7 @@ type TimeFileNameGenerator struct {
 	referenceTime *time.Time
 }
 
-var newLineUtf8Size int = utf8.RuneCountInString(fmt.Sprintln())
+var newLineUtf8Size int = len(fmt.Sprintln())
 
 // Creates a new CronFileNamer for a given path and crontab
 func CreateCronFileRenamer(pathToLogFile string, writer *os.File, crontab *common.Crontab, mu *sync.Mutex) *CronFileRenamer {
@@ -69,7 +68,7 @@ func CreateSizeFileRenamer(pathToLogFile string, writer *os.File, limitByteSize 
 
 // Checks whether the size limit is reached or not. In positive case the current file will be renamed to a name given by filename generator.
 func (c *SizeFileRenamer) CheckFile(formattedRecord string) {
-	sizeToAdd := int64(utf8.RuneCountInString(formattedRecord) + newLineUtf8Size)
+	sizeToAdd := int64(len(formattedRecord) + newLineUtf8Size)
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.currentByteSize+sizeToAdd < c.limitByteSize {

@@ -87,6 +87,7 @@ func TestFileAppenderSizeRenameLongRun(t *testing.T) {
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_IT", logFilePath)
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_SIZE_RENAMING_IT", strconv.Itoa(renamingByteSize))
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_IT", "JSON")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_IT_TIME_LAYOUT", "2006-01-02T15:04:05")
 
 	c := make(chan []int, goRoutineCount)
 
@@ -166,7 +167,7 @@ func logForFileAppenderSizeRename(thread int, c chan []int) {
 	iterations := 10
 	messageText := "SomeTestMessage"
 	writtenSize := 0
-	baseSize := 102 + len(fmt.Sprintln())
+	baseSize := len(fmt.Sprintln("{\"item\":0,\"message\":\"SomeTestMessage\",\"severity\":\"INFO\",\"thread\":0,\"time\":\"2006-01-02T15:04:05\"}"))
 	if thread > 9 {
 		baseSize++
 	}
