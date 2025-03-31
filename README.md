@@ -4,11 +4,7 @@
 
 # Typewriter
 
-This repository provides a GoLang logging package, which are inspired by some Log4j features like package specific enablement
-
-:warning: :construction: **No stable released yet**
-
-Nevertheless, pre-release versions can already be tested: [typewriter at pkg.go.dev](https://pkg.go.dev/github.com/ma-vin/typewriter)
+This repository provides a GoLang logging package, which are inspired by some Log4j features like package specific enablement.
 
 ## Sonar analysis
 
