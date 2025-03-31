@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest   
     strategy:
       matrix:
-        go: [ '~1.23.7', '~1.24.1' ]
+        go: [ '1.23.2', '~1.23.7', '~1.24.1' ]
     steps:
       - name: Check out
         uses: actions/checkout@v4
