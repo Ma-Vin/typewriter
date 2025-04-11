@@ -21,7 +21,7 @@ var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 
 func getAppenderTestLogFile(testCase string) string {
 	SkipFileCreationForTest = false
-	result := testutil.DetermineTestCaseFilePath(testCase, "log", true, true)
+	result := testutil.DetermineTestCaseFilePathAt(testCase, "log", true, true, "genTestResources")
 	os.Create(result)
 	return result
 }

@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -25,8 +24,7 @@ var envInitConfigTest initConfigTest = func(t *testing.T) *os.File {
 var propertiesFileInitConfigTest initConfigTest = func(t *testing.T) *os.File {
 	os.Clearenv()
 
-	_, filename, _, _ := runtime.Caller(0)
-	pathToFile := strings.Replace(filename, ".go", "_LogConfig_scratch.properties", 1)
+	pathToFile := testutil.DetermineTestCaseFilePathAt("LogConfig", "properties", true, true, "genTestResources")
 
 	propertiesFile, err := os.Create(pathToFile)
 	if err != nil {

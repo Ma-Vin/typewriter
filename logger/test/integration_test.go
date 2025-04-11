@@ -17,6 +17,8 @@ import (
 const (
 	minutesToRun   int = 2
 	goRoutineCount int = 30
+
+	testResourceTarget = "genTestResources"
 )
 
 func TestFileAppenderCronRenameLongRun(t *testing.T) {
@@ -24,7 +26,7 @@ func TestFileAppenderCronRenameLongRun(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	logFilePath := testutil.DetermineTestCaseFilePath("cronLongRun", "log", true, true)
+	logFilePath := testutil.DetermineTestCaseFilePathAt("cronLongRun", "log", true, true, testResourceTarget)
 
 	os.Clearenv()
 	logger.Reset()
@@ -48,7 +50,7 @@ func TestFileAppenderCronRenameLongRun(t *testing.T) {
 		logEntryCount += r[1]
 	}
 
-	logFilePaths := testutil.DetermineExistingTestCaseFilePaths("cronLongRun")
+	logFilePaths := testutil.DetermineExistingTestCaseFilePathsAt("cronLongRun", testResourceTarget)
 
 	testutil.AssertEquals(minutesToRun+1, len(logFilePaths), t, "len(logFilePaths)")
 
@@ -73,7 +75,7 @@ func TestFileAppenderSizeRenameLongRun(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	logFilePath := testutil.DetermineTestCaseFilePath("sizeLongRun", "log", true, true)
+	logFilePath := testutil.DetermineTestCaseFilePathAt("sizeLongRun", "log", true, true, testResourceTarget)
 	renamingKiloByteSize := 4
 	renamingByteSize := renamingKiloByteSize * 1000
 
@@ -103,7 +105,7 @@ func TestFileAppenderSizeRenameLongRun(t *testing.T) {
 		logSize += int64(r[2])
 	}
 
-	logFilePaths := testutil.DetermineExistingTestCaseFilePaths("sizeLongRun")
+	logFilePaths := testutil.DetermineExistingTestCaseFilePathsAt("sizeLongRun", testResourceTarget)
 	expectedFileCount := (int(logSize) + renamingByteSize - 1) / renamingByteSize
 	testutil.AssertEquals(expectedFileCount, len(logFilePaths), t, "len(logFilePaths)")
 

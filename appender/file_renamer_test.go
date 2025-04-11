@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -14,6 +13,8 @@ import (
 	"github.com/ma-vin/typewriter/common"
 )
 
+const testResourceTarget = "genTestResources"
+
 var fileRenamerCrontab = common.CreateCrontab("* * * * *")
 var fileRenamerTestTime = time.Date(2025, time.March, 14, 20, 1, 0, 0, time.UTC)
 var fileRenamerMu = sync.Mutex{}
@@ -21,7 +22,7 @@ var logValues = &common.LogValues{Time: fileRenamerTestTime}
 
 func getFileRenamerTestLogFile(testCase string) string {
 	SkipFileCreationForTest = false
-	result := testutil.DetermineTestCaseFilePath(testCase, "log", true, true)
+	result := testutil.DetermineTestCaseFilePathAt(testCase, "log", true, true, testResourceTarget)
 	os.Create(result)
 	return result
 }
@@ -50,11 +51,10 @@ func TestCheckCronFileRename(t *testing.T) {
 	renamer := CreateCronFileRenamer(logFileName, file, fileRenamerCrontab, &fileRenamerMu)
 	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
 
-	logFileName = filepath.Base(logFileName)
 	indexOfFileEnding := strings.LastIndex(logFileName, ".")
 	expectedNewFileName := logFileName[:indexOfFileEnding] + "_20250314_200100" + logFileName[indexOfFileEnding:]
 
-	checkRenaming(file, logFileName, expectedNewFileName, t, func() {
+	checkRenaming(file, logFileName, "CronRename", expectedNewFileName, t, func() {
 		fmt.Fprintln(file, "first test entry")
 		renamer.CheckFile(logValues)
 	})
@@ -69,14 +69,13 @@ func TestCheckCronFileRenameButAlreadyExists(t *testing.T) {
 	renamer := CreateCronFileRenamer(logFileName, file, fileRenamerCrontab, &fileRenamerMu)
 	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
 
-	logFileName = filepath.Base(logFileName)
 	indexOfFileEnding := strings.LastIndex(logFileName, ".")
 	existingFileName := logFileName[:indexOfFileEnding] + "_20250314_200100" + logFileName[indexOfFileEnding:]
 	expectedNewFileName := logFileName[:indexOfFileEnding] + "_20250314_200100_1" + logFileName[indexOfFileEnding:]
 
 	os.Create(existingFileName)
 
-	checkRenaming(file, logFileName, expectedNewFileName, t, func() {
+	checkRenaming(file, logFileName, "ExistingCronRename", expectedNewFileName, t, func() {
 		fmt.Fprintln(file, "first test entry")
 		renamer.CheckFile(logValues)
 	})
@@ -112,11 +111,10 @@ func TestCheckSizeFileRename(t *testing.T) {
 	renamer := CreateSizeFileRenamer(logFileName, file, int64(limitByteSize), &fileRenamerMu)
 	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
 
-	logFileName = filepath.Base(logFileName)
 	indexOfFileEnding := strings.LastIndex(logFileName, ".")
 	expectedNewFileName := logFileName[:indexOfFileEnding] + "_20250314_200100" + logFileName[indexOfFileEnding:]
 
-	checkRenaming(file, logFileName, expectedNewFileName, t, func() {
+	checkRenaming(file, logFileName, "SizeRename", expectedNewFileName, t, func() {
 		fmt.Fprintln(file, firstEntry)
 		stat, err := os.Stat(logFileName)
 		testutil.AssertNil(err, t, "os.Stat(logFileName)")
@@ -137,14 +135,13 @@ func TestCheckSizeFileRenameButAlreadyExists(t *testing.T) {
 	renamer := CreateSizeFileRenamer(logFileName, file, int64(limitByteSize), &fileRenamerMu)
 	renamer.timeFileNameGenerator.referenceTime = &fileRenamerTestTime
 
-	logFileName = filepath.Base(logFileName)
 	indexOfFileEnding := strings.LastIndex(logFileName, ".")
 	existingFileName := logFileName[:indexOfFileEnding] + "_20250314_200100" + logFileName[indexOfFileEnding:]
 	expectedNewFileName := logFileName[:indexOfFileEnding] + "_20250314_200100_1" + logFileName[indexOfFileEnding:]
 
 	os.Create(existingFileName)
 
-	checkRenaming(file, logFileName, expectedNewFileName, t, func() {
+	checkRenaming(file, logFileName, "ExistingSizeRename", expectedNewFileName, t, func() {
 		fmt.Fprintln(file, firstEntry)
 		stat, err := os.Stat(logFileName)
 		testutil.AssertNil(err, t, "os.Stat(logFileName)")
@@ -153,51 +150,47 @@ func TestCheckSizeFileRenameButAlreadyExists(t *testing.T) {
 	})
 }
 
-func checkNoRenaming(logFileName string, t *testing.T, toBeExecutedForTest func()) {
-	entriesBefore, err := os.ReadDir(path.Dir(logFileName))
-	testutil.AssertNil(err, t, "read dir before")
+func checkNoRenaming(testCase string, t *testing.T, toBeExecutedForTest func()) {
+	entriesBefore := testutil.DetermineExistingTestCaseFilePathsAt(testCase, testResourceTarget)
 
 	toBeExecutedForTest()
 
-	entriesAfter, err := os.ReadDir("./")
-	testutil.AssertNil(err, t, "read dir after")
+	entriesAfter := testutil.DetermineExistingTestCaseFilePathsAt(testCase, testResourceTarget)
 
 	testutil.AssertEquals(len(entriesBefore), len(entriesAfter), t, "compare dirs")
 	for _, dirEntryBefore := range entriesBefore {
 		contains := false
 		for _, dirEntryAfter := range entriesAfter {
-			contains = contains || dirEntryBefore.Name() == dirEntryAfter.Name()
+			contains = contains || dirEntryBefore == dirEntryAfter
 		}
-		testutil.AssertTrue(contains, t, "missing "+dirEntryBefore.Name()+" at entriesAfter")
+		testutil.AssertTrue(contains, t, "missing "+path.Base(dirEntryBefore)+" at entriesAfter")
 	}
 }
 
-func checkRenaming(file *os.File, logFileName string, expectedNewFileName string, t *testing.T, toBeExecutedForTest func()) {
-	entriesBefore, err := os.ReadDir(path.Dir(logFileName))
-	testutil.AssertNil(err, t, "read dir before")
+func checkRenaming(file *os.File, logFileName string, testCase string, expectedNewFileName string, t *testing.T, toBeExecutedForTest func()) {
+	entriesBefore := testutil.DetermineExistingTestCaseFilePathsAt(testCase, testResourceTarget)
 
 	toBeExecutedForTest()
 
-	entriesAfter, err := os.ReadDir(path.Dir(logFileName))
-	testutil.AssertNil(err, t, "read dir after")
+	entriesAfter := testutil.DetermineExistingTestCaseFilePathsAt(testCase, testResourceTarget)
 
 	testutil.AssertEquals(len(entriesBefore)+1, len(entriesAfter), t, "compare dirs")
 
 	for _, dirEntryBefore := range entriesBefore {
 		contains := false
 		for _, dirEntryAfter := range entriesAfter {
-			contains = contains || dirEntryBefore.Name() == dirEntryAfter.Name() || logFileName == dirEntryBefore.Name()
+			contains = contains || dirEntryBefore == dirEntryAfter
 		}
-		testutil.AssertTrue(contains, t, "missing "+dirEntryBefore.Name()+" at entriesAfter")
+		testutil.AssertTrue(contains, t, "missing "+path.Base(dirEntryBefore)+" at entriesAfter")
 	}
 
 	contains := false
 	for _, dirEntryAfter := range entriesAfter {
-		contains = contains || expectedNewFileName == dirEntryAfter.Name()
+		contains = contains || expectedNewFileName == dirEntryAfter
 	}
-	testutil.AssertTrue(contains, t, "missing "+expectedNewFileName+" at entriesAfter")
+	testutil.AssertTrue(contains, t, "missing "+path.Base(expectedNewFileName)+" at entriesAfter")
 
-	_, err = fmt.Fprintln(file, "second test entry")
+	_, err := fmt.Fprintln(file, "second test entry")
 	testutil.AssertNil(err, t, "write second entry")
 
 	dat, err := os.ReadFile(expectedNewFileName)
