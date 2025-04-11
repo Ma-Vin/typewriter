@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/common"
-	"github.com/ma-vin/typewriter/testutil"
 )
 
 var jsonFormatTestTime = time.Date(2024, time.November, 15, 20, 00, 0, 0, time.UTC)

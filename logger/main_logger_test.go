@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/config"
-	"github.com/ma-vin/typewriter/testutil"
 )
 
 var testMainCommonLoggerAppender appender.Appender = TestAppender{content: &[]string{}}

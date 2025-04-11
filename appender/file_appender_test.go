@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/format"
-	"github.com/ma-vin/typewriter/testutil"
 )
 
 const testCronExpression = "* * * * *"
@@ -21,7 +21,7 @@ var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 
 func getAppenderTestLogFile(testCase string) string {
 	SkipFileCreationForTest = false
-	result := testutil.GetTestCaseFilePath(testCase, true)
+	result := testutil.DetermineTestCaseFilePath(testCase, "log", true, true)
 	os.Create(result)
 	return result
 }

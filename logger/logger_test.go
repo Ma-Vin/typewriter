@@ -3,7 +3,7 @@ package logger
 import (
 	"testing"
 
-	"github.com/ma-vin/typewriter/testutil"
+	"github.com/ma-vin/testutil-go"
 )
 
 func initLoggerViaPackageTest(envCommonLogLevel string, envPackageLogLevel string) {

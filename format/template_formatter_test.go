@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/common"
-	"github.com/ma-vin/typewriter/testutil"
 )
 
 var templateFormatter Formatter = CreateTemplateFormatter(

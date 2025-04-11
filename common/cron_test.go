@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ma-vin/typewriter/testutil"
+	"github.com/ma-vin/testutil-go"
 )
 
 var cronCrontabTestTime = time.Date(2025, time.March, 1, 16, 10, 20, 30, time.UTC)

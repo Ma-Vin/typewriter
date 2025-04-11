@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/common"
-	"github.com/ma-vin/typewriter/testutil"
 )
 
 var fileRenamerCrontab = common.CreateCrontab("* * * * *")
@@ -21,7 +21,7 @@ var logValues = &common.LogValues{Time: fileRenamerTestTime}
 
 func getFileRenamerTestLogFile(testCase string) string {
 	SkipFileCreationForTest = false
-	result := testutil.GetTestCaseFilePath(testCase, true)
+	result := testutil.DetermineTestCaseFilePath(testCase, "log", true, true)
 	os.Create(result)
 	return result
 }

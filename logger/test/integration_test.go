@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/logger"
-	"github.com/ma-vin/typewriter/testutil"
 )
 
 const (
@@ -24,7 +24,7 @@ func TestFileAppenderCronRenameLongRun(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	logFilePath := testutil.GetTestCaseFilePath("cronLongRun", true)
+	logFilePath := testutil.DetermineTestCaseFilePath("cronLongRun", "log", true, true)
 
 	os.Clearenv()
 	logger.Reset()
@@ -48,7 +48,7 @@ func TestFileAppenderCronRenameLongRun(t *testing.T) {
 		logEntryCount += r[1]
 	}
 
-	logFilePaths := testutil.GetExistingTestCaseFilePaths("cronLongRun")
+	logFilePaths := testutil.DetermineExistingTestCaseFilePaths("cronLongRun")
 
 	testutil.AssertEquals(minutesToRun+1, len(logFilePaths), t, "len(logFilePaths)")
 
@@ -73,7 +73,7 @@ func TestFileAppenderSizeRenameLongRun(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	logFilePath := testutil.GetTestCaseFilePath("sizeLongRun", true)
+	logFilePath := testutil.DetermineTestCaseFilePath("sizeLongRun", "log", true, true)
 	renamingKiloByteSize := 4
 	renamingByteSize := renamingKiloByteSize * 1000
 
@@ -103,7 +103,7 @@ func TestFileAppenderSizeRenameLongRun(t *testing.T) {
 		logSize += int64(r[2])
 	}
 
-	logFilePaths := testutil.GetExistingTestCaseFilePaths("sizeLongRun")
+	logFilePaths := testutil.DetermineExistingTestCaseFilePaths("sizeLongRun")
 	expectedFileCount := (int(logSize) + renamingByteSize - 1) / renamingByteSize
 	testutil.AssertEquals(expectedFileCount, len(logFilePaths), t, "len(logFilePaths)")
 

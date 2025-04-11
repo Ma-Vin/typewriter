@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/config"
-	"github.com/ma-vin/typewriter/testutil"
 )
 
 type TestAppender struct {

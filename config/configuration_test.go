@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/common"
-	"github.com/ma-vin/typewriter/testutil"
 )
 
 type initConfigTest func(t *testing.T) *os.File
