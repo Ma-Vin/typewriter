@@ -6,6 +6,8 @@ on:
       - main
       - 'feature/**'
       - 'fix/**'
+  schedule:
+    - cron: '45 9 * * 6'
 
 jobs:
   build-test-short:
