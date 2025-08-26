@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 )
 
 // Formatter which append given parameter with a delimiter. Since name the of the parameter will not be contained, the keys of customValues at FormatCustom neither.
@@ -14,9 +15,9 @@ type DelimiterFormatter struct {
 	timeLayout string
 }
 
-// Creates a new formatter with a given delimiter
-func CreateDelimiterFormatter(delimiter string, timeLayout string) Formatter {
-	return DelimiterFormatter{delimiter: delimiter, timeLayout: timeLayout}
+// Creates a new formatter from a given config
+func CreateDelimiterFormatterFromConfig(config config.DelimiterFormatterConfig) Formatter {
+	return DelimiterFormatter{delimiter: config.Delimiter, timeLayout: config.TimeLayout()}
 }
 
 // Formats the given parameter to a string to log

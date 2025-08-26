@@ -7,9 +7,29 @@ import (
 
 	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 )
 
-var templateFormatter Formatter = CreateTemplateFormatter(
+// Creates a new formatter with given templates and time layout
+func createTemplateFormatterForTest(template string, correlationIdTemplate string, customTemplate string,
+	callerTemplate string, callerCorrelationIdTemplate string, callerCustomTemplate string,
+	timeLayout string, trimSeverityText bool) Formatter {
+
+	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout}
+	config := config.TemplateFormatterConfig{
+		Common:                      &commonConfig,
+		Template:                    template,
+		CallerTemplate:              callerTemplate,
+		CorrelationIdTemplate:       correlationIdTemplate,
+		CallerCorrelationIdTemplate: callerCorrelationIdTemplate,
+		CustomTemplate:              customTemplate,
+		CallerCustomTemplate:        callerCustomTemplate,
+		TrimSeverityText:            trimSeverityText,
+	}
+	return CreateTemplateFormatterFromConfig(config)
+}
+
+var templateFormatter Formatter = createTemplateFormatterForTest(
 	"time: %s severity: %s message: %s",
 	"time: %s severity: %s correlation: %s message: %s",
 	"time: %s severity: %s message: %s %s: %s %s: %d %s: %t",
@@ -19,7 +39,7 @@ var templateFormatter Formatter = CreateTemplateFormatter(
 	time.RFC1123Z,
 	false)
 
-var templateFormatterOrder Formatter = CreateTemplateFormatter(
+var templateFormatterOrder Formatter = createTemplateFormatterForTest(
 	"severity: %[2]s message: %[3]s time: %[1]s",
 	"severity: %[2]s correlation: %[3]s message: %[4]s time: %[1]s",
 	"severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s",
@@ -128,7 +148,7 @@ func TestTemplateFormatCustom(t *testing.T) {
 func TestTemplateFormatCustomDefaultFormat(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
 
-	var templateFormatterDefaultCustom Formatter = CreateTemplateFormatter(
+	var templateFormatterDefaultCustom Formatter = createTemplateFormatterForTest(
 		"time: %s severity: %s message: %s",
 		"time: %s severity: %s correlation: %s message: %s",
 		DEFAULT_TEMPLATE,
@@ -184,7 +204,7 @@ func TestTemplateFormatCustomOrder(t *testing.T) {
 func TestTemplateFormatTrimSeverity(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
 
-	var templateFormatterTrim Formatter = CreateTemplateFormatter(
+	var templateFormatterTrim Formatter = createTemplateFormatterForTest(
 		"time: %s severity: %s message: %s",
 		"time: %s severity: %s correlation: %s message: %s",
 		"time: %s severity: %s message: %s %s: %s %s: %d %s: %t",

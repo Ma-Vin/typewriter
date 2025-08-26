@@ -8,13 +8,36 @@ import (
 
 	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 )
+
+// Creates a new formatter with given key names and time layout
+func createJsonFormatterForTest(timeKey string, severityKey string, messageKey string, correlationKey string,
+	customValuesKey string, timeLayout string,
+	callerFunctionKey string, callerFileKey string, callerFileLineKey string,
+	customValuesAsSubElement bool) Formatter {
+
+	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout}
+	config := config.JsonFormatterConfig{
+		Common:                   &commonConfig,
+		TimeKey:                  timeKey,
+		SeverityKey:              severityKey,
+		MessageKey:               messageKey,
+		CorrelationKey:           correlationKey,
+		CustomValuesKey:          customValuesKey,
+		CallerFunctionKey:        callerFunctionKey,
+		CallerFileKey:            callerFileKey,
+		CallerFileLineKey:        callerFileLineKey,
+		CustomValuesAsSubElement: customValuesAsSubElement,
+	}
+	return CreateJsonFormatterFromConfig(config)
+}
 
 var jsonFormatTestTime = time.Date(2024, time.November, 15, 20, 00, 0, 0, time.UTC)
 var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 
-var jsonFormatter Formatter = CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false)
-var jsonFormatterSub Formatter = CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", true)
+var jsonFormatter Formatter = createJsonFormatterForTest("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false)
+var jsonFormatterSub Formatter = createJsonFormatterForTest("time", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", true)
 
 func TestJsonFormat(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)

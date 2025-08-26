@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/ma-vin/testutil-go"
-	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/common"
 )
 
@@ -83,11 +82,11 @@ func TestGetConfigNoEnv(t *testing.T) {
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
+	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 }
 
 func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
@@ -115,11 +114,11 @@ func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
+	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 }
 
 func TestGetConfigNonExistingFile(t *testing.T) {
@@ -143,11 +142,11 @@ func TestGetConfigNonExistingFile(t *testing.T) {
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
+	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 }
 
 func TestGetConfigCaller(t *testing.T) {
@@ -173,11 +172,11 @@ func TestGetConfigCaller(t *testing.T) {
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
+	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 }
 
 func TestGetConfigDefaultDelimiter(t *testing.T) {
@@ -206,11 +205,11 @@ func TestGetConfigDefaultDelimiter(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(":", result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout, t, "result.formatter[0].TimeLayout")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(":", result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 	}
 }
 
@@ -245,16 +244,16 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals("time: %s severity: %s message: %s", result.Formatter[0].Template, t, "result.formatter[0].template")
-		testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[0].CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
-		testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.Formatter[0].CustomTemplate, t, "result.formatter[0].customTemplate")
-		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout, t, "result.formatter[0].timeLayout")
-		testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s", result.Formatter[0].CallerTemplate, t, "result.formatter[0].CallerTemplate")
-		testutil.AssertEquals("time: %s severity: %s correlation: %s caller:%s file:%s line:%d message: %s", result.Formatter[0].CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
-		testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t", result.Formatter[0].CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals("time: %s severity: %s message: %s", result.Formatter[0].(TemplateFormatterConfig).Template, t, "result.formatter[0].template")
+		testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[0].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
+		testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.Formatter[0].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[0].customTemplate")
+		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
+		testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s", result.Formatter[0].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[0].CallerTemplate")
+		testutil.AssertEquals("time: %s severity: %s correlation: %s caller:%s file:%s line:%d message: %s", result.Formatter[0].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
+		testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
 	}
 }
 
@@ -281,16 +280,16 @@ func TestGetConfigDefaultTemplateWithoutParameter(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals("[%s] %s: %s", result.Formatter[0].Template, t, "result.formatter[0].template")
-		testutil.AssertEquals("[%s] %s %s: %s", result.Formatter[0].CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
-		testutil.AssertEquals("[%s] %s: %s", result.Formatter[0].CustomTemplate, t, "result.formatter[0].customTemplate")
-		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].timeLayout")
-		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].CallerTemplate, t, "result.formatter[0].CallerTemplate")
-		testutil.AssertEquals("[%s] %s %s %s(%s.%d): %s", result.Formatter[0].CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
-		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals("[%s] %s: %s", result.Formatter[0].(TemplateFormatterConfig).Template, t, "result.formatter[0].template")
+		testutil.AssertEquals("[%s] %s %s: %s", result.Formatter[0].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
+		testutil.AssertEquals("[%s] %s: %s", result.Formatter[0].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[0].customTemplate")
+		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
+		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[0].CallerTemplate")
+		testutil.AssertEquals("[%s] %s %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
+		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
 	}
 }
 
@@ -328,19 +327,19 @@ func TestGetConfigDefaultJson(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals("timing", result.Formatter[0].TimeKey, t, "result.formatter[0].timeKey")
-		testutil.AssertEquals("level", result.Formatter[0].SeverityKey, t, "result.formatter[0].severityKey")
-		testutil.AssertEquals("cor", result.Formatter[0].CorrelationKey, t, "result.formatter[0].correlationKey")
-		testutil.AssertEquals("msg", result.Formatter[0].MessageKey, t, "result.formatter[0].messageKey")
-		testutil.AssertEquals("customValues", result.Formatter[0].CustomValuesKey, t, "result.formatter[0].customValuesKey")
-		testutil.AssertTrue(result.Formatter[0].CustomValuesAsSubElement, t, "result.formatter[0].customValuesAsSubElement")
-		testutil.AssertEquals("callerFunction", result.Formatter[0].CallerFunctionKey, t, "result.formatter[0].CallerFunctionKey")
-		testutil.AssertEquals("callerFile", result.Formatter[0].CallerFileKey, t, "result.formatter[0].CallerFileKey")
-		testutil.AssertEquals("callerFileLine", result.Formatter[0].CallerFileLineKey, t, "result.formatter[0].CallerFileLineKey")
-		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout, t, "result.formatter[0].timeLayout")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals("timing", result.Formatter[0].(JsonFormatterConfig).TimeKey, t, "result.formatter[0].timeKey")
+		testutil.AssertEquals("level", result.Formatter[0].(JsonFormatterConfig).SeverityKey, t, "result.formatter[0].severityKey")
+		testutil.AssertEquals("cor", result.Formatter[0].(JsonFormatterConfig).CorrelationKey, t, "result.formatter[0].correlationKey")
+		testutil.AssertEquals("msg", result.Formatter[0].(JsonFormatterConfig).MessageKey, t, "result.formatter[0].messageKey")
+		testutil.AssertEquals("customValues", result.Formatter[0].(JsonFormatterConfig).CustomValuesKey, t, "result.formatter[0].customValuesKey")
+		testutil.AssertTrue(result.Formatter[0].(JsonFormatterConfig).CustomValuesAsSubElement, t, "result.formatter[0].customValuesAsSubElement")
+		testutil.AssertEquals("callerFunction", result.Formatter[0].(JsonFormatterConfig).CallerFunctionKey, t, "result.formatter[0].CallerFunctionKey")
+		testutil.AssertEquals("callerFile", result.Formatter[0].(JsonFormatterConfig).CallerFileKey, t, "result.formatter[0].CallerFileKey")
+		testutil.AssertEquals("callerFileLine", result.Formatter[0].(JsonFormatterConfig).CallerFileLineKey, t, "result.formatter[0].CallerFileLineKey")
+		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 	}
 }
 
@@ -368,25 +367,24 @@ func TestGetConfigDefaultJsonWithoutParameter(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals("time", result.Formatter[0].TimeKey, t, "result.formatter[0].timeKey")
-		testutil.AssertEquals("severity", result.Formatter[0].SeverityKey, t, "result.formatter[0].severityKey")
-		testutil.AssertEquals("correlation", result.Formatter[0].CorrelationKey, t, "result.formatter[0].correlationKey")
-		testutil.AssertEquals("message", result.Formatter[0].MessageKey, t, "result.formatter[0].messageKey")
-		testutil.AssertEquals("custom", result.Formatter[0].CustomValuesKey, t, "result.formatter[0].customValuesKey")
-		testutil.AssertFalse(result.Formatter[0].CustomValuesAsSubElement, t, "result.formatter[0].customValuesAsSubElement")
-		testutil.AssertEquals("caller", result.Formatter[0].CallerFunctionKey, t, "result.formatter[0].CallerFunctionKey")
-		testutil.AssertEquals("file", result.Formatter[0].CallerFileKey, t, "result.formatter[0].CallerFileKey")
-		testutil.AssertEquals("line", result.Formatter[0].CallerFileLineKey, t, "result.formatter[0].CallerFileLineKey")
-		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout, t, "result.formatter[0].timeLayout")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals("time", result.Formatter[0].(JsonFormatterConfig).TimeKey, t, "result.formatter[0].timeKey")
+		testutil.AssertEquals("severity", result.Formatter[0].(JsonFormatterConfig).SeverityKey, t, "result.formatter[0].severityKey")
+		testutil.AssertEquals("correlation", result.Formatter[0].(JsonFormatterConfig).CorrelationKey, t, "result.formatter[0].correlationKey")
+		testutil.AssertEquals("message", result.Formatter[0].(JsonFormatterConfig).MessageKey, t, "result.formatter[0].messageKey")
+		testutil.AssertEquals("custom", result.Formatter[0].(JsonFormatterConfig).CustomValuesKey, t, "result.formatter[0].customValuesKey")
+		testutil.AssertFalse(result.Formatter[0].(JsonFormatterConfig).CustomValuesAsSubElement, t, "result.formatter[0].customValuesAsSubElement")
+		testutil.AssertEquals("caller", result.Formatter[0].(JsonFormatterConfig).CallerFunctionKey, t, "result.formatter[0].CallerFunctionKey")
+		testutil.AssertEquals("file", result.Formatter[0].(JsonFormatterConfig).CallerFileKey, t, "result.formatter[0].CallerFileKey")
+		testutil.AssertEquals("line", result.Formatter[0].(JsonFormatterConfig).CallerFileLineKey, t, "result.formatter[0].CallerFileLineKey")
+		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 	}
 }
 
 func TestGetConfigDefaultFileAppender(t *testing.T) {
 	logFilePath := "pathToLogFile"
-	appender.SkipFileCreationForTest = true
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
@@ -412,14 +410,13 @@ func TestGetConfigDefaultFileAppender(t *testing.T) {
 		testutil.AssertEquals("", result.Appender[0].CronExpression, t, "result.appender[0].CronExpression")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
 	}
 }
 
 func TestGetConfigDefaultFileAppenderMissingPath(t *testing.T) {
-	appender.SkipFileCreationForTest = true
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
@@ -442,9 +439,9 @@ func TestGetConfigDefaultFileAppenderMissingPath(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
 	}
 }
 
@@ -472,10 +469,10 @@ func TestGetConfigDefaultUnknown(t *testing.T) {
 		testutil.AssertEquals("", result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals("", result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals("", result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
 	}
 }
 
@@ -483,7 +480,6 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 	logFilePath := "pathToLogFile"
 	cronExpression := "* * * * *"
 	limitByteSize := "64"
-	appender.SkipFileCreationForTest = true
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
@@ -512,9 +508,9 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 		testutil.AssertEquals(limitByteSize, result.Appender[0].LimitByteSize, t, "result.appender[0].LimitByteSize")
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
 	}
 }
 
@@ -560,14 +556,14 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals("_", result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals("_", result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
 	}
 }
 
@@ -611,14 +607,14 @@ func TestGetConfigPackageDelimiterFullQualifiedPackageName(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameterUpperName, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals("_", result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameterUpperName, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals("_", result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
 	}
 }
 
@@ -663,17 +659,17 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals("time: %s severity: %s message: %s", result.Formatter[1].Template, t, "result.formatter[1].template")
-		testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[1].CorrelationIdTemplate, t, "result.formatter[1].correlationIdTemplate")
-		testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.Formatter[1].CustomTemplate, t, "result.formatter[1].customTemplate")
-		testutil.AssertEquals(time.RFC1123Z, result.Formatter[1].TimeLayout, t, "result.formatter[1].timeLayout")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals("time: %s severity: %s message: %s", result.Formatter[1].(TemplateFormatterConfig).Template, t, "result.formatter[1].template")
+		testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[1].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[1].correlationIdTemplate")
+		testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.Formatter[1].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[1].customTemplate")
+		testutil.AssertEquals(time.RFC1123Z, result.Formatter[1].TimeLayout(), t, "result.formatter[1].timeLayout")
 	}
 }
 
@@ -721,20 +717,20 @@ func TestGetConfigPackageJson(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals("timing", result.Formatter[1].TimeKey, t, "result.formatter[1].timeKey")
-		testutil.AssertEquals("level", result.Formatter[1].SeverityKey, t, "result.formatter[1].severityKey")
-		testutil.AssertEquals("cor", result.Formatter[1].CorrelationKey, t, "result.formatter[1].correlationKey")
-		testutil.AssertEquals("msg", result.Formatter[1].MessageKey, t, "result.formatter[1].messageKey")
-		testutil.AssertEquals("customValues", result.Formatter[1].CustomValuesKey, t, "result.formatter[1].customValuesKey")
-		testutil.AssertTrue(result.Formatter[1].CustomValuesAsSubElement, t, "result.formatter[1].customValuesAsSubElement")
-		testutil.AssertEquals(time.RFC1123Z, result.Formatter[1].TimeLayout, t, "result.formatter[1].timeLayout")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals("timing", result.Formatter[1].(JsonFormatterConfig).TimeKey, t, "result.formatter[1].timeKey")
+		testutil.AssertEquals("level", result.Formatter[1].(JsonFormatterConfig).SeverityKey, t, "result.formatter[1].severityKey")
+		testutil.AssertEquals("cor", result.Formatter[1].(JsonFormatterConfig).CorrelationKey, t, "result.formatter[1].correlationKey")
+		testutil.AssertEquals("msg", result.Formatter[1].(JsonFormatterConfig).MessageKey, t, "result.formatter[1].messageKey")
+		testutil.AssertEquals("customValues", result.Formatter[1].(JsonFormatterConfig).CustomValuesKey, t, "result.formatter[1].customValuesKey")
+		testutil.AssertTrue(result.Formatter[1].(JsonFormatterConfig).CustomValuesAsSubElement, t, "result.formatter[1].customValuesAsSubElement")
+		testutil.AssertEquals(time.RFC1123Z, result.Formatter[1].TimeLayout(), t, "result.formatter[1].timeLayout")
 	}
 }
 
@@ -773,14 +769,14 @@ func TestGetConfigPackagePartialOnlyLevel(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
 	}
 }
 
@@ -819,14 +815,14 @@ func TestGetConfigPackagePartialOnlyAppender(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
 	}
 }
 
@@ -865,14 +861,14 @@ func TestGetConfigPackagePartialOnlyFormatter(t *testing.T) {
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
 	}
 }
 
@@ -912,19 +908,18 @@ func TestGetConfigPackagePartialOnlyFormatterWithParameterDelimiter(t *testing.T
 		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[1].AppenderType, t, "result.appender[1].appenderType")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals("_", result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals("_", result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
 	}
 }
 
 func TestGetConfigPackageFileAppender(t *testing.T) {
-	appender.SkipFileCreationForTest = true
 	packageName := "testPackage"
 	logFilePath := "pathToLogFile"
 	packageParameter := strings.ToUpper(packageName)
@@ -963,20 +958,19 @@ func TestGetConfigPackageFileAppender(t *testing.T) {
 		testutil.AssertEquals("", result.Appender[1].CronExpression, t, "result.appender[1].pathToLogFile")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
 	}
 }
 
 func TestGetConfigFromFileButAllCommentOut(t *testing.T) {
 	logFilePath := "pathToLogFile"
-	appender.SkipFileCreationForTest = true
 
 	propertiesFile := propertiesFileInitConfigTest(t)
 	propertiesFileAddValueConfigTest(propertiesFile, "#"+DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
@@ -1011,14 +1005,13 @@ func TestGetConfigFromFileButAllCommentOut(t *testing.T) {
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType, t, "result.appender[0].appenderType")
 
 	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
-	testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-	testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
 }
 
 func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
-	appender.SkipFileCreationForTest = true
 	packageName := "testPackage"
 	logFilePath := "pathToLogFile"
 	cronExpression := "* * * * *"
@@ -1062,13 +1055,13 @@ func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 		testutil.AssertEquals(limitByteSize, result.Appender[1].LimitByteSize, t, "result.appender[1].LimitByteSize")
 
 		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
-		testutil.AssertTrue(result.Formatter[0].IsDefault, t, "result.formatter[0].isDefault")
-		testutil.AssertEquals("", result.Formatter[0].PackageParameter, t, "result.formatter[0].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType, t, "result.formatter[0].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].Delimiter, t, "result.formatter[0].delimiter")
-		testutil.AssertFalse(result.Formatter[1].IsDefault, t, "result.formatter[1].isDefault")
-		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter, t, "result.formatter[1].PackageParameter")
-		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType, t, "result.formatter[1].formatterType")
-		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
 	}
 }

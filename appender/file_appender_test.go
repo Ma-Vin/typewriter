@@ -10,12 +10,35 @@ import (
 
 	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/format"
 )
 
 const testCronExpression = "* * * * *"
 
-var testJsonFormatter = format.CreateJsonFormatter("time", "severity", "message", "correlation", "custom", time.RFC3339, "caller", "file", "line", false)
+// Creates a new formatter with given key names and time layout
+func createJsonFormatterForTest(timeKey string, severityKey string, messageKey string, correlationKey string,
+	customValuesKey string, timeLayout string,
+	callerFunctionKey string, callerFileKey string, callerFileLineKey string,
+	customValuesAsSubElement bool) format.Formatter {
+
+	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout}
+	config := config.JsonFormatterConfig{
+		Common:                   &commonConfig,
+		TimeKey:                  timeKey,
+		SeverityKey:              severityKey,
+		MessageKey:               messageKey,
+		CorrelationKey:           correlationKey,
+		CustomValuesKey:          customValuesKey,
+		CallerFunctionKey:        callerFunctionKey,
+		CallerFileKey:            callerFileKey,
+		CallerFileLineKey:        callerFileLineKey,
+		CustomValuesAsSubElement: customValuesAsSubElement,
+	}
+	return format.CreateJsonFormatterFromConfig(config)
+}
+
+var testJsonFormatter = createJsonFormatterForTest("time", "severity", "message", "correlation", "custom", time.RFC3339, "caller", "file", "line", false)
 var jsonFormatTestTime = time.Date(2024, time.November, 18, 16, 00, 0, 0, time.UTC)
 var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/ma-vin/typewriter/common"
-	"github.com/ma-vin/typewriter/format"
 )
 
 // root config element
@@ -40,32 +39,6 @@ type AppenderConfig struct {
 	PathToLogFile    string
 	CronExpression   string
 	LimitByteSize    string
-}
-
-// config of a formatter
-type FormatterConfig struct {
-	Id                          string
-	FormatterType               string
-	IsDefault                   bool
-	PackageParameter            string
-	Delimiter                   string
-	Template                    string
-	CorrelationIdTemplate       string
-	CustomTemplate              string
-	CallerTemplate              string
-	CallerCorrelationIdTemplate string
-	CallerCustomTemplate        string
-	TrimSeverityText            bool
-	TimeKey                     string
-	SeverityKey                 string
-	MessageKey                  string
-	CorrelationKey              string
-	CustomValuesKey             string
-	CustomValuesAsSubElement    bool
-	CallerFunctionKey           string
-	CallerFileKey               string
-	CallerFileLineKey           string
-	TimeLayout                  string
 }
 
 const (
@@ -125,10 +98,10 @@ const (
 	APPENDER_FILE   = "FILE"
 
 	DEFAULT_DELIMITER                   = " - "
-	DEFAULT_TEMPLATE                    = format.DEFAULT_TEMPLATE
+	DEFAULT_TEMPLATE                    = "[%s] %s: %s"
 	DEFAULT_CORRELATION_TEMPLATE        = "[%s] %s %s: %s"
 	DEFAULT_CUSTOM_TEMPLATE             = DEFAULT_TEMPLATE
-	DEFAULT_CALLER_TEMPLATE             = format.DEFAULT_CALLER_TEMPLATE
+	DEFAULT_CALLER_TEMPLATE             = "[%s] %s %s(%s.%d): %s"
 	DEFAULT_CALLER_CORRELATION_TEMPLATE = "[%s] %s %s %s(%s.%d): %s"
 	DEFAULT_CALLER_CUSTOM_TEMPLATE      = DEFAULT_CALLER_TEMPLATE
 	DEFAULT_TRIM_SEVERITY_TEXT          = "false"
@@ -209,14 +182,6 @@ func GetConfig() *Config {
 // Resets initialization status
 func ClearConfig() {
 	configInitialized = false
-}
-
-// Checks whether two formatter config equals without regarding pointers to formatter or package
-func FormatterConfigEquals(fc1 *FormatterConfig, fc2 *FormatterConfig) bool {
-	return fc1.FormatterType == fc2.FormatterType &&
-		fc1.Delimiter == fc2.Delimiter &&
-		fc1.Template == fc2.Template && fc1.CorrelationIdTemplate == fc2.CorrelationIdTemplate && fc1.CustomTemplate == fc2.CustomTemplate &&
-		fc1.TimeLayout == fc2.TimeLayout
 }
 
 // Checks whether two appender config equals without regarding pointers to appender or package
@@ -393,22 +358,25 @@ func setFileAppenderConfig(relevantKeyValues *map[string]string, appenderConfig 
 
 // creates all relevant formatter config elements derived from relevant properties
 func createFormatterConfig(relevantKeyValues *map[string]string) {
-	config.Formatter = append(config.Formatter, FormatterConfig{IsDefault: true, PackageParameter: ""})
-	formatterIndex := len(config.Formatter) - 1
-	configureFormatter(relevantKeyValues, &config.Formatter[formatterIndex], "")
+	createAndAppendFormatterConfig(relevantKeyValues, "")
 
 	for key := range *relevantKeyValues {
 		packageOfFormatter, found := strings.CutPrefix(key, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
 		if found {
-			config.Formatter = append(config.Formatter, FormatterConfig{IsDefault: false, PackageParameter: packageOfFormatter})
-			formatterIndex++
-			configureFormatter(relevantKeyValues, &config.Formatter[formatterIndex], packageOfFormatter)
+			createAndAppendFormatterConfig(relevantKeyValues, packageOfFormatter)
 		}
 	}
 }
 
-// configures a given formatter config element from properties concerning a given package name
-func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *FormatterConfig, packageParameter string) {
+func createAndAppendFormatterConfig(relevantKeyValues *map[string]string, packageOfFormatter string) {
+	formatterConfig := createFormatterConfigEntry(relevantKeyValues, packageOfFormatter)
+	if formatterConfig != nil {
+		config.Formatter = append(config.Formatter, *formatterConfig)
+	}
+}
+
+// creates and configures a formatter config element from properties concerning a given package name
+func createFormatterConfigEntry(relevantKeyValues *map[string]string, packageParameter string) *FormatterConfig {
 	var formatterKey string
 	var formatterParameterKey string
 	if len(packageParameter) > 0 {
@@ -419,37 +387,50 @@ func configureFormatter(relevantKeyValues *map[string]string, formatterConfig *F
 		formatterParameterKey = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
 	}
 
-	formatterName := getValueFromMapOrDefault(relevantKeyValues, formatterKey, FORMATTER_DELIMITER)
-	switch formatterName {
-	case FORMATTER_DELIMITER:
-		formatterConfig.FormatterType = formatterName
-		formatterConfig.Delimiter = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+DELIMITER_PARAMETER, DEFAULT_DELIMITER)
-		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT)
-	case FORMATTER_TEMPLATE:
-		formatterConfig.FormatterType = formatterName
-		formatterConfig.Template = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE)
-		formatterConfig.CorrelationIdTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE)
-		formatterConfig.CustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE)
-		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT)
-		formatterConfig.TrimSeverityText = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY_TEXT)) == "true"
-		formatterConfig.CallerTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE)
-		formatterConfig.CallerCorrelationIdTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE)
-		formatterConfig.CallerCustomTemplate = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE)
-	case FORMATTER_JSON:
-		formatterConfig.FormatterType = formatterName
-		formatterConfig.TimeKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_TIME_KEY_PARAMETER, DEFAULT_TIME_KEY)
-		formatterConfig.SeverityKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_SEVERITY_KEY_PARAMETER, DEFAULT_SEVERITY_KEY)
-		formatterConfig.CorrelationKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CORRELATION_KEY_PARAMETER, DEFAULT_CORRELATION_KEY)
-		formatterConfig.MessageKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_MESSAGE_KEY_PARAMETER, DEFAULT_MESSAGE_KEY)
-		formatterConfig.CustomValuesKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_KEY_PARAMETER, DEFAULT_CUSTOM_VALUES_KEY)
-		formatterConfig.CustomValuesAsSubElement = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true"
-		formatterConfig.TimeLayout = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT)
-		formatterConfig.CallerFunctionKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FUNCTION_KEY_PARAMETER, DEFAULT_CALLER_FUNCTION_KEY)
-		formatterConfig.CallerFileKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FILE_KEY_PARAMETER, DEFAULT_CALLER_FILE_KEY)
-		formatterConfig.CallerFileLineKey = getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_LINE_KEY_PARAMETER, DEFAULT_CALLER_FILE_LINE_KEY)
-	default:
-		printHint(formatterName, formatterKey)
+	var result FormatterConfig
+	commonFormatterConfig := CommonFormatterConfig{
+		FormatterType:    getValueFromMapOrDefault(relevantKeyValues, formatterKey, FORMATTER_DELIMITER),
+		IsDefault:        len(packageParameter) == 0,
+		PackageParameter: packageParameter,
+		TimeLayout:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT),
 	}
+
+	switch commonFormatterConfig.FormatterType {
+	case FORMATTER_DELIMITER:
+		result = DelimiterFormatterConfig{
+			Common:    &commonFormatterConfig,
+			Delimiter: getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+DELIMITER_PARAMETER, DEFAULT_DELIMITER),
+		}
+	case FORMATTER_TEMPLATE:
+		result = TemplateFormatterConfig{
+			Common:                      &commonFormatterConfig,
+			Template:                    getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE),
+			CorrelationIdTemplate:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE),
+			CustomTemplate:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE),
+			TrimSeverityText:            strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY_TEXT)) == "true",
+			CallerTemplate:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE),
+			CallerCorrelationIdTemplate: getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE),
+			CallerCustomTemplate:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE),
+		}
+	case FORMATTER_JSON:
+		result = JsonFormatterConfig{
+			Common:                   &commonFormatterConfig,
+			TimeKey:                  getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_TIME_KEY_PARAMETER, DEFAULT_TIME_KEY),
+			SeverityKey:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_SEVERITY_KEY_PARAMETER, DEFAULT_SEVERITY_KEY),
+			CorrelationKey:           getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CORRELATION_KEY_PARAMETER, DEFAULT_CORRELATION_KEY),
+			MessageKey:               getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_MESSAGE_KEY_PARAMETER, DEFAULT_MESSAGE_KEY),
+			CustomValuesKey:          getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_KEY_PARAMETER, DEFAULT_CUSTOM_VALUES_KEY),
+			CustomValuesAsSubElement: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true",
+			CallerFunctionKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FUNCTION_KEY_PARAMETER, DEFAULT_CALLER_FUNCTION_KEY),
+			CallerFileKey:            getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FILE_KEY_PARAMETER, DEFAULT_CALLER_FILE_KEY),
+			CallerFileLineKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_LINE_KEY_PARAMETER, DEFAULT_CALLER_FILE_LINE_KEY),
+		}
+	default:
+		printHint(commonFormatterConfig.FormatterType, formatterKey)
+		return nil
+	}
+
+	return &result
 }
 
 // creates all relevant logger config elements derived from relevant properties
@@ -524,13 +505,13 @@ func completeDefaults() {
 	found := false
 
 	for _, fc := range config.Formatter {
-		if fc.IsDefault {
+		if fc.IsDefault() {
 			found = true
 			break
 		}
 	}
 	if !found {
-		config.Formatter = append(config.Formatter, FormatterConfig{FormatterType: FORMATTER_DELIMITER, IsDefault: true, PackageParameter: "", Delimiter: DEFAULT_DELIMITER, TimeLayout: DEFAULT_TIME_LAYOUT})
+		config.Formatter = append(config.Formatter, DelimiterFormatterConfig{Common: &CommonFormatterConfig{FormatterType: FORMATTER_DELIMITER, IsDefault: true, PackageParameter: "", TimeLayout: DEFAULT_TIME_LAYOUT}, Delimiter: DEFAULT_DELIMITER})
 	}
 
 	for _, ac := range config.Appender {
@@ -567,10 +548,10 @@ func completeAppenderConfigPackageForward() {
 // creates appender configs if there exists a formatter package variant
 func completeAppenderConfigPackageBackward() {
 	for _, fc := range config.Formatter {
-		if fc.IsDefault {
+		if fc.IsDefault() {
 			continue
 		}
-		createAppenderConfigIfNecessary(&fc.PackageParameter)
+		createAppenderConfigIfNecessary(&fc.GetCommon().PackageParameter)
 	}
 }
 
@@ -610,17 +591,17 @@ func completeFormatterConfigPackageForward() {
 func createFormatterConfigIfNecessary(packageParameter *string) {
 	found := false
 	for _, fc := range config.Formatter {
-		if fc.PackageParameter == *packageParameter {
+		if fc.PackageParameter() == *packageParameter {
 			found = true
 			break
 		}
 	}
 	if !found {
 		for _, fc := range config.Formatter {
-			if fc.IsDefault {
-				fcp := fc
-				fcp.IsDefault = false
-				fcp.PackageParameter = *packageParameter
+			if fc.IsDefault() {
+				fcp := fc.CreateFullCopy()
+				fcp.GetCommon().IsDefault = false
+				fcp.GetCommon().PackageParameter = *packageParameter
 				config.Formatter = append(config.Formatter, fcp)
 				break
 			}
@@ -664,7 +645,7 @@ func createLoggerConfigIfNecessary(relevantKeyValues *map[string]string, package
 // Sorts the config put the default configs at first index. Because of this a potential cronRenamer of the default appender is used for all equal named files
 func sortConfig() {
 	sort.Slice(config.Formatter, func(i, j int) bool {
-		return (config.Formatter[i].IsDefault && !config.Formatter[j].IsDefault) || (config.Formatter[i].IsDefault == config.Formatter[j].IsDefault && config.Formatter[i].PackageParameter < config.Formatter[j].PackageParameter)
+		return config.Formatter[i].GetCommon().LessCompareForSort(config.Formatter[j].GetCommon())
 	})
 	sort.Slice(config.Appender, func(i, j int) bool {
 		return (config.Appender[i].IsDefault && !config.Appender[j].IsDefault) || (config.Appender[i].IsDefault == config.Appender[j].IsDefault && config.Appender[i].PackageParameter < config.Appender[j].PackageParameter)
@@ -682,13 +663,13 @@ func determineIds() {
 
 func determineFormatterIds() {
 	for i := 0; i < len(config.Formatter); i++ {
-		if config.Formatter[i].Id != "" {
+		if config.Formatter[i].Id() != "" {
 			continue
 		}
-		config.Formatter[i].Id = fmt.Sprint("formatter", i)
+		config.Formatter[i].GetCommon().Id = fmt.Sprint("formatter", i)
 		for j := i + 1; j < len(config.Formatter); j++ {
-			if FormatterConfigEquals(&config.Formatter[i], &config.Formatter[j]) {
-				config.Formatter[j].Id = config.Formatter[i].Id
+			if config.Formatter[i].Equals(&config.Formatter[j]) {
+				config.Formatter[j].GetCommon().Id = config.Formatter[i].Id()
 			}
 		}
 	}

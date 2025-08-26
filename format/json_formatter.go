@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 )
 
 // Formats the log entries as JSON
@@ -22,23 +23,19 @@ type JsonFormatter struct {
 	customValuesAsSubElement bool
 }
 
-// Creates a new formatter with given key names and time layout
-func CreateJsonFormatter(timeKey string, severityKey string, messageKey string, correlationKey string,
-	customValuesKey string, timeLayout string,
-	callerFunctionKey string, callerFileKey string, callerFileLineKey string,
-	customValuesAsSubElement bool) Formatter {
-
+// Creates a new formatter from a given config
+func CreateJsonFormatterFromConfig(config config.JsonFormatterConfig) Formatter {
 	return JsonFormatter{
-		timeKey:                  timeKey,
-		severityKey:              severityKey,
-		messageKey:               messageKey,
-		correlationKey:           correlationKey,
-		customValuesKey:          customValuesKey,
-		timeLayout:               timeLayout,
-		callerFunctionKey:        callerFunctionKey,
-		callerFileKey:            callerFileKey,
-		callerFileLineKey:        callerFileLineKey,
-		customValuesAsSubElement: customValuesAsSubElement,
+		timeKey:                  config.TimeKey,
+		severityKey:              config.SeverityKey,
+		messageKey:               config.MessageKey,
+		correlationKey:           config.CorrelationKey,
+		customValuesKey:          config.CustomValuesKey,
+		timeLayout:               config.TimeLayout(),
+		callerFunctionKey:        config.CallerFunctionKey,
+		callerFileKey:            config.CallerFileKey,
+		callerFileLineKey:        config.CallerFileLineKey,
+		customValuesAsSubElement: config.CustomValuesAsSubElement,
 	}
 }
 

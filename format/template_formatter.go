@@ -5,10 +5,11 @@ import (
 	"sort"
 
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 )
 
-const DEFAULT_TEMPLATE = "[%s] %s: %s"
-const DEFAULT_CALLER_TEMPLATE="[%s] %s %s(%s.%d): %s"
+const DEFAULT_TEMPLATE = config.DEFAULT_TEMPLATE
+const DEFAULT_CALLER_TEMPLATE = config.DEFAULT_CALLER_TEMPLATE
 
 // Formatter which uses given different templates for Format, FormatWithCorrelation and FormatCustom
 // The templates will be used in combination with [fmt.Sprintf]
@@ -33,19 +34,17 @@ type TemplateFormatter struct {
 	trimSeverityText            bool
 }
 
-// Creates a new formatter with given templates and time layout
-func CreateTemplateFormatter(template string, correlationIdTemplate string, customTemplate string,
-	callerTemplate string, callerCorrelationIdTemplate string, callerCustomTemplate string,
-	timeLayout string, trimSeverityText bool) Formatter {
+// Creates a new formatter from a given config
+func CreateTemplateFormatterFromConfig(config config.TemplateFormatterConfig) Formatter {
 	return TemplateFormatter{
-		template:                    template,
-		callerTemplate:              callerTemplate,
-		correlationIdTemplate:       correlationIdTemplate,
-		callerCorrelationIdTemplate: callerCorrelationIdTemplate,
-		customTemplate:              customTemplate,
-		callerCustomTemplate:        callerCustomTemplate,
-		timeLayout:                  timeLayout,
-		trimSeverityText:            trimSeverityText,
+		template:                    config.Template,
+		callerTemplate:              config.CallerTemplate,
+		correlationIdTemplate:       config.CorrelationIdTemplate,
+		callerCorrelationIdTemplate: config.CallerCorrelationIdTemplate,
+		customTemplate:              config.CustomTemplate,
+		callerCustomTemplate:        config.CallerCustomTemplate,
+		timeLayout:                  config.TimeLayout(),
+		trimSeverityText:            config.TrimSeverityText,
 	}
 }
 

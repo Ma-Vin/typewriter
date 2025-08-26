@@ -7,9 +7,16 @@ import (
 
 	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 )
 
-var delimiterFormatter Formatter = CreateDelimiterFormatter(" - ", time.RFC3339)
+func createDelimiterFormatterForTest() Formatter {
+	commonConfig := config.CommonFormatterConfig{TimeLayout: time.RFC3339}
+	config := config.DelimiterFormatterConfig{Common: &commonConfig, Delimiter: " - "}
+	return CreateDelimiterFormatterFromConfig(config)
+}
+
+var delimiterFormatter Formatter = createDelimiterFormatterForTest()
 
 var delimiterFormatTestTime = time.Date(2024, time.October, 1, 13, 20, 0, 0, time.UTC)
 var delimiterFormatTestTimeText = delimiterFormatTestTime.Format(time.RFC3339)
