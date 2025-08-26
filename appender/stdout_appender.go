@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/format"
 )
 
@@ -16,7 +17,7 @@ type StandardOutputAppender struct {
 }
 
 // Creates a standard output appender with a given formatter
-func CreateStandardOutputAppender(formatter *format.Formatter) Appender {
+func CreateStandardOutputAppenderFromConfig(config config.StdOutAppenderConfig ,formatter *format.Formatter) Appender {
 	return StandardOutputAppender{formatter, os.Stdout}
 }
 

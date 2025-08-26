@@ -86,12 +86,12 @@ func createAppenders(conf *config.Config, appenderConfigMapping *map[string]*app
 	appender.CleanFileDeductions()
 	for _, ac1 := range conf.Appender {
 		alreadyCreated := false
-		ac1FormatterId := (*getFormatterConfigForPackage(&ac1.PackageParameter, &conf.Formatter)).Id()
+		ac1FormatterId := (*getFormatterConfigForPackage(&ac1.GetCommon().PackageParameter, &conf.Formatter)).Id()
 
 		for _, ac2 := range conf.Appender {
-			if ac1.Id == ac2.Id && ac1FormatterId == (*getFormatterConfigForPackage(&ac2.PackageParameter, &conf.Formatter)).Id() {
+			if ac1.Id() == ac2.Id() && ac1FormatterId == (*getFormatterConfigForPackage(&ac2.GetCommon().PackageParameter, &conf.Formatter)).Id() {
 
-				_, alreadyCreated = (*appenderConfigMapping)[ac1.Id+ac1FormatterId]
+				_, alreadyCreated = (*appenderConfigMapping)[ac1.Id()+ac1FormatterId]
 				break
 			}
 		}
@@ -101,13 +101,13 @@ func createAppenders(conf *config.Config, appenderConfigMapping *map[string]*app
 		}
 
 		formatter := (*formatterConfigMapping)[ac1FormatterId]
-		switch ac1.AppenderType {
+		switch ac1.AppenderType() {
 		case config.APPENDER_STDOUT:
-			appendAppender(appender.CreateStandardOutputAppender(formatter))
-			setLastAppender(ac1.Id+ac1FormatterId, appenderConfigMapping)
+			appendAppender(appender.CreateStandardOutputAppenderFromConfig(ac1.(config.StdOutAppenderConfig), formatter))
+			setLastAppender(ac1.Id()+ac1FormatterId, appenderConfigMapping)
 		case config.APPENDER_FILE:
-			appendAppender(appender.CreateFileAppender(ac1.PathToLogFile, formatter, ac1.CronExpression, ac1.LimitByteSize))
-			setLastAppender(ac1.Id+ac1FormatterId, appenderConfigMapping)
+			appendAppender(appender.CreateFileAppenderFromConfig(ac1.(config.FileAppenderConfig), formatter))
+			setLastAppender(ac1.Id()+ac1FormatterId, appenderConfigMapping)
 		default:
 			// not relevant: handled at config load
 		}
@@ -127,12 +127,12 @@ func createCommonLoggers(conf *config.Config, loggerConfigMapping *map[string]*C
 	for _, lc1 := range (*conf).Logger {
 		alreadyCreated := false
 		lc1FormatterId := (*getFormatterConfigForPackage(&lc1.PackageParameter, &conf.Formatter)).Id()
-		lc1AppenderId := getAppenderConfigForPackage(&lc1.PackageParameter, &conf.Appender).Id
+		lc1AppenderId := (*getAppenderConfigForPackage(&lc1.PackageParameter, &conf.Appender)).Id()
 
 		for _, lc2 := range (*conf).Logger {
 			if lc1.Id == lc2.Id &&
-				lc1FormatterId == getAppenderConfigForPackage(&lc2.PackageParameter, &conf.Appender).Id &&
-				lc1AppenderId == (*getFormatterConfigForPackage(&lc2.PackageParameter, &conf.Formatter)).Id() {
+				lc1FormatterId == (*getFormatterConfigForPackage(&lc2.PackageParameter, &conf.Formatter)).Id() &&
+				lc1AppenderId == (*getAppenderConfigForPackage(&lc2.PackageParameter, &conf.Appender)).Id() {
 
 				_, alreadyCreated = (*loggerConfigMapping)[lc1.Id+lc1AppenderId+lc1FormatterId]
 				break
@@ -159,7 +159,7 @@ func createMainLogger(conf *config.Config, loggerConfigMapping *map[string]*Comm
 
 	for _, lc := range conf.Logger {
 		lc1FormatterId := (*getFormatterConfigForPackage(&lc.PackageParameter, &conf.Formatter)).Id()
-		lc1AppenderId := getAppenderConfigForPackage(&lc.PackageParameter, &conf.Appender).Id
+		lc1AppenderId := (*getAppenderConfigForPackage(&lc.PackageParameter, &conf.Appender)).Id()
 		if lc.IsDefault {
 			mLogger.commonLogger = (*loggerConfigMapping)[lc.Id+lc1AppenderId+lc1FormatterId]
 		} else {
@@ -183,7 +183,7 @@ func getFormatterConfigForPackage(PackageParameter *string, formatterConfig *[]c
 // returns a pointer to the appender config for a given package
 func getAppenderConfigForPackage(PackageParameter *string, appenderConfig *[]config.AppenderConfig) *config.AppenderConfig {
 	for i, ac := range *appenderConfig {
-		if ac.PackageParameter == *PackageParameter {
+		if ac.PackageParameter() == *PackageParameter {
 			return &(*appenderConfig)[i]
 		}
 	}

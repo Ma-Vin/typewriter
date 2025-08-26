@@ -19,12 +19,18 @@ func createDelimiterFormatterForTest() format.Formatter {
 	return format.CreateDelimiterFormatterFromConfig(config)
 }
 
+func CreateStandardOutputAppenderForTest(formatter *format.Formatter) Appender {
+	commonConfig := config.CommonAppenderConfig{}
+	config := config.StdOutAppenderConfig{Common: &commonConfig}
+	return CreateStandardOutputAppenderFromConfig(config, formatter)
+}
+
 var testDelimiterFormatter = createDelimiterFormatterForTest()
 var delimiterFormatterTestTime = time.Date(2024, time.November, 30, 19, 0, 0, 0, time.UTC)
 var delimiterFormatterTestTimeText = delimiterFormatterTestTime.Format(time.RFC3339)
 
 func TestDefaultIsStdOut(t *testing.T) {
-	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
+	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)
 
 	testutil.AssertEquals(os.Stdout, appender.writer, t, "default output")
 }
@@ -33,7 +39,7 @@ func TestWrite(t *testing.T) {
 	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
 
 	buf := new(bytes.Buffer)
-	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
+	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
 	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
@@ -47,7 +53,7 @@ func TestWriteWithCorrelation(t *testing.T) {
 	correlation := "someCorrelationId"
 
 	buf := new(bytes.Buffer)
-	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
+	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
 	logValuesToFormat := common.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correlation, "Testmessage")
@@ -60,7 +66,7 @@ func TestWriteCustom(t *testing.T) {
 	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
 
 	buf := new(bytes.Buffer)
-	appender := CreateStandardOutputAppender(&testDelimiterFormatter).(StandardOutputAppender)
+	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)
 	appender.writer = buf
 
 	customProperties := map[string]any{

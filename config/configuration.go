@@ -30,17 +30,6 @@ type LoggerConfig struct {
 	IsCallerToSet    bool
 }
 
-// config of an appender
-type AppenderConfig struct {
-	Id               string
-	AppenderType     string
-	IsDefault        bool
-	PackageParameter string
-	PathToLogFile    string
-	CronExpression   string
-	LimitByteSize    string
-}
-
 const (
 	DEFAULT_LOG_LEVEL_PROPERTY_NAME                  = "TYPEWRITER_LOG_LEVEL"
 	DEFAULT_LOG_APPENDER_PROPERTY_NAME               = "TYPEWRITER_LOG_APPENDER_TYPE"
@@ -184,11 +173,6 @@ func ClearConfig() {
 	configInitialized = false
 }
 
-// Checks whether two appender config equals without regarding pointers to appender or package
-func AppenderConfigEquals(ac1 *AppenderConfig, ac2 *AppenderConfig) bool {
-	return ac1.AppenderType == ac2.AppenderType && (ac1.AppenderType != APPENDER_FILE || ac1.PathToLogFile == ac2.PathToLogFile)
-}
-
 // Checks whether two logger config equals without regarding pointers to logger or package
 func LoggerConfigEquals(lc1 *LoggerConfig, lc2 *LoggerConfig) bool {
 	return lc1.Severity == lc2.Severity
@@ -289,51 +273,63 @@ func createMapFromSliceWithKeyValues(sliceToConvert []string) map[string]string 
 
 // creates all relevant appender config elements derived from relevant properties
 func createAppenderConfig(relevantKeyValues *map[string]string) {
-	config.Appender = append(config.Appender, AppenderConfig{IsDefault: true, PackageParameter: ""})
-	appenderIndex := len(config.Appender) - 1
-	configureAppender(relevantKeyValues, &config.Appender[appenderIndex], nil)
-
+	createAndAppendAppenderConfig(relevantKeyValues, "")
 	for key := range *relevantKeyValues {
 		packageOfAppender, found := strings.CutPrefix(key, PACKAGE_LOG_APPENDER_PROPERTY_NAME)
 		if found {
-			config.Appender = append(config.Appender, AppenderConfig{IsDefault: false, PackageParameter: packageOfAppender})
-			appenderIndex++
-			configureAppender(relevantKeyValues, &config.Appender[appenderIndex], &packageOfAppender)
+			createAndAppendAppenderConfig(relevantKeyValues, packageOfAppender)
 		}
 	}
 }
 
+func createAndAppendAppenderConfig(relevantKeyValues *map[string]string, packageOfFormatter string) {
+	appenderConfig := createAppenderConfigEntry(relevantKeyValues, packageOfFormatter)
+	if appenderConfig != nil {
+		config.Appender = append(config.Appender, *appenderConfig)
+	}
+}
+
 // configures a given appender config element from properties concerning a given package name
-func configureAppender(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageParameter *string) {
+func createAppenderConfigEntry(relevantKeyValues *map[string]string, packageParameter string) *AppenderConfig {
 	var appenderKey string
-	if packageParameter != nil && len(*packageParameter) > 0 {
-		appenderKey = PACKAGE_LOG_APPENDER_PROPERTY_NAME + *packageParameter
+	if len(packageParameter) > 0 {
+		appenderKey = PACKAGE_LOG_APPENDER_PROPERTY_NAME + packageParameter
 	} else {
 		appenderKey = DEFAULT_LOG_APPENDER_PROPERTY_NAME
 	}
 
-	appenderName := getValueFromMapOrDefault(relevantKeyValues, appenderKey, APPENDER_STDOUT)
-	appenderConfig.AppenderType = appenderName
-	switch appenderName {
-	case APPENDER_STDOUT:
-		// Nothing to do
-	case APPENDER_FILE:
-		setFileAppenderConfig(relevantKeyValues, appenderConfig, packageParameter)
-	default:
-		appenderConfig.AppenderType = ""
-		printHint(appenderName, appenderKey)
+	var result AppenderConfig
+	commonAppenderConfig := CommonAppenderConfig{
+		AppenderType:     getValueFromMapOrDefault(relevantKeyValues, appenderKey, APPENDER_STDOUT),
+		IsDefault:        len(packageParameter) == 0,
+		PackageParameter: packageParameter,
 	}
+
+	switch commonAppenderConfig.AppenderType {
+	case APPENDER_STDOUT:
+		result = StdOutAppenderConfig{Common: &commonAppenderConfig}
+	case APPENDER_FILE:
+		if fileAppenderConfig := createFileAppenderConfigEntry(relevantKeyValues, packageParameter, &commonAppenderConfig); fileAppenderConfig != nil {
+			result = *fileAppenderConfig
+		} else {
+			return nil
+		}
+	default:
+		printHint(commonAppenderConfig.AppenderType, appenderKey)
+		return nil
+	}
+	return &result
 }
 
-func setFileAppenderConfig(relevantKeyValues *map[string]string, appenderConfig *AppenderConfig, packageParameter *string) {
+func createFileAppenderConfigEntry(relevantKeyValues *map[string]string, packageParameter string, commonAppenderConfig *CommonAppenderConfig) *FileAppenderConfig {
 	var fileParameterKey string
 	var cronParameterKey string
 	var sizeParameterKey string
 
-	if packageParameter != nil && len(*packageParameter) > 0 {
-		fileParameterKey = PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME + *packageParameter
-		cronParameterKey = PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME + *packageParameter
-		sizeParameterKey = PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME + *packageParameter
+	if len(packageParameter) > 0 {
+		fileParameterKey = PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME + packageParameter
+		cronParameterKey = PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME + packageParameter
+		sizeParameterKey = PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME + packageParameter
 	} else {
 		fileParameterKey = DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME
 		cronParameterKey = DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME
@@ -341,19 +337,17 @@ func setFileAppenderConfig(relevantKeyValues *map[string]string, appenderConfig 
 	}
 
 	if fileValue, fileFound := (*relevantKeyValues)[fileParameterKey]; fileFound {
-		appenderConfig.PathToLogFile = fileValue
-		if cronValue, cronFound := (*relevantKeyValues)[cronParameterKey]; cronFound {
-			appenderConfig.CronExpression = cronValue
-		}
-		if sizeValue, sizeFound := (*relevantKeyValues)[sizeParameterKey]; sizeFound {
-			appenderConfig.LimitByteSize = sizeValue
+		return &FileAppenderConfig{
+			Common:         commonAppenderConfig,
+			PathToLogFile:  fileValue,
+			CronExpression: getValueFromMapOrDefault(relevantKeyValues, cronParameterKey, ""),
+			LimitByteSize:  getValueFromMapOrDefault(relevantKeyValues, sizeParameterKey, ""),
 		}
 	} else {
 		fmt.Printf("Cannot use file appender, because there is no value at %s. Use %s appender instead", fileParameterKey, APPENDER_STDOUT)
 		fmt.Println()
-		appenderConfig.AppenderType = APPENDER_STDOUT
+		return nil
 	}
-
 }
 
 // creates all relevant formatter config elements derived from relevant properties
@@ -514,16 +508,18 @@ func completeDefaults() {
 		config.Formatter = append(config.Formatter, DelimiterFormatterConfig{Common: &CommonFormatterConfig{FormatterType: FORMATTER_DELIMITER, IsDefault: true, PackageParameter: "", TimeLayout: DEFAULT_TIME_LAYOUT}, Delimiter: DEFAULT_DELIMITER})
 	}
 
+	found = false
 	for _, ac := range config.Appender {
-		if ac.IsDefault {
+		if ac.IsDefault() {
 			found = true
 			break
 		}
 	}
 	if !found {
-		config.Appender = append(config.Appender, AppenderConfig{AppenderType: APPENDER_STDOUT, IsDefault: true, PackageParameter: ""})
+		config.Appender = append(config.Appender, StdOutAppenderConfig{Common: &CommonAppenderConfig{AppenderType: APPENDER_STDOUT, IsDefault: true, PackageParameter: ""}})
 	}
 
+	found = false
 	for _, lc := range config.Logger {
 		if lc.IsDefault {
 			found = true
@@ -559,17 +555,17 @@ func completeAppenderConfigPackageBackward() {
 func createAppenderConfigIfNecessary(packageParameter *string) {
 	found := false
 	for _, ac := range config.Appender {
-		if ac.PackageParameter == *packageParameter {
+		if ac.PackageParameter() == *packageParameter {
 			found = true
 			break
 		}
 	}
 	if !found {
 		for _, ac := range config.Appender {
-			if ac.IsDefault {
-				acp := ac
-				acp.IsDefault = false
-				acp.PackageParameter = *packageParameter
+			if ac.IsDefault() {
+				acp := ac.CreateFullCopy()
+				acp.GetCommon().IsDefault = false
+				acp.GetCommon().PackageParameter = *packageParameter
 				config.Appender = append(config.Appender, acp)
 				break
 			}
@@ -580,10 +576,10 @@ func createAppenderConfigIfNecessary(packageParameter *string) {
 // creates formatter configs if there exists a appender package variant
 func completeFormatterConfigPackageForward() {
 	for _, ac := range config.Appender {
-		if ac.IsDefault {
+		if ac.IsDefault() {
 			continue
 		}
-		createFormatterConfigIfNecessary(&ac.PackageParameter)
+		createFormatterConfigIfNecessary(&ac.GetCommon().PackageParameter)
 	}
 }
 
@@ -612,10 +608,10 @@ func createFormatterConfigIfNecessary(packageParameter *string) {
 // creates logger configs if there exists a appender package variant
 func completeLoggerConfigPackageBackward(relevantKeyValues *map[string]string) {
 	for _, ac := range config.Appender {
-		if ac.IsDefault {
+		if ac.IsDefault() {
 			continue
 		}
-		createLoggerConfigIfNecessary(relevantKeyValues, &ac.PackageParameter)
+		createLoggerConfigIfNecessary(relevantKeyValues, &ac.GetCommon().PackageParameter)
 	}
 }
 
@@ -648,7 +644,7 @@ func sortConfig() {
 		return config.Formatter[i].GetCommon().LessCompareForSort(config.Formatter[j].GetCommon())
 	})
 	sort.Slice(config.Appender, func(i, j int) bool {
-		return (config.Appender[i].IsDefault && !config.Appender[j].IsDefault) || (config.Appender[i].IsDefault == config.Appender[j].IsDefault && config.Appender[i].PackageParameter < config.Appender[j].PackageParameter)
+		return config.Appender[i].GetCommon().LessCompareForSort(config.Appender[j].GetCommon())
 	})
 	sort.Slice(config.Logger, func(i, j int) bool {
 		return (config.Logger[i].IsDefault && !config.Logger[j].IsDefault) || (config.Logger[i].IsDefault == config.Logger[j].IsDefault && config.Logger[i].PackageParameter < config.Logger[j].PackageParameter)
@@ -677,13 +673,13 @@ func determineFormatterIds() {
 
 func determineAppenderIds() {
 	for i := 0; i < len(config.Appender); i++ {
-		if config.Appender[i].Id != "" {
+		if config.Appender[i].Id() != "" {
 			continue
 		}
-		config.Appender[i].Id = fmt.Sprint("appender", i)
+		config.Appender[i].GetCommon().Id = fmt.Sprint("appender", i)
 		for j := i + 1; j < len(config.Appender); j++ {
-			if AppenderConfigEquals(&config.Appender[i], &config.Appender[j]) {
-				config.Appender[j].Id = config.Appender[i].Id
+			if config.Appender[i].Equals(&config.Appender[j]) {
+				config.Appender[j].GetCommon().Id = config.Appender[i].Id()
 			}
 		}
 	}

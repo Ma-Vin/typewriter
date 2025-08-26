@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/format"
 )
 
@@ -40,24 +41,24 @@ func CleanFileDeductions() {
 }
 
 // Creates a file appender to the file at “pathToLogFile” with a given formatter
-func CreateFileAppender(pathToLogFile string, formatter *format.Formatter, cronExpression string, limitByteSize string) Appender {
+func CreateFileAppenderFromConfig(fileAppenderConfig config.FileAppenderConfig, formatter *format.Formatter) Appender {
 	var file *os.File = nil
 	var err error = nil
 	var closed = false
 	if !SkipFileCreationForTest {
 		fileAppenderMu.Lock()
 		defer fileAppenderMu.Unlock()
-		file, err = os.OpenFile(pathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+		file, err = os.OpenFile(fileAppenderConfig.PathToLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	}
 	if err != nil {
 		fmt.Printf("Fail to create file appender, use stdout instead: %s", err)
 		fmt.Println()
-		return CreateStandardOutputAppender(formatter)
+		return CreateStandardOutputAppenderFromConfig(config.StdOutAppenderConfig{Common: fileAppenderConfig.GetCommon()}, formatter)
 	}
 
-	mu, cronRenamer, sizeRenamer := getOrCreateDeductionForFile(&pathToLogFile, file, cronExpression, limitByteSize)
+	mu, cronRenamer, sizeRenamer := getOrCreateDeductionForFile(&fileAppenderConfig.PathToLogFile, file, fileAppenderConfig.CronExpression, fileAppenderConfig.LimitByteSize)
 
-	return FileAppender{pathToLogFile, formatter, cronRenamer, sizeRenamer, file, &closed, mu}
+	return FileAppender{fileAppenderConfig.PathToLogFile, formatter, cronRenamer, sizeRenamer, file, &closed, mu}
 }
 
 // gets an existing struct of deduced elements from pathToLogFile or creates a new one

@@ -38,6 +38,18 @@ func createJsonFormatterForTest(timeKey string, severityKey string, messageKey s
 	return format.CreateJsonFormatterFromConfig(config)
 }
 
+func CreateFileAppenderForTest(pathToLogFile string, formatter *format.Formatter, cronExpression string, limitByteSize string) Appender {
+	commonConfig := config.CommonAppenderConfig{}
+	config := config.FileAppenderConfig{
+		Common:         &commonConfig,
+		PathToLogFile:  pathToLogFile,
+		CronExpression: cronExpression,
+		LimitByteSize:  limitByteSize,
+	}
+
+	return CreateFileAppenderFromConfig(config, formatter)
+}
+
 var testJsonFormatter = createJsonFormatterForTest("time", "severity", "message", "correlation", "custom", time.RFC3339, "caller", "file", "line", false)
 var jsonFormatTestTime = time.Date(2024, time.November, 18, 16, 00, 0, 0, time.UTC)
 var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
@@ -52,8 +64,8 @@ func getAppenderTestLogFile(testCase string) string {
 func TestCreateFileAppenderDifferentLogFilePaths(t *testing.T) {
 	SkipFileCreationForTest = true
 	CleanFileDeductions()
-	appender1 := CreateFileAppender("Path1.log", &testJsonFormatter, testCronExpression, "").(FileAppender)
-	appender2 := CreateFileAppender("Path2.log", &testJsonFormatter, testCronExpression, "").(FileAppender)
+	appender1 := CreateFileAppenderForTest("Path1.log", &testJsonFormatter, testCronExpression, "").(FileAppender)
+	appender2 := CreateFileAppenderForTest("Path2.log", &testJsonFormatter, testCronExpression, "").(FileAppender)
 
 	testutil.AssertEquals(2, len(fileDeductions), t, "len(fileToMutex)")
 	testutil.AssertNotEquals(appender1.mu, appender2.mu, t, "mu")
@@ -63,8 +75,8 @@ func TestCreateFileAppenderDifferentLogFilePaths(t *testing.T) {
 func TestCreateFileAppenderEqualLogFilePaths(t *testing.T) {
 	SkipFileCreationForTest = true
 	CleanFileDeductions()
-	appender1 := CreateFileAppender("PathEqual.log", &testJsonFormatter, testCronExpression, "").(FileAppender)
-	appender2 := CreateFileAppender("PathEqual.log", &testJsonFormatter, testCronExpression, "").(FileAppender)
+	appender1 := CreateFileAppenderForTest("PathEqual.log", &testJsonFormatter, testCronExpression, "").(FileAppender)
+	appender2 := CreateFileAppenderForTest("PathEqual.log", &testJsonFormatter, testCronExpression, "").(FileAppender)
 
 	testutil.AssertEquals(1, len(fileDeductions), t, "len(fileToMutex)")
 	testutil.AssertEquals(appender1.mu, appender2.mu, t, "mu")
@@ -75,7 +87,7 @@ func TestFileAppenderWrite(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("write")
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
 
-	appender := CreateFileAppender(logFilePath, &testJsonFormatter, "", "").(FileAppender)
+	appender := CreateFileAppenderForTest(logFilePath, &testJsonFormatter, "", "").(FileAppender)
 
 	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
 	testutil.AssertFalse(*appender.isClosed, t, "isNotClosed")
@@ -90,14 +102,14 @@ func TestFileAppenderWrite(t *testing.T) {
 func TestFileAppenderWriteCronRenameFile(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("writeCronRename")
 	checkAppenderWriteCronRename(logFilePath, t, func() FileAppender {
-		return CreateFileAppender(logFilePath, &testJsonFormatter, testCronExpression, "").(FileAppender)
+		return CreateFileAppenderForTest(logFilePath, &testJsonFormatter, testCronExpression, "").(FileAppender)
 	})
 }
 
 func TestFileAppenderWriteCronAndSizeRenameFile(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("writeCronAndSizeRename")
 	checkAppenderWriteCronRename(logFilePath, t, func() FileAppender {
-		return CreateFileAppender(logFilePath, &testJsonFormatter, testCronExpression, "76").(FileAppender)
+		return CreateFileAppenderForTest(logFilePath, &testJsonFormatter, testCronExpression, "76").(FileAppender)
 	})
 }
 
@@ -133,7 +145,7 @@ func TestFileAppenderWriteSizeRenameFile(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	expectedFirstLogEntry := "{\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\"" + jsonFormatTestTimeText + "\"}"
-	appender := CreateFileAppender(logFilePath, &testJsonFormatter, "", strconv.Itoa(len(expectedFirstLogEntry)+2)).(FileAppender)
+	appender := CreateFileAppenderForTest(logFilePath, &testJsonFormatter, "", strconv.Itoa(len(expectedFirstLogEntry)+2)).(FileAppender)
 
 	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
 	appender.Write(&logValuesToFormat)
@@ -151,27 +163,27 @@ func TestFileAppenderSizeRenamerByteFactor(t *testing.T) {
 	SkipFileCreationForTest = true
 
 	CleanFileDeductions()
-	appender := CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10kb").(FileAppender)
+	appender := CreateFileAppenderForTest("logFilePath.log", &testJsonFormatter, "", "10kb").(FileAppender)
 	testutil.AssertEquals(int64(10000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10kb")
 
 	CleanFileDeductions()
-	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10 kb").(FileAppender)
+	appender = CreateFileAppenderForTest("logFilePath.log", &testJsonFormatter, "", "10 kb").(FileAppender)
 	testutil.AssertEquals(int64(10000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10 kb")
 
 	CleanFileDeductions()
-	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10KB").(FileAppender)
+	appender = CreateFileAppenderForTest("logFilePath.log", &testJsonFormatter, "", "10KB").(FileAppender)
 	testutil.AssertEquals(int64(10000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10KB")
 
 	CleanFileDeductions()
-	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10mb").(FileAppender)
+	appender = CreateFileAppenderForTest("logFilePath.log", &testJsonFormatter, "", "10mb").(FileAppender)
 	testutil.AssertEquals(int64(10000000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10mb")
 
 	CleanFileDeductions()
-	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10 mb").(FileAppender)
+	appender = CreateFileAppenderForTest("logFilePath.log", &testJsonFormatter, "", "10 mb").(FileAppender)
 	testutil.AssertEquals(int64(10000000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10 mb")
 
 	CleanFileDeductions()
-	appender = CreateFileAppender("logFilePath.log", &testJsonFormatter, "", "10MB").(FileAppender)
+	appender = CreateFileAppenderForTest("logFilePath.log", &testJsonFormatter, "", "10MB").(FileAppender)
 	testutil.AssertEquals(int64(10000000), appender.sizeRenamer.limitByteSize, t, "limitByteSize 10MB")
 }
 
@@ -182,7 +194,7 @@ func TestFileAppenderWriteSizeRenameFileInvalid(t *testing.T) {
 
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
 
-	appender := CreateFileAppender(logFilePath, &testJsonFormatter, "", "invalidNumber").(FileAppender)
+	appender := CreateFileAppenderForTest(logFilePath, &testJsonFormatter, "", "invalidNumber").(FileAppender)
 
 	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
 	appender.Write(&logValuesToFormat)
@@ -205,7 +217,7 @@ func TestFileAppenderWriteWithCorrelation(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
 	correlation := "someCorrelationId"
 
-	appender := CreateFileAppender(logFilePath, &testJsonFormatter, testCronExpression, "").(FileAppender)
+	appender := CreateFileAppenderForTest(logFilePath, &testJsonFormatter, testCronExpression, "").(FileAppender)
 
 	logValuesToFormat := common.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correlation, "Testmessage")
 	appender.Write(&logValuesToFormat)
@@ -218,7 +230,7 @@ func TestFileAppenderWriteCustom(t *testing.T) {
 	logFilePath := getAppenderTestLogFile("custom")
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
 
-	appender := CreateFileAppender(logFilePath, &testJsonFormatter, testCronExpression, "").(FileAppender)
+	appender := CreateFileAppenderForTest(logFilePath, &testJsonFormatter, testCronExpression, "").(FileAppender)
 
 	customProperties := map[string]any{
 		"first": "abc",
