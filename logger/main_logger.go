@@ -5,20 +5,20 @@ import (
 	"strings"
 )
 
-// Main logger which delegates messages to default or package specific common loggers
+// Main logger which delegates messages to default or package specific general loggers
 type MainLogger struct {
-	commonLogger            *CommonLogger
+	generalLogger            *GeneralLogger
 	existPackageLogger      bool
 	useFullQualifiedPackage bool
-	packageLoggers          map[string]*CommonLogger
+	packageLoggers          map[string]*GeneralLogger
 }
 
-// Determines which logger is relevant. If der exists a logger for a package equal to the callers package, this logger will be return, else the common logger.
-func (l *MainLogger) determineLogger() *CommonLogger {
+// Determines which logger is relevant. If der exists a logger for a package equal to the callers package, this logger will be return, else the general logger.
+func (l *MainLogger) determineLogger() *GeneralLogger {
 	if l.existPackageLogger {
 		function, ok := determineCallerFunction()
 		if !ok {
-			return l.commonLogger
+			return l.generalLogger
 		}
 
 		pl, found := l.packageLoggers[determinePackageName(function, l.useFullQualifiedPackage)]
@@ -26,7 +26,7 @@ func (l *MainLogger) determineLogger() *CommonLogger {
 			return pl
 		}
 	}
-	return l.commonLogger
+	return l.generalLogger
 }
 
 func determineCallerFunction() (string, bool) {
@@ -428,12 +428,12 @@ func (l MainLogger) IsFatalEnabled() bool {
 	return l.determineLogger().IsFatalEnabled()
 }
 
-func (l *MainLogger) closeOtherAppender(loggerToSkip *CommonLogger) {
-	if l.commonLogger.appender != loggerToSkip.appender {
-		l.commonLogger.closeAppender()
+func (l *MainLogger) closeOtherAppender(loggerToSkip *GeneralLogger) {
+	if l.generalLogger.appender != loggerToSkip.appender {
+		l.generalLogger.closeAppender()
 	}
 	if !l.existPackageLogger {
-		// There exists only common logger: nothing to do
+		// There exists only general logger: nothing to do
 		return
 	}
 	for _, pLog := range l.packageLoggers {

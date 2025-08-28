@@ -9,11 +9,11 @@ import (
 	"github.com/ma-vin/typewriter/config"
 )
 
-var testMainCommonLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
+var testMainGeneralLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
 var testMainPackageLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
 
-var testMainCommonLogger CommonLogger
-var testMainPackageLogger CommonLogger
+var testMainGeneralLogger GeneralLogger
+var testMainPackageLogger GeneralLogger
 var mainLogger MainLogger
 
 func clearMainLoggerTestEnv() {
@@ -24,23 +24,23 @@ func clearMainLoggerTestEnv() {
 func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, packageName string, isFullQualified bool) {
 	clearMainLoggerTestEnv()
 
-	*testMainCommonLoggerAppender.(TestAppender).content = []string{}
+	*testMainGeneralLoggerAppender.(TestAppender).content = []string{}
 	*testMainPackageLoggerAppender.(TestAppender).content = []string{}
 
-	testMainCommonLogger = CreateCommonLoggerForTest(&testMainCommonLoggerAppender, config.SeverityLevelMap[envCommonLogLevel], false)
-	testMainPackageLogger = CreateCommonLoggerForTest(&testMainPackageLoggerAppender, config.SeverityLevelMap[envPackageLogLevel], false)
+	testMainGeneralLogger = CreateGeneralLoggerForTest(&testMainGeneralLoggerAppender, config.SeverityLevelMap[envCommonLogLevel], false)
+	testMainPackageLogger = CreateGeneralLoggerForTest(&testMainPackageLoggerAppender, config.SeverityLevelMap[envPackageLogLevel], false)
 
-	mockPanicAndExitAtCommonLogger = true
+	mockPanicAndExitAtGeneralLogger = true
 	panicMockActivated = false
 	exitMockActivated = false
-	testCommonLoggerCounterAppenderClosed = 0
-	testCommonLoggerCounterAppenderClosedExpected = 2
+	testGeneralLoggerCounterAppenderClosed = 0
+	testGeneralLoggerCounterAppenderClosedExpected = 2
 
 	mainLogger = MainLogger{
-		commonLogger:            &testMainCommonLogger,
+		generalLogger:            &testMainGeneralLogger,
 		existPackageLogger:      true,
 		useFullQualifiedPackage: isFullQualified,
-		packageLoggers:          map[string]*CommonLogger{packageName: &testMainPackageLogger},
+		packageLoggers:          map[string]*GeneralLogger{packageName: &testMainPackageLogger},
 	}
 }
 
@@ -62,11 +62,11 @@ func initMainLoggerViaCommonFullQualifiedTest(envCommonLogLevel string, envPacka
 
 func initMainLoggerOnlyCommonTest(envCommonLogLevel string) {
 	initMainLoggerViaCommonTest(envCommonLogLevel, envCommonLogLevel)
-	testCommonLoggerCounterAppenderClosedExpected = 1
+	testGeneralLoggerCounterAppenderClosedExpected = 1
 	mainLogger = MainLogger{
-		commonLogger:       &testMainCommonLogger,
+		generalLogger:       &testMainGeneralLogger,
 		existPackageLogger: false,
-		packageLoggers:     make(map[string]*CommonLogger),
+		packageLoggers:     make(map[string]*GeneralLogger),
 	}
 }
 
@@ -2465,27 +2465,27 @@ func TestMainLoggerOnlyCommonFatalWithExit(t *testing.T) {
 // -------------------
 
 func assertMessageViaPackage(t *testing.T, methodName string, message string) {
-	assertMessage(t, methodName, &testMainPackageLoggerAppender, &testMainCommonLoggerAppender, "package", "common", message)
+	assertMessage(t, methodName, &testMainPackageLoggerAppender, &testMainGeneralLoggerAppender, "package", "common", message)
 	assertPanicAndExitMockNotActivated(t)
 }
 
 func assertMessageViaCommon(t *testing.T, methodName string, message string) {
-	assertMessage(t, methodName, &testMainCommonLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
+	assertMessage(t, methodName, &testMainGeneralLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
 	assertPanicAndExitMockNotActivated(t)
 }
 
 func assertMessageWithPanic(t *testing.T, methodName string, message string) {
-	assertMessage(t, methodName, &testMainCommonLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
+	assertMessage(t, methodName, &testMainGeneralLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
 	assertPanicMockActivated(t)
 }
 
 func assertMessageWithExit(t *testing.T, methodName string, message string) {
-	assertMessage(t, methodName, &testMainCommonLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
+	assertMessage(t, methodName, &testMainGeneralLoggerAppender, &testMainPackageLoggerAppender, "common", "package", message)
 	assertExitMockActivated(t)
 }
 
 func assertMessageViaPackageWithExit(t *testing.T, methodName string, message string) {
-	assertMessage(t, methodName, &testMainPackageLoggerAppender, &testMainCommonLoggerAppender, "package", "common", message)
+	assertMessage(t, methodName, &testMainPackageLoggerAppender, &testMainGeneralLoggerAppender, "package", "common", message)
 	assertExitMockActivated(t)
 }
 
@@ -2506,7 +2506,7 @@ func assertNoMessageWithExit(t *testing.T, methodName string) {
 }
 
 func assertNoMessage(t *testing.T, methodName string) {
-	testutil.AssertEquals(0, len(*testMainCommonLoggerAppender.(TestAppender).content), t, "common "+methodName+": len(content)")
+	testutil.AssertEquals(0, len(*testMainGeneralLoggerAppender.(TestAppender).content), t, "common "+methodName+": len(content)")
 	testutil.AssertEquals(0, len(*testMainPackageLoggerAppender.(TestAppender).content), t, "package  "+methodName+": len(content)")
 }
 
