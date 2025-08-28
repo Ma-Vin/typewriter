@@ -8,6 +8,7 @@ import (
 
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/common"
+	"github.com/ma-vin/typewriter/config"
 )
 
 // A common logger which delegates messages directly to the appender if log level is enabled.
@@ -26,9 +27,12 @@ var panicMockActivated = false
 var exitMockActivated = false
 
 // Creates a common logger which delegates messages to the given appender if the log level is enabled by given severity
-func CreateCommonLogger(appender *appender.Appender, severity int, isCallerToSet bool) CommonLogger {
-	result := CommonLogger{appender: appender, isCallerToSet: isCallerToSet}
-	determineSeverityByLevel(&result, severity)
+func CreateCommonLoggerFromConfig(generalLoggerConfig config.GeneralLoggerConfig, appender *appender.Appender) CommonLogger {
+	result := CommonLogger{
+		appender:      appender,
+		isCallerToSet: generalLoggerConfig.IsCallerToSet,
+	}
+	determineSeverityByLevel(&result, generalLoggerConfig.Severity)
 	return result
 }
 

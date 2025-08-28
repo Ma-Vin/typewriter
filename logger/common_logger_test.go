@@ -15,11 +15,11 @@ type TestAppender struct {
 }
 
 func (s TestAppender) Write(logValues *common.LogValues) {
-	if logValues.CorrelationId!=nil{
+	if logValues.CorrelationId != nil {
 		*s.content = append(*s.content, fmt.Sprint(logValues.Severity, *logValues.CorrelationId, logValues.Message))
 		return
 	}
-	if logValues.CustomValues!=nil{
+	if logValues.CustomValues != nil {
 		*s.content = append(*s.content, fmt.Sprint(logValues.Severity, *logValues.CustomValues, logValues.Message))
 		return
 	}
@@ -38,8 +38,17 @@ func (s TestAppender) Close() {
 	testCommonLoggerCounterAppenderClosed++
 }
 
+func CreateCommonLoggerForTest(appender *appender.Appender, severity int, isCallerToSet bool) CommonLogger {
+	commonConfig := config.CommonLoggerConfig{}
+	return CreateCommonLoggerFromConfig(config.GeneralLoggerConfig{
+		Common:        &commonConfig,
+		Severity:      severity,
+		IsCallerToSet: isCallerToSet,
+	}, appender)
+}
+
 var testCommonLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
-var testCommonLogger = CreateCommonLogger(&testCommonLoggerAppender, common.OFF_SEVERITY, false)
+var testCommonLogger = CreateCommonLoggerForTest(&testCommonLoggerAppender, common.OFF_SEVERITY, false)
 var testCommonLoggerCounterAppenderClosed = 0
 var testCommonLoggerCounterAppenderClosedExpected = 1
 

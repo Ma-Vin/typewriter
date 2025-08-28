@@ -20,16 +20,6 @@ type Config struct {
 	UseFullQualifiedPackageName bool
 }
 
-// config of a single logger
-type LoggerConfig struct {
-	Id               string
-	IsDefault        bool
-	PackageParameter string
-	PackageName      string
-	Severity         int
-	IsCallerToSet    bool
-}
-
 const (
 	DEFAULT_LOG_LEVEL_PROPERTY_NAME                  = "TYPEWRITER_LOG_LEVEL"
 	DEFAULT_LOG_APPENDER_PROPERTY_NAME               = "TYPEWRITER_LOG_APPENDER_TYPE"
@@ -85,6 +75,8 @@ const (
 
 	APPENDER_STDOUT = "STDOUT"
 	APPENDER_FILE   = "FILE"
+
+	LOGGER_GENERAL = "GENERAL"
 
 	DEFAULT_DELIMITER                   = " - "
 	DEFAULT_TEMPLATE                    = "[%s] %s: %s"
@@ -171,11 +163,6 @@ func GetConfig() *Config {
 // Resets initialization status
 func ClearConfig() {
 	configInitialized = false
-}
-
-// Checks whether two logger config equals without regarding pointers to logger or package
-func LoggerConfigEquals(lc1 *LoggerConfig, lc2 *LoggerConfig) bool {
-	return lc1.Severity == lc2.Severity
 }
 
 // Checks whether the environment variable of the config is empty or not
@@ -429,17 +416,12 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 
 // creates all relevant logger config elements derived from relevant properties
 func createLoggerConfig(relevantKeyValues *map[string]string) {
-	config.Logger = append(config.Logger, LoggerConfig{IsDefault: true, PackageParameter: ""})
-	loggerIndex := len(config.Logger) - 1
-	configureLogger(relevantKeyValues, &config.Logger[loggerIndex], "")
+	createAndAppendLoggerConfig(relevantKeyValues, "")
 
 	for key := range *relevantKeyValues {
 		packageParameter, found := strings.CutPrefix(key, PACKAGE_LOG_LEVEL_PROPERTY_NAME)
 		if found {
-			packageName := getValueFromMapOrDefault(relevantKeyValues, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageParameter, strings.ToLower(packageParameter))
-			config.Logger = append(config.Logger, LoggerConfig{IsDefault: false, PackageParameter: packageParameter, PackageName: packageName})
-			loggerIndex++
-			configureLogger(relevantKeyValues, &config.Logger[loggerIndex], packageParameter)
+			createAndAppendLoggerConfig(relevantKeyValues, packageParameter)
 		}
 	}
 
@@ -448,23 +430,42 @@ func createLoggerConfig(relevantKeyValues *map[string]string) {
 	}
 }
 
+func createAndAppendLoggerConfig(relevantKeyValues *map[string]string, packageOfLogger string) {
+	loggerConfig := createLoggerConfigEntry(relevantKeyValues, packageOfLogger)
+	if loggerConfig != nil {
+		config.Logger = append(config.Logger, *loggerConfig)
+	}
+}
+
 // configures a given logger config element from properties concerning a given package name
-func configureLogger(relevantKeyValues *map[string]string, loggerConfig *LoggerConfig, packageParameter string) {
-	var formatterKey string
+func createLoggerConfigEntry(relevantKeyValues *map[string]string, packageParameter string) *LoggerConfig {
+	var logLevelKey string
+	var packageName string
 	if len(packageParameter) > 0 {
-		formatterKey = PACKAGE_LOG_LEVEL_PROPERTY_NAME + packageParameter
+		logLevelKey = PACKAGE_LOG_LEVEL_PROPERTY_NAME + packageParameter
+		packageName = getValueFromMapOrDefault(relevantKeyValues, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageParameter, strings.ToLower(packageParameter))
 	} else {
-		formatterKey = DEFAULT_LOG_LEVEL_PROPERTY_NAME
+		logLevelKey = DEFAULT_LOG_LEVEL_PROPERTY_NAME
+		packageName = ""
 	}
 
-	logLevel := getValueFromMapOrDefault(relevantKeyValues, formatterKey, LOG_LEVEL_ERROR)
+	logLevel := getValueFromMapOrDefault(relevantKeyValues, logLevelKey, LOG_LEVEL_ERROR)
 	severity, found := SeverityLevelMap[logLevel]
 	if !found {
 		severity = common.ERROR_SEVERITY
 	}
-	loggerConfig.Severity = severity
+	var result LoggerConfig = GeneralLoggerConfig{
+		Common: &CommonLoggerConfig{
+			IsDefault:        len(packageParameter) == 0,
+			LoggerType:       LOGGER_GENERAL,
+			PackageParameter: packageParameter,
+			PackageName:      packageName,
+		},
+		Severity:      severity,
+		IsCallerToSet: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, "false")) == "true",
+	}
 
-	loggerConfig.IsCallerToSet = strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, "false")) == "true"
+	return &result
 }
 
 // Returns the value from a map for a given key. If there is none, the default will be returned
@@ -521,23 +522,24 @@ func completeDefaults() {
 
 	found = false
 	for _, lc := range config.Logger {
-		if lc.IsDefault {
+		if lc.IsDefault() {
 			found = true
 			break
 		}
 	}
 	if !found {
-		config.Logger = append(config.Logger, LoggerConfig{IsDefault: true, PackageParameter: "", Severity: common.ERROR_SEVERITY})
+		config.Logger = append(config.Logger, GeneralLoggerConfig{Common: &CommonLoggerConfig{LoggerType: LOGGER_GENERAL, IsDefault: true, PackageParameter: ""}, Severity: common.ERROR_SEVERITY})
 	}
 }
 
 // creates appender configs if there exists a logger package variant
 func completeAppenderConfigPackageForward() {
 	for _, lc := range config.Logger {
-		if lc.IsDefault {
+		if lc.IsDefault() {
 			continue
 		}
-		createAppenderConfigIfNecessary(&lc.PackageParameter)
+		packageParameter := lc.PackageParameter()
+		createAppenderConfigIfNecessary(&packageParameter)
 	}
 }
 
@@ -619,18 +621,18 @@ func completeLoggerConfigPackageBackward(relevantKeyValues *map[string]string) {
 func createLoggerConfigIfNecessary(relevantKeyValues *map[string]string, packageParameter *string) {
 	found := false
 	for _, lc := range config.Logger {
-		if lc.PackageParameter == *packageParameter {
+		if lc.PackageParameter() == *packageParameter {
 			found = true
 			break
 		}
 	}
 	if !found {
 		for _, lc := range config.Logger {
-			if lc.IsDefault {
-				lcp := lc
-				lcp.IsDefault = false
-				lcp.PackageParameter = *packageParameter
-				lcp.PackageName = getValueFromMapOrDefault(relevantKeyValues, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+*packageParameter, strings.ToLower(*packageParameter))
+			if lc.IsDefault() {
+				lcp := lc.CreateFullCopy()
+				lcp.GetCommon().IsDefault = false
+				lcp.GetCommon().PackageParameter = *packageParameter
+				lcp.GetCommon().PackageName = getValueFromMapOrDefault(relevantKeyValues, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+*packageParameter, strings.ToLower(*packageParameter))
 				config.Logger = append(config.Logger, lcp)
 				break
 			}
@@ -647,7 +649,7 @@ func sortConfig() {
 		return config.Appender[i].GetCommon().LessCompareForSort(config.Appender[j].GetCommon())
 	})
 	sort.Slice(config.Logger, func(i, j int) bool {
-		return (config.Logger[i].IsDefault && !config.Logger[j].IsDefault) || (config.Logger[i].IsDefault == config.Logger[j].IsDefault && config.Logger[i].PackageParameter < config.Logger[j].PackageParameter)
+		return (config.Logger[i].GetCommon().LessCompareForSort(config.Logger[j].GetCommon()))
 	})
 }
 
@@ -687,13 +689,13 @@ func determineAppenderIds() {
 
 func determineLoggerIds() {
 	for i := 0; i < len(config.Logger); i++ {
-		if config.Logger[i].Id != "" {
+		if config.Logger[i].Id() != "" {
 			continue
 		}
-		config.Logger[i].Id = fmt.Sprint("logger", i)
+		config.Logger[i].GetCommon().Id = fmt.Sprint("logger", i)
 		for j := i + 1; j < len(config.Logger); j++ {
-			if LoggerConfigEquals(&config.Logger[i], &config.Logger[j]) {
-				config.Logger[j].Id = config.Logger[i].Id
+			if config.Logger[i].Equals(&config.Logger[j]) {
+				config.Logger[j].GetCommon().Id = config.Logger[i].Id()
 			}
 		}
 	}

@@ -126,15 +126,15 @@ func setLastAppender(appenderId string, appenderConfigMapping *map[string]*appen
 func createCommonLoggers(conf *config.Config, loggerConfigMapping *map[string]*CommonLogger, appenderConfigMapping *map[string]*appender.Appender) {
 	for _, lc1 := range (*conf).Logger {
 		alreadyCreated := false
-		lc1FormatterId := (*getFormatterConfigForPackage(&lc1.PackageParameter, &conf.Formatter)).Id()
-		lc1AppenderId := (*getAppenderConfigForPackage(&lc1.PackageParameter, &conf.Appender)).Id()
+		lc1FormatterId := (*getFormatterConfigForPackage(&lc1.GetCommon().PackageParameter, &conf.Formatter)).Id()
+		lc1AppenderId := (*getAppenderConfigForPackage(&lc1.GetCommon().PackageParameter, &conf.Appender)).Id()
 
 		for _, lc2 := range (*conf).Logger {
-			if lc1.Id == lc2.Id &&
-				lc1FormatterId == (*getFormatterConfigForPackage(&lc2.PackageParameter, &conf.Formatter)).Id() &&
-				lc1AppenderId == (*getAppenderConfigForPackage(&lc2.PackageParameter, &conf.Appender)).Id() {
+			if lc1.Id() == lc2.Id() &&
+				lc1FormatterId == (*getFormatterConfigForPackage(&lc2.GetCommon().PackageParameter, &conf.Formatter)).Id() &&
+				lc1AppenderId == (*getAppenderConfigForPackage(&lc2.GetCommon().PackageParameter, &conf.Appender)).Id() {
 
-				_, alreadyCreated = (*loggerConfigMapping)[lc1.Id+lc1AppenderId+lc1FormatterId]
+				_, alreadyCreated = (*loggerConfigMapping)[lc1.Id()+lc1AppenderId+lc1FormatterId]
 				break
 
 			}
@@ -145,8 +145,9 @@ func createCommonLoggers(conf *config.Config, loggerConfigMapping *map[string]*C
 		}
 
 		appender := (*appenderConfigMapping)[lc1AppenderId+lc1FormatterId]
-		cLoggers = append(cLoggers, CreateCommonLogger(appender, lc1.Severity, lc1.IsCallerToSet))
-		(*loggerConfigMapping)[lc1.Id+lc1AppenderId+lc1FormatterId] = &cLoggers[len(cLoggers)-1]
+		// There exists only GeneralLoggerConfig for interface LoggerConfig -> cast without check
+		cLoggers = append(cLoggers, CreateCommonLoggerFromConfig(lc1.(config.GeneralLoggerConfig), appender))
+		(*loggerConfigMapping)[lc1.Id()+lc1AppenderId+lc1FormatterId] = &cLoggers[len(cLoggers)-1]
 	}
 }
 
@@ -158,12 +159,12 @@ func createMainLogger(conf *config.Config, loggerConfigMapping *map[string]*Comm
 	mLogger.packageLoggers = make(map[string]*CommonLogger, len(conf.Logger)-1)
 
 	for _, lc := range conf.Logger {
-		lc1FormatterId := (*getFormatterConfigForPackage(&lc.PackageParameter, &conf.Formatter)).Id()
-		lc1AppenderId := (*getAppenderConfigForPackage(&lc.PackageParameter, &conf.Appender)).Id()
-		if lc.IsDefault {
-			mLogger.commonLogger = (*loggerConfigMapping)[lc.Id+lc1AppenderId+lc1FormatterId]
+		lc1FormatterId := (*getFormatterConfigForPackage(&lc.GetCommon().PackageParameter, &conf.Formatter)).Id()
+		lc1AppenderId := (*getAppenderConfigForPackage(&lc.GetCommon().PackageParameter, &conf.Appender)).Id()
+		if lc.IsDefault() {
+			mLogger.commonLogger = (*loggerConfigMapping)[lc.Id()+lc1AppenderId+lc1FormatterId]
 		} else {
-			mLogger.packageLoggers[lc.PackageName] = (*loggerConfigMapping)[lc.Id+lc1AppenderId+lc1FormatterId]
+			mLogger.packageLoggers[lc.PackageName()] = (*loggerConfigMapping)[lc.Id()+lc1AppenderId+lc1FormatterId]
 		}
 	}
 
