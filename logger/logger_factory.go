@@ -17,7 +17,7 @@ var formatters []format.Formatter
 
 // returns the main logger. If not initialized, a new one will be created from config
 func getLoggers() *MainLogger {
-	if loggersInitialized {
+	if loggersInitialized && config.IsConfigInitialized() {
 		return &mLogger
 	}
 

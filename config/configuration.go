@@ -5,8 +5,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ma-vin/typewriter/common"
@@ -100,6 +102,7 @@ const (
 
 var configInitialized = false
 var config Config
+var configCreationMu = sync.Mutex{}
 
 // Mapping external severity levels to internal ids
 var SeverityLevelMap = map[string]int{
@@ -120,7 +123,6 @@ var relevantKeyPrefixes = []string{
 	DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
 	DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME,
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
-	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
 	PACKAGE_LOG_PACKAGE_PROPERTY_NAME,
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME,
@@ -128,15 +130,24 @@ var relevantKeyPrefixes = []string{
 	PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME,
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
-	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME,
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
 	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
 }
 
+// map containing creator functions of configurations of formatter
+var registeredFormatterConfigs map[string]func(relevantKeyValues *map[string]string, commonConfig *CommonFormatterConfig) (*FormatterConfig, error)
+
 // returns the config or creates it if it was not initialized yet
 func GetConfig() *Config {
+	configCreationMu.Lock()
+	defer configCreationMu.Unlock()
+
 	if configInitialized {
 		return &config
+	}
+
+	if len(registeredFormatterConfigs) == 0 {
+		initializeRegisteredFormatterConfigs()
 	}
 
 	config = Config{}
@@ -162,7 +173,15 @@ func GetConfig() *Config {
 
 // Resets initialization status
 func ClearConfig() {
+	configCreationMu.Lock()
+	defer configCreationMu.Unlock()
 	configInitialized = false
+}
+
+func IsConfigInitialized() bool{
+	configCreationMu.Lock()
+	defer configCreationMu.Unlock()
+	return configInitialized
 }
 
 // Checks whether the environment variable of the config is empty or not
@@ -368,7 +387,6 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 		formatterParameterKey = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
 	}
 
-	var result FormatterConfig
 	commonFormatterConfig := CommonFormatterConfig{
 		FormatterType:    getValueFromMapOrDefault(relevantKeyValues, formatterKey, FORMATTER_DELIMITER),
 		IsDefault:        len(packageParameter) == 0,
@@ -376,42 +394,148 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 		TimeLayout:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT),
 	}
 
-	switch commonFormatterConfig.FormatterType {
-	case FORMATTER_DELIMITER:
-		result = DelimiterFormatterConfig{
-			Common:    &commonFormatterConfig,
-			Delimiter: getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+DELIMITER_PARAMETER, DEFAULT_DELIMITER),
+	if creator, exist := registeredFormatterConfigs[commonFormatterConfig.FormatterType]; exist {
+		result, err := creator(relevantKeyValues, &commonFormatterConfig)
+		if err != nil {
+			fmt.Printf("Fail to create formatter %s, because of error %s", commonFormatterConfig.FormatterType, err)
+			fmt.Println()
 		}
-	case FORMATTER_TEMPLATE:
-		result = TemplateFormatterConfig{
-			Common:                      &commonFormatterConfig,
-			Template:                    getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE),
-			CorrelationIdTemplate:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE),
-			CustomTemplate:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE),
-			TrimSeverityText:            strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY_TEXT)) == "true",
-			CallerTemplate:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE),
-			CallerCorrelationIdTemplate: getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE),
-			CallerCustomTemplate:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE),
-		}
-	case FORMATTER_JSON:
-		result = JsonFormatterConfig{
-			Common:                   &commonFormatterConfig,
-			TimeKey:                  getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_TIME_KEY_PARAMETER, DEFAULT_TIME_KEY),
-			SeverityKey:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_SEVERITY_KEY_PARAMETER, DEFAULT_SEVERITY_KEY),
-			CorrelationKey:           getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CORRELATION_KEY_PARAMETER, DEFAULT_CORRELATION_KEY),
-			MessageKey:               getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_MESSAGE_KEY_PARAMETER, DEFAULT_MESSAGE_KEY),
-			CustomValuesKey:          getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_KEY_PARAMETER, DEFAULT_CUSTOM_VALUES_KEY),
-			CustomValuesAsSubElement: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true",
-			CallerFunctionKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FUNCTION_KEY_PARAMETER, DEFAULT_CALLER_FUNCTION_KEY),
-			CallerFileKey:            getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FILE_KEY_PARAMETER, DEFAULT_CALLER_FILE_KEY),
-			CallerFileLineKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_LINE_KEY_PARAMETER, DEFAULT_CALLER_FILE_LINE_KEY),
-		}
-	default:
-		printHint(commonFormatterConfig.FormatterType, formatterKey)
-		return nil
+		return result
 	}
 
-	return &result
+	printHint(commonFormatterConfig.FormatterType, formatterKey)
+	return nil
+}
+
+// Creates a delimiter formatter configuration
+func createDelimiterFormatterConfig(relevantKeyValues *map[string]string, commonFormatterConfig *CommonFormatterConfig) (*FormatterConfig, error) {
+	var formatterParameterKey string
+	if len(commonFormatterConfig.PackageParameter) > 0 {
+		formatterParameterKey = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + commonFormatterConfig.PackageParameter
+	} else {
+		formatterParameterKey = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
+	}
+
+	var result FormatterConfig = DelimiterFormatterConfig{
+		Common:    commonFormatterConfig,
+		Delimiter: getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+DELIMITER_PARAMETER, DEFAULT_DELIMITER),
+	}
+
+	return &result, nil
+}
+
+// Creates a template formatter configuration
+func createTemplateFormatterConfig(relevantKeyValues *map[string]string, commonFormatterConfig *CommonFormatterConfig) (*FormatterConfig, error) {
+	var formatterParameterKey string
+	if len(commonFormatterConfig.PackageParameter) > 0 {
+		formatterParameterKey = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + commonFormatterConfig.PackageParameter
+	} else {
+		formatterParameterKey = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
+	}
+
+	var result FormatterConfig = TemplateFormatterConfig{
+		Common:                      commonFormatterConfig,
+		Template:                    getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE),
+		CorrelationIdTemplate:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE),
+		CustomTemplate:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE),
+		TrimSeverityText:            strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY_TEXT)) == "true",
+		CallerTemplate:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE),
+		CallerCorrelationIdTemplate: getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE),
+		CallerCustomTemplate:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE),
+	}
+
+	return &result, nil
+}
+
+// Creates a json formatter configuration
+func createJsonFormatterConfig(relevantKeyValues *map[string]string, commonFormatterConfig *CommonFormatterConfig) (*FormatterConfig, error) {
+	var formatterParameterKey string
+	if len(commonFormatterConfig.PackageParameter) > 0 {
+		formatterParameterKey = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + commonFormatterConfig.PackageParameter
+	} else {
+		formatterParameterKey = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
+	}
+
+	var result FormatterConfig = JsonFormatterConfig{
+		Common:                   commonFormatterConfig,
+		TimeKey:                  getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_TIME_KEY_PARAMETER, DEFAULT_TIME_KEY),
+		SeverityKey:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_SEVERITY_KEY_PARAMETER, DEFAULT_SEVERITY_KEY),
+		CorrelationKey:           getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CORRELATION_KEY_PARAMETER, DEFAULT_CORRELATION_KEY),
+		MessageKey:               getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_MESSAGE_KEY_PARAMETER, DEFAULT_MESSAGE_KEY),
+		CustomValuesKey:          getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_KEY_PARAMETER, DEFAULT_CUSTOM_VALUES_KEY),
+		CustomValuesAsSubElement: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true",
+		CallerFunctionKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FUNCTION_KEY_PARAMETER, DEFAULT_CALLER_FUNCTION_KEY),
+		CallerFileKey:            getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FILE_KEY_PARAMETER, DEFAULT_CALLER_FILE_KEY),
+		CallerFileLineKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_LINE_KEY_PARAMETER, DEFAULT_CALLER_FILE_LINE_KEY),
+	}
+
+	return &result, nil
+}
+
+// Registers the out of the box delimiter-, template- and json-formatter
+func initializeRegisteredFormatterConfigs() {
+	registeredFormatterConfigs = make(map[string]func(relevantKeyValues *map[string]string, commonFormatterConfig *CommonFormatterConfig) (*FormatterConfig, error))
+
+	keyPrefixes := []string{DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME}
+
+	registerFormatterConfigInternal(FORMATTER_DELIMITER, keyPrefixes, createDelimiterFormatterConfig)
+	registerFormatterConfigInternal(FORMATTER_TEMPLATE, keyPrefixes, createTemplateFormatterConfig)
+	registerFormatterConfigInternal(FORMATTER_JSON, keyPrefixes, createJsonFormatterConfig)
+}
+
+// Registers a creator of a configuration for a formatter with the given identifier 'formatterType' and resets any existing configuration. But without initiation check and mutex lock
+// The relevant key values pairs, from environment or file, will be filtered by given key prefixes and 'keyPrefixes' will be added to these relevant ones, so that they will be available at 'relevantKeyValues'.
+func registerFormatterConfigInternal(formatterType string, keyPrefixes []string, configCreator func(relevantKeyValues *map[string]string, commonConfig *CommonFormatterConfig) (*FormatterConfig, error)) error {
+	registeredFormatterConfigs[formatterType] = configCreator
+
+	for _, keyPrefix := range keyPrefixes {
+		keyPrefix = strings.ToUpper(keyPrefix)
+		if !slices.Contains(relevantKeyPrefixes, keyPrefix) {
+			relevantKeyPrefixes = append(relevantKeyPrefixes, keyPrefix)
+		}
+	}
+
+	return nil
+}
+
+// Registers a creator of a configuration for a formatter with the given identifier 'formatterType' and resets any existing configuration.
+// The relevant key values pairs, from environment or file, will be filtered by given key prefixes and 'keyPrefixes' will be added to these relevant ones, so that they will be available at 'relevantKeyValues'.
+func RegisterFormatterConfig(formatterType string, keyPrefixes []string, configCreator func(relevantKeyValues *map[string]string, commonConfig *CommonFormatterConfig) (*FormatterConfig, error)) error {
+	formatterType = strings.ToUpper(formatterType)
+
+	if _, exists := registeredFormatterConfigs[formatterType]; exists {
+		return fmt.Errorf("there exists a creator of a configuration for %s already. The existing one will not be replaced", formatterType)
+	}
+
+	configCreationMu.Lock()
+	defer configCreationMu.Unlock()
+
+	configInitialized = false
+
+	if len(registeredFormatterConfigs) == 0 {
+		initializeRegisteredFormatterConfigs()
+	}
+	return registerFormatterConfigInternal(formatterType, keyPrefixes, configCreator)
+}
+
+// Removes a registered creator of a configuration for a formatter. Build in ones will not be removed
+func DeregisterFormatterConfig(formatterType string) error {
+	formatterType = strings.ToUpper(formatterType)
+
+	if formatterType == FORMATTER_DELIMITER || formatterType == FORMATTER_TEMPLATE || formatterType == FORMATTER_JSON {
+		return fmt.Errorf("the build in config creator for formatter %s is not deletable", formatterType)
+	}
+	if _, exists := registeredFormatterConfigs[formatterType]; !exists {
+		return fmt.Errorf("there does not exists any creator of configuration for formatter %s", formatterType)
+	}
+
+	configCreationMu.Lock()
+	defer configCreationMu.Unlock()
+
+	configInitialized = false
+
+	delete(registeredFormatterConfigs, formatterType)
+	return nil
 }
 
 // creates all relevant logger config elements derived from relevant properties
@@ -477,8 +601,9 @@ func getValueFromMapOrDefault(source *map[string]string, key string, defaultValu
 	return defaultValue
 }
 
-func printHint(propertyName string, objectType string) {
-	fmt.Println("Unknown \"", objectType, "\" value at property", propertyName)
+func printHint(propertyValue string, propertyName string) {
+	fmt.Printf("unknown \"%s\" value at property %s", propertyValue, propertyName)
+	fmt.Println()
 }
 
 // creates default configs if missing and adds package specific copies of defaults if at least one of the other config types exists as package variant

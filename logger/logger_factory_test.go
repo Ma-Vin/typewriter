@@ -296,3 +296,29 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyFormatterWithParameter(t *test
 
 	testutil.AssertNotEquals(result.generalLogger.appender, result.packageLoggers[packageName].appender, t, "packageLoggers[packageName].appender.")
 }
+
+func TestGetLoggersClearConfig(t *testing.T){
+	os.Clearenv()
+	Reset()
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.generalLogger, t, "generalLogger")
+	testutil.AssertFalse(result.generalLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertFalse(result.generalLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertFalse(result.generalLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.generalLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.generalLogger.fatalEnabled, t, "fatalEnabled")
+
+	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
+	config.ClearConfig()
+
+	result = getLoggers()
+
+	testutil.AssertNotNil(result.generalLogger, t, "generalLogger")
+	testutil.AssertFalse(result.generalLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertTrue(result.generalLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertTrue(result.generalLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.generalLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.generalLogger.fatalEnabled, t, "fatalEnabled")
+}

@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -1064,4 +1065,48 @@ func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
 	}
+}
+
+func TestRegisterAndDeregisterFormatterConfig(t *testing.T) {
+	os.Clearenv()
+
+	customFormatterName := "CUSTOM_FORMATTER"
+	customKeyPrefix := "ANY_KEY_PREFIX"
+
+	os.Setenv(DEFAULT_LOG_FORMATTER_PROPERTY_NAME, customFormatterName)
+
+	configInitialized = false
+	result := GetConfig()
+	testutil.AssertNotNil(result, t, "result")
+
+	// Check fallback to default one if CUSTOM_FORMATTER is not registered yet
+	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
+	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+
+	// Register custom one
+	err := RegisterFormatterConfig(customFormatterName, []string{customKeyPrefix}, createJsonFormatterConfig)
+	testutil.AssertNil(err, t, "err of RegisterFormatterConfig")
+
+	// Load config with registered formatter
+	result = GetConfig()
+	testutil.AssertNotNil(result, t, "registered - result")
+	testutil.AssertTrue(slices.Contains(relevantKeyPrefixes, customKeyPrefix), t, "relevantKeyPrefixes contains customKeyPrefix")
+	testutil.AssertEquals(1, len(result.Formatter), t, "registered - len(result.formatter)")
+	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "registered - result.formatter[0].IsDefault()")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "registered - result.formatter[0].PackageParameter()")
+	testutil.AssertEquals(customFormatterName, result.Formatter[0].FormatterType(), t, "registered - result.formatter[0].FormatterType()")
+
+	// Deregister custom one
+	err = DeregisterFormatterConfig(customFormatterName)
+	testutil.AssertNil(err, t, "err of DeregisterFormatterConfig")
+
+	// Load config without registered formatter: fallback to default one
+	result = GetConfig()
+	testutil.AssertNotNil(result, t, "deregistered - result")
+	testutil.AssertEquals(1, len(result.Formatter), t, "deregistered - len(result.formatter)")
+	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "deregistered - lresult.formatter[0].IsDefault()")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "deregistered - lresult.formatter[0].PackageParameter()")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "deregistered - lresult.formatter[0].FormatterType()")
 }
