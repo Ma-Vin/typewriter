@@ -390,12 +390,6 @@ func registerAppenderConfigInternal(appenderType string, keyPrefixes []string, c
 // Registers a creator of a configuration for an appender with the given identifier 'appenderType' and resets any existing configuration.
 // The relevant key values pairs, from environment or file, will be filtered by given key prefixes and 'keyPrefixes' will be added to these relevant ones, so that they will be available at 'relevantKeyValues'.
 func RegisterAppenderConfig(appenderType string, keyPrefixes []string, configCreator func(relevantKeyValues *map[string]string, commonConfig *CommonAppenderConfig) (*AppenderConfig, error)) error {
-	appenderType = strings.ToUpper(appenderType)
-
-	if _, exists := registeredAppenderConfigs[appenderType]; exists {
-		return fmt.Errorf("there exists a creator of a configuration for appender %s already. The existing one will not be replaced", appenderType)
-	}
-
 	configCreationMu.Lock()
 	defer configCreationMu.Unlock()
 
@@ -404,6 +398,13 @@ func RegisterAppenderConfig(appenderType string, keyPrefixes []string, configCre
 	if len(registeredAppenderConfigs) == 0 {
 		initializeRegisteredAppenderConfigs()
 	}
+
+	appenderType = strings.ToUpper(appenderType)
+
+	if _, exists := registeredAppenderConfigs[appenderType]; exists {
+		return fmt.Errorf("there exists a creator of a configuration for appender %s already. The existing one will not be replaced", appenderType)
+	}
+
 	return registerAppenderConfigInternal(appenderType, keyPrefixes, configCreator)
 }
 
@@ -572,12 +573,6 @@ func registerFormatterConfigInternal(formatterType string, keyPrefixes []string,
 // Registers a creator of a configuration for a formatter with the given identifier 'formatterType' and resets any existing configuration.
 // The relevant key values pairs, from environment or file, will be filtered by given key prefixes and 'keyPrefixes' will be added to these relevant ones, so that they will be available at 'relevantKeyValues'.
 func RegisterFormatterConfig(formatterType string, keyPrefixes []string, configCreator func(relevantKeyValues *map[string]string, commonConfig *CommonFormatterConfig) (*FormatterConfig, error)) error {
-	formatterType = strings.ToUpper(formatterType)
-
-	if _, exists := registeredFormatterConfigs[formatterType]; exists {
-		return fmt.Errorf("there exists a creator of a configuration for formatter %s already. The existing one will not be replaced", formatterType)
-	}
-
 	configCreationMu.Lock()
 	defer configCreationMu.Unlock()
 
@@ -586,6 +581,13 @@ func RegisterFormatterConfig(formatterType string, keyPrefixes []string, configC
 	if len(registeredFormatterConfigs) == 0 {
 		initializeRegisteredFormatterConfigs()
 	}
+	
+	formatterType = strings.ToUpper(formatterType)
+
+	if _, exists := registeredFormatterConfigs[formatterType]; exists {
+		return fmt.Errorf("there exists a creator of a configuration for formatter %s already. The existing one will not be replaced", formatterType)
+	}
+
 	return registerFormatterConfigInternal(formatterType, keyPrefixes, configCreator)
 }
 

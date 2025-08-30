@@ -1112,6 +1112,25 @@ func TestRegisterAndDeregisterAppenderConfig(t *testing.T) {
 	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType(), t, "deregistered - lresult.appender[0].AppenderType()")
 }
 
+func TestRegisterKnownAppenderConfig(t *testing.T) {
+	err := RegisterAppenderConfig(APPENDER_FILE, []string{}, createFileAppenderConfig)
+	testutil.AssertNotNil(err, t, "registered known appender")
+}
+
+
+func TestDeregisterBuildInAppenderConfig(t *testing.T) {
+	err := DeregisterAppenderConfig(APPENDER_STDOUT)
+	testutil.AssertNotNil(err, t, "deregistered standard output appender")
+
+	err = DeregisterAppenderConfig(APPENDER_FILE)
+	testutil.AssertNotNil(err, t, "deregistered file appender")
+}
+
+func TestDeregisterUnknownAppenderConfig(t *testing.T) {
+	err := DeregisterAppenderConfig("Anything")
+	testutil.AssertNotNil(err, t, "deregistered unknown appender")
+}
+
 func TestRegisterAndDeregisterFormatterConfig(t *testing.T) {
 	os.Clearenv()
 
@@ -1154,4 +1173,26 @@ func TestRegisterAndDeregisterFormatterConfig(t *testing.T) {
 	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "deregistered - lresult.formatter[0].IsDefault()")
 	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "deregistered - lresult.formatter[0].PackageParameter()")
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "deregistered - lresult.formatter[0].FormatterType()")
+}
+
+func TestRegisterKnownFormatterConfig(t *testing.T) {
+	err := RegisterFormatterConfig(FORMATTER_DELIMITER, []string{}, createDelimiterFormatterConfig)
+	testutil.AssertNotNil(err, t, "registered known formatter")
+}
+
+
+func TestDeregisterBuildInFormatterConfig(t *testing.T) {
+	err := DeregisterFormatterConfig(FORMATTER_DELIMITER)
+	testutil.AssertNotNil(err, t, "deregistered delimiter formatter")
+
+	err = DeregisterFormatterConfig(FORMATTER_TEMPLATE)
+	testutil.AssertNotNil(err, t, "deregistered template formatter")
+
+	err = DeregisterFormatterConfig(FORMATTER_JSON)
+	testutil.AssertNotNil(err, t, "deregistered json formatter")
+}
+
+func TestDeregisterUnknownFormatterConfig(t *testing.T) {
+	err := DeregisterFormatterConfig("Anything")
+	testutil.AssertNotNil(err, t, "deregistered unknown formatter")
 }
