@@ -1067,6 +1067,51 @@ func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 	}
 }
 
+func TestRegisterAndDeregisterAppenderConfig(t *testing.T) {
+	os.Clearenv()
+
+	customAppenderName := "CUSTOM_APPENDER"
+	customKeyPrefix := "ANY_KEY_PREFIX"
+
+	os.Setenv(DEFAULT_LOG_APPENDER_PROPERTY_NAME, customAppenderName)
+	os.Setenv(DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, "pathToLogFile")
+
+	configInitialized = false
+	result := GetConfig()
+	testutil.AssertNotNil(result, t, "result")
+
+	// Check fallback to default one if CUSTOM_APPENDER is not registered yet
+	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
+	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].IsDefault()")
+	testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "result.appender[0].PackageParameter()")
+	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType(), t, "result.appender[0].AppenderType()")
+
+	// Register custom one
+	err := RegisterAppenderConfig(customAppenderName, []string{customKeyPrefix}, createFileAppenderConfig)
+	testutil.AssertNil(err, t, "err of RegisterAppenderConfig")
+
+	// Load config with registered appender
+	result = GetConfig()
+	testutil.AssertNotNil(result, t, "registered - result")
+	testutil.AssertTrue(slices.Contains(relevantKeyPrefixes, customKeyPrefix), t, "relevantKeyPrefixes contains customKeyPrefix")
+	testutil.AssertEquals(1, len(result.Appender), t, "registered - len(result.appender)")
+	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "registered - result.appender[0].IsDefault()")
+	testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "registered - result.appender[0].PackageParameter()")
+	testutil.AssertEquals(customAppenderName, result.Appender[0].AppenderType(), t, "registered - result.appender[0].AppenderType()")
+
+	// Deregister custom one
+	err = DeregisterAppenderConfig(customAppenderName)
+	testutil.AssertNil(err, t, "err of DeregisterAppenderConfig")
+
+	// Load config without registered appender: fallback to default one
+	result = GetConfig()
+	testutil.AssertNotNil(result, t, "deregistered - result")
+	testutil.AssertEquals(1, len(result.Appender), t, "deregistered - len(result.appender)")
+	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "deregistered - lresult.appender[0].IsDefault()")
+	testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "deregistered - lresult.appender[0].PackageParameter()")
+	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType(), t, "deregistered - lresult.appender[0].AppenderType()")
+}
+
 func TestRegisterAndDeregisterFormatterConfig(t *testing.T) {
 	os.Clearenv()
 

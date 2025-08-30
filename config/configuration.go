@@ -119,16 +119,10 @@ var SeverityLevelMap = map[string]int{
 var relevantKeyPrefixes = []string{
 	DEFAULT_LOG_LEVEL_PROPERTY_NAME,
 	DEFAULT_LOG_APPENDER_PROPERTY_NAME,
-	DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME,
-	DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
-	DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME,
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
 	PACKAGE_LOG_PACKAGE_PROPERTY_NAME,
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME,
-	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME,
-	PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
-	PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME,
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
 	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
@@ -136,6 +130,9 @@ var relevantKeyPrefixes = []string{
 
 // map containing creator functions of configurations of formatter
 var registeredFormatterConfigs map[string]func(relevantKeyValues *map[string]string, commonConfig *CommonFormatterConfig) (*FormatterConfig, error)
+
+// map containing creator functions of configurations of appender
+var registeredAppenderConfigs map[string]func(relevantKeyValues *map[string]string, commonConfig *CommonAppenderConfig) (*AppenderConfig, error)
 
 // returns the config or creates it if it was not initialized yet
 func GetConfig() *Config {
@@ -146,7 +143,8 @@ func GetConfig() *Config {
 		return &config
 	}
 
-	if len(registeredFormatterConfigs) == 0 {
+	if len(registeredAppenderConfigs) == 0 || len(registeredFormatterConfigs) == 0 {
+		initializeRegisteredAppenderConfigs()
 		initializeRegisteredFormatterConfigs()
 	}
 
@@ -178,7 +176,7 @@ func ClearConfig() {
 	configInitialized = false
 }
 
-func IsConfigInitialized() bool{
+func IsConfigInitialized() bool {
 	configCreationMu.Lock()
 	defer configCreationMu.Unlock()
 	return configInitialized
@@ -304,38 +302,41 @@ func createAppenderConfigEntry(relevantKeyValues *map[string]string, packagePara
 		appenderKey = DEFAULT_LOG_APPENDER_PROPERTY_NAME
 	}
 
-	var result AppenderConfig
 	commonAppenderConfig := CommonAppenderConfig{
 		AppenderType:     getValueFromMapOrDefault(relevantKeyValues, appenderKey, APPENDER_STDOUT),
 		IsDefault:        len(packageParameter) == 0,
 		PackageParameter: packageParameter,
 	}
 
-	switch commonAppenderConfig.AppenderType {
-	case APPENDER_STDOUT:
-		result = StdOutAppenderConfig{Common: &commonAppenderConfig}
-	case APPENDER_FILE:
-		if fileAppenderConfig := createFileAppenderConfigEntry(relevantKeyValues, packageParameter, &commonAppenderConfig); fileAppenderConfig != nil {
-			result = *fileAppenderConfig
-		} else {
-			return nil
+	if creator, exist := registeredAppenderConfigs[commonAppenderConfig.AppenderType]; exist {
+		result, err := creator(relevantKeyValues, &commonAppenderConfig)
+		if err != nil {
+			fmt.Printf("Fail to create appender %s, because of error: %s", commonAppenderConfig.AppenderType, err)
+			fmt.Println()
 		}
-	default:
-		printHint(commonAppenderConfig.AppenderType, appenderKey)
-		return nil
+		return result
 	}
-	return &result
+
+	printHint(commonAppenderConfig.AppenderType, appenderKey)
+	return nil
 }
 
-func createFileAppenderConfigEntry(relevantKeyValues *map[string]string, packageParameter string, commonAppenderConfig *CommonAppenderConfig) *FileAppenderConfig {
+// Creates a standard output appender configuration
+func createStdOutAppenderConfig(relevantKeyValues *map[string]string, commonAppenderConfig *CommonAppenderConfig) (*AppenderConfig, error) {
+	var result AppenderConfig = StdOutAppenderConfig{Common: commonAppenderConfig}
+	return &result, nil
+}
+
+// Creates a file appender configuration
+func createFileAppenderConfig(relevantKeyValues *map[string]string, commonAppenderConfig *CommonAppenderConfig) (*AppenderConfig, error) {
 	var fileParameterKey string
 	var cronParameterKey string
 	var sizeParameterKey string
 
-	if len(packageParameter) > 0 {
-		fileParameterKey = PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME + packageParameter
-		cronParameterKey = PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME + packageParameter
-		sizeParameterKey = PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME + packageParameter
+	if len(commonAppenderConfig.PackageParameter) > 0 {
+		fileParameterKey = PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME + commonAppenderConfig.PackageParameter
+		cronParameterKey = PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME + commonAppenderConfig.PackageParameter
+		sizeParameterKey = PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME + commonAppenderConfig.PackageParameter
 	} else {
 		fileParameterKey = DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME
 		cronParameterKey = DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME
@@ -343,17 +344,87 @@ func createFileAppenderConfigEntry(relevantKeyValues *map[string]string, package
 	}
 
 	if fileValue, fileFound := (*relevantKeyValues)[fileParameterKey]; fileFound {
-		return &FileAppenderConfig{
+		var result AppenderConfig = FileAppenderConfig{
 			Common:         commonAppenderConfig,
 			PathToLogFile:  fileValue,
 			CronExpression: getValueFromMapOrDefault(relevantKeyValues, cronParameterKey, ""),
 			LimitByteSize:  getValueFromMapOrDefault(relevantKeyValues, sizeParameterKey, ""),
 		}
-	} else {
-		fmt.Printf("Cannot use file appender, because there is no value at %s. Use %s appender instead", fileParameterKey, APPENDER_STDOUT)
-		fmt.Println()
-		return nil
+		return &result, nil
 	}
+	return nil, fmt.Errorf("cannot use file appender, because there is no value at %s. Use %s appender instead", fileParameterKey, APPENDER_STDOUT)
+}
+
+// Registers the out of the box stdOut- and file-appender
+func initializeRegisteredAppenderConfigs() {
+	registeredAppenderConfigs = make(map[string]func(relevantKeyValues *map[string]string, commonAppenderConfig *CommonAppenderConfig) (*AppenderConfig, error))
+
+	fileKeyPrefixes := []string{
+		DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME,
+		DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
+		DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME,
+		PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME,
+		PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME,
+		PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME,
+	}
+
+	registerAppenderConfigInternal(APPENDER_STDOUT, []string{}, createStdOutAppenderConfig)
+	registerAppenderConfigInternal(APPENDER_FILE, fileKeyPrefixes, createFileAppenderConfig)
+}
+
+// Registers a creator of a configuration for an appender with the given identifier 'appenderType' and resets any existing configuration. But without initiation check and mutex lock
+// The relevant key values pairs, from environment or file, will be filtered by given key prefixes and 'keyPrefixes' will be added to these relevant ones, so that they will be available at 'relevantKeyValues'.
+func registerAppenderConfigInternal(appenderType string, keyPrefixes []string, configCreator func(relevantKeyValues *map[string]string, commonConfig *CommonAppenderConfig) (*AppenderConfig, error)) error {
+	registeredAppenderConfigs[appenderType] = configCreator
+
+	for _, keyPrefix := range keyPrefixes {
+		keyPrefix = strings.ToUpper(keyPrefix)
+		if !slices.Contains(relevantKeyPrefixes, keyPrefix) {
+			relevantKeyPrefixes = append(relevantKeyPrefixes, keyPrefix)
+		}
+	}
+
+	return nil
+}
+
+// Registers a creator of a configuration for an appender with the given identifier 'appenderType' and resets any existing configuration.
+// The relevant key values pairs, from environment or file, will be filtered by given key prefixes and 'keyPrefixes' will be added to these relevant ones, so that they will be available at 'relevantKeyValues'.
+func RegisterAppenderConfig(appenderType string, keyPrefixes []string, configCreator func(relevantKeyValues *map[string]string, commonConfig *CommonAppenderConfig) (*AppenderConfig, error)) error {
+	appenderType = strings.ToUpper(appenderType)
+
+	if _, exists := registeredAppenderConfigs[appenderType]; exists {
+		return fmt.Errorf("there exists a creator of a configuration for appender %s already. The existing one will not be replaced", appenderType)
+	}
+
+	configCreationMu.Lock()
+	defer configCreationMu.Unlock()
+
+	configInitialized = false
+
+	if len(registeredAppenderConfigs) == 0 {
+		initializeRegisteredAppenderConfigs()
+	}
+	return registerAppenderConfigInternal(appenderType, keyPrefixes, configCreator)
+}
+
+// Removes a registered creator of a configuration for an appender. Build in ones will not be removed
+func DeregisterAppenderConfig(appenderType string) error {
+	appenderType = strings.ToUpper(appenderType)
+
+	if appenderType == APPENDER_STDOUT || appenderType == APPENDER_FILE {
+		return fmt.Errorf("the build in config creator for appender %s is not deletable", appenderType)
+	}
+	if _, exists := registeredAppenderConfigs[appenderType]; !exists {
+		return fmt.Errorf("there does not exists any creator of configuration for appender %s", appenderType)
+	}
+
+	configCreationMu.Lock()
+	defer configCreationMu.Unlock()
+
+	configInitialized = false
+
+	delete(registeredAppenderConfigs, appenderType)
+	return nil
 }
 
 // creates all relevant formatter config elements derived from relevant properties
@@ -397,7 +468,7 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 	if creator, exist := registeredFormatterConfigs[commonFormatterConfig.FormatterType]; exist {
 		result, err := creator(relevantKeyValues, &commonFormatterConfig)
 		if err != nil {
-			fmt.Printf("Fail to create formatter %s, because of error %s", commonFormatterConfig.FormatterType, err)
+			fmt.Printf("Fail to create formatter %s, because of error: %s", commonFormatterConfig.FormatterType, err)
 			fmt.Println()
 		}
 		return result
@@ -504,7 +575,7 @@ func RegisterFormatterConfig(formatterType string, keyPrefixes []string, configC
 	formatterType = strings.ToUpper(formatterType)
 
 	if _, exists := registeredFormatterConfigs[formatterType]; exists {
-		return fmt.Errorf("there exists a creator of a configuration for %s already. The existing one will not be replaced", formatterType)
+		return fmt.Errorf("there exists a creator of a configuration for formatter %s already. The existing one will not be replaced", formatterType)
 	}
 
 	configCreationMu.Lock()
