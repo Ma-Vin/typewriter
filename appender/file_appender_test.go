@@ -40,14 +40,15 @@ func createJsonFormatterForTest(timeKey string, severityKey string, messageKey s
 
 func CreateFileAppenderForTest(pathToLogFile string, formatter *format.Formatter, cronExpression string, limitByteSize string) Appender {
 	commonConfig := config.CommonAppenderConfig{}
-	config := config.FileAppenderConfig{
+	var config config.AppenderConfig = config.FileAppenderConfig{
 		Common:         &commonConfig,
 		PathToLogFile:  pathToLogFile,
 		CronExpression: cronExpression,
 		LimitByteSize:  limitByteSize,
 	}
 
-	return CreateFileAppenderFromConfig(config, formatter)
+	appender, _ := CreateFileAppenderFromConfig(&config, formatter)
+	return *appender
 }
 
 var testJsonFormatter = createJsonFormatterForTest("time", "severity", "message", "correlation", "custom", time.RFC3339, "caller", "file", "line", false)

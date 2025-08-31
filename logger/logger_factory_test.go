@@ -297,7 +297,7 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyFormatterWithParameter(t *test
 	testutil.AssertNotEquals(result.generalLogger.appender, result.packageLoggers[packageName].appender, t, "packageLoggers[packageName].appender.")
 }
 
-func TestGetLoggersClearConfig(t *testing.T){
+func TestGetLoggersClearConfig(t *testing.T) {
 	os.Clearenv()
 	Reset()
 
@@ -321,4 +321,66 @@ func TestGetLoggersClearConfig(t *testing.T){
 	testutil.AssertTrue(result.generalLogger.warningEnabled, t, "warningEnabled")
 	testutil.AssertTrue(result.generalLogger.errorEnabled, t, "errorEnabled")
 	testutil.AssertTrue(result.generalLogger.fatalEnabled, t, "fatalEnabled")
+}
+
+func createFileAppenderConfigForTest(relevantKeyValues *map[string]string, commonAppenderConfig *config.CommonAppenderConfig) (*config.AppenderConfig, error) {
+	var result config.AppenderConfig = config.FileAppenderConfig{
+		Common:         commonAppenderConfig,
+		PathToLogFile:  "pathToLogFile",
+		CronExpression: "",
+		LimitByteSize:  "",
+	}
+	return &result, nil
+}
+
+func TestRegisterAndDeregisterAppender(t *testing.T) {
+	customAppenderName := "CUSTOM_APPENDER"
+
+	appender.SkipFileCreationForTest = true
+	os.Clearenv()
+	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, customAppenderName)
+
+	err := config.RegisterAppenderConfig(customAppenderName, []string{}, createFileAppenderConfigForTest)
+	testutil.AssertNil(err, t, "err of RegisterAppenderConfig")
+
+	Reset()
+
+	// Check fallback to default one if CUSTOM_APPENDER is not registered yet
+	result := getLoggers()
+	testutil.AssertNotNil(result, t, "before register - result")
+	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.generalLogger.appender).Name(), t, "before register - generalLogger.appender.Name")
+
+	// Register custom one
+	RegisterAppender(customAppenderName, appender.CreateFileAppenderFromConfig)
+	result = getLoggers()
+	testutil.AssertNotNil(result, t, "after register - result")
+	testutil.AssertEquals("FileAppender", reflect.TypeOf(*result.generalLogger.appender).Name(), t, "after register - generalLogger.appender.Name")
+
+	// Deregister custom one
+	err = DeregisterAppender(customAppenderName)
+	testutil.AssertNil(err, t, "err of DeregisterAppenderConfig")
+
+	// Load config without registered appender: fallback to default one
+	result = getLoggers()
+	testutil.AssertNotNil(result, t, "before register - result")
+	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.generalLogger.appender).Name(), t, "before register - generalLogger.appender.Name")
+}
+
+func TestRegisterKnownAppender(t *testing.T) {
+	err := RegisterAppender(config.APPENDER_FILE, appender.CreateFileAppenderFromConfig)
+	testutil.AssertNotNil(err, t, "registered known appender")
+}
+
+func TestDeregisterBuildInAppender(t *testing.T) {
+	err := DeregisterAppender(config.APPENDER_STDOUT)
+	testutil.AssertNotNil(err, t, "deregistered standard output appender")
+
+	err = DeregisterAppender(config.APPENDER_FILE)
+	testutil.AssertNotNil(err, t, "deregistered file appender")
+}
+
+func TestDeregisterUnknownAppender(t *testing.T) {
+	err := DeregisterAppender("Anything")
+	testutil.AssertNotNil(err, t, "deregistered unknown appender")
 }

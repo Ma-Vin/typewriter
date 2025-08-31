@@ -17,8 +17,9 @@ type StandardOutputAppender struct {
 }
 
 // Creates a standard output appender with a given formatter
-func CreateStandardOutputAppenderFromConfig(config config.StdOutAppenderConfig ,formatter *format.Formatter) Appender {
-	return StandardOutputAppender{formatter, os.Stdout}
+func CreateStandardOutputAppenderFromConfig(config *config.AppenderConfig, formatter *format.Formatter) (*Appender, error) {
+	var result Appender = StandardOutputAppender{formatter, os.Stdout}
+	return &result, nil
 }
 
 // Writes the given logValues to the standard output

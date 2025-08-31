@@ -143,8 +143,10 @@ func GetConfig() *Config {
 		return &config
 	}
 
-	if len(registeredAppenderConfigs) == 0 || len(registeredFormatterConfigs) == 0 {
+	if len(registeredAppenderConfigs) == 0 {
 		initializeRegisteredAppenderConfigs()
+	}
+	if len(registeredFormatterConfigs) == 0 {
 		initializeRegisteredFormatterConfigs()
 	}
 
@@ -372,7 +374,7 @@ func initializeRegisteredAppenderConfigs() {
 	registerAppenderConfigInternal(APPENDER_FILE, fileKeyPrefixes, createFileAppenderConfig)
 }
 
-// Registers a creator of a configuration for an appender with the given identifier 'appenderType' and resets any existing configuration. But without initiation check and mutex lock
+// Registers a creator of a configuration for an appender with the given identifier 'appenderType'. But without initialization check and mutex lock.
 // The relevant key values pairs, from environment or file, will be filtered by given key prefixes and 'keyPrefixes' will be added to these relevant ones, so that they will be available at 'relevantKeyValues'.
 func registerAppenderConfigInternal(appenderType string, keyPrefixes []string, configCreator func(relevantKeyValues *map[string]string, commonConfig *CommonAppenderConfig) (*AppenderConfig, error)) error {
 	registeredAppenderConfigs[appenderType] = configCreator
@@ -555,7 +557,7 @@ func initializeRegisteredFormatterConfigs() {
 	registerFormatterConfigInternal(FORMATTER_JSON, keyPrefixes, createJsonFormatterConfig)
 }
 
-// Registers a creator of a configuration for a formatter with the given identifier 'formatterType' and resets any existing configuration. But without initiation check and mutex lock
+// Registers a creator of a configuration for a formatter with the given identifier 'formatterType'. But without initialization check and mutex lock.
 // The relevant key values pairs, from environment or file, will be filtered by given key prefixes and 'keyPrefixes' will be added to these relevant ones, so that they will be available at 'relevantKeyValues'.
 func registerFormatterConfigInternal(formatterType string, keyPrefixes []string, configCreator func(relevantKeyValues *map[string]string, commonConfig *CommonFormatterConfig) (*FormatterConfig, error)) error {
 	registeredFormatterConfigs[formatterType] = configCreator
@@ -581,7 +583,7 @@ func RegisterFormatterConfig(formatterType string, keyPrefixes []string, configC
 	if len(registeredFormatterConfigs) == 0 {
 		initializeRegisteredFormatterConfigs()
 	}
-	
+
 	formatterType = strings.ToUpper(formatterType)
 
 	if _, exists := registeredFormatterConfigs[formatterType]; exists {

@@ -41,7 +41,13 @@ func CleanFileDeductions() {
 }
 
 // Creates a file appender to the file at “pathToLogFile” with a given formatter
-func CreateFileAppenderFromConfig(fileAppenderConfig config.FileAppenderConfig, formatter *format.Formatter) Appender {
+func CreateFileAppenderFromConfig(appenderConfig *config.AppenderConfig, formatter *format.Formatter) (*Appender, error) {
+
+	fileAppenderConfig, ok := (*appenderConfig).(config.FileAppenderConfig)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert interface to FileAppenderConfig for appender %s", (*appenderConfig).AppenderType())
+	}
+
 	var file *os.File = nil
 	var err error = nil
 	var closed = false
@@ -53,12 +59,14 @@ func CreateFileAppenderFromConfig(fileAppenderConfig config.FileAppenderConfig, 
 	if err != nil {
 		fmt.Printf("Fail to create file appender, use stdout instead: %s", err)
 		fmt.Println()
-		return CreateStandardOutputAppenderFromConfig(config.StdOutAppenderConfig{Common: fileAppenderConfig.GetCommon()}, formatter)
+		var stdOutConfig config.AppenderConfig = config.StdOutAppenderConfig{Common: fileAppenderConfig.GetCommon()}
+		return CreateStandardOutputAppenderFromConfig(&stdOutConfig, formatter)
 	}
 
 	mu, cronRenamer, sizeRenamer := getOrCreateDeductionForFile(&fileAppenderConfig.PathToLogFile, file, fileAppenderConfig.CronExpression, fileAppenderConfig.LimitByteSize)
 
-	return FileAppender{fileAppenderConfig.PathToLogFile, formatter, cronRenamer, sizeRenamer, file, &closed, mu}
+	var result Appender = FileAppender{fileAppenderConfig.PathToLogFile, formatter, cronRenamer, sizeRenamer, file, &closed, mu}
+	return &result, nil
 }
 
 // gets an existing struct of deduced elements from pathToLogFile or creates a new one

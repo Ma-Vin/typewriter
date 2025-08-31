@@ -21,8 +21,9 @@ func createDelimiterFormatterForTest() format.Formatter {
 
 func CreateStandardOutputAppenderForTest(formatter *format.Formatter) Appender {
 	commonConfig := config.CommonAppenderConfig{}
-	config := config.StdOutAppenderConfig{Common: &commonConfig}
-	return CreateStandardOutputAppenderFromConfig(config, formatter)
+	var config config.AppenderConfig = config.StdOutAppenderConfig{Common: &commonConfig}
+	appender, _ := CreateStandardOutputAppenderFromConfig(&config, formatter)
+	return *appender
 }
 
 var testDelimiterFormatter = createDelimiterFormatterForTest()

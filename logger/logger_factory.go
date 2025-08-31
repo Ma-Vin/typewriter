@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/ma-vin/typewriter/appender"
@@ -15,14 +17,21 @@ var cLoggers []GeneralLogger
 var appenders []appender.Appender
 var formatters []format.Formatter
 
+// map containing creator functions for appender
+var registeredAppenders map[string]func(config *config.AppenderConfig, formatter *format.Formatter) (*appender.Appender, error)
+
 // returns the main logger. If not initialized, a new one will be created from config
 func getLoggers() *MainLogger {
+	loggerCreationMu.Lock()
+	defer loggerCreationMu.Unlock()
+
 	if loggersInitialized && config.IsConfigInitialized() {
 		return &mLogger
 	}
 
-	loggerCreationMu.Lock()
-	defer loggerCreationMu.Unlock()
+	if len(registeredAppenders) == 0 {
+		initializeRegisteredAppenders()
+	}
 
 	conf := config.GetConfig()
 	if conf == nil {
@@ -100,18 +109,27 @@ func createAppenders(conf *config.Config, appenderConfigMapping *map[string]*app
 			continue
 		}
 
-		formatter := (*formatterConfigMapping)[ac1FormatterId]
-		switch ac1.AppenderType() {
-		case config.APPENDER_STDOUT:
-			appendAppender(appender.CreateStandardOutputAppenderFromConfig(ac1.(config.StdOutAppenderConfig), formatter))
-			setLastAppender(ac1.Id()+ac1FormatterId, appenderConfigMapping)
-		case config.APPENDER_FILE:
-			appendAppender(appender.CreateFileAppenderFromConfig(ac1.(config.FileAppenderConfig), formatter))
-			setLastAppender(ac1.Id()+ac1FormatterId, appenderConfigMapping)
-		default:
-			// not relevant: handled at config load
+		result := createAppender(ac1, (*formatterConfigMapping)[ac1FormatterId])
+		appendAppender(*result)
+		setLastAppender(ac1.Id()+ac1FormatterId, appenderConfigMapping)
+	}
+}
+
+func createAppender(appenderConfig config.AppenderConfig, formatter *format.Formatter) *appender.Appender {
+	var result *appender.Appender
+	var err error
+	if creator, exist := registeredAppenders[appenderConfig.AppenderType()]; exist {
+		result, err = creator(&appenderConfig, formatter)
+		if err != nil {
+			fmt.Printf("Fail to create appender %s, because of error: %s", appenderConfig.AppenderType(), err)
+			fmt.Println()
 		}
 	}
+	if result == nil {
+		result, _ = appender.CreateStandardOutputAppenderFromConfig(nil, formatter)
+	}
+	return result
+
 }
 
 func appendAppender(appender appender.Appender) {
@@ -120,6 +138,60 @@ func appendAppender(appender appender.Appender) {
 
 func setLastAppender(appenderId string, appenderConfigMapping *map[string]*appender.Appender) {
 	(*appenderConfigMapping)[appenderId] = &appenders[len(appenders)-1]
+}
+
+// Registers the out of the box stdOut- and file-appender
+func initializeRegisteredAppenders() {
+	registeredAppenders = make(map[string]func(appenderConfig *config.AppenderConfig, formatter *format.Formatter) (*appender.Appender, error))
+
+	registerAppenderInternal(config.APPENDER_STDOUT, appender.CreateStandardOutputAppenderFromConfig)
+	registerAppenderInternal(config.APPENDER_FILE, appender.CreateFileAppenderFromConfig)
+}
+
+// Registers a creator of an appender with the given identifier 'appenderType' and resets any existing configuration. But without initiation check and mutex lock
+func registerAppenderInternal(appenderType string, appenderCreator func(config *config.AppenderConfig, formatter *format.Formatter) (*appender.Appender, error)) error {
+	registeredAppenders[appenderType] = appenderCreator
+	return nil
+}
+
+// Registers a creator of an appender with the given identifier 'appenderType' and resets any existing configuration.
+func RegisterAppender(appenderType string, appenderCreator func(appenderConfig *config.AppenderConfig, formatter *format.Formatter) (*appender.Appender, error)) error {
+	loggerCreationMu.Lock()
+	defer loggerCreationMu.Unlock()
+
+	loggersInitialized = false
+
+	if len(registeredAppenders) == 0 {
+		initializeRegisteredAppenders()
+	}
+
+	appenderType = strings.ToUpper(appenderType)
+
+	if _, exists := registeredAppenders[appenderType]; exists {
+		return fmt.Errorf("there exists a creator of an appender %s already. The existing one will not be replaced", appenderType)
+	}
+
+	return registerAppenderInternal(appenderType, appenderCreator)
+}
+
+// Removes a registered creator of a configuration for an appender. Build in ones will not be removed
+func DeregisterAppender(appenderType string) error {
+	appenderType = strings.ToUpper(appenderType)
+
+	if appenderType == config.APPENDER_STDOUT || appenderType == config.APPENDER_FILE {
+		return fmt.Errorf("the build in appender creator for  %s is not deletable", appenderType)
+	}
+	if _, exists := registeredAppenders[appenderType]; !exists {
+		return fmt.Errorf("there does not exists any creator of appender %s", appenderType)
+	}
+
+	loggerCreationMu.Lock()
+	defer loggerCreationMu.Unlock()
+
+	loggersInitialized = false
+
+	delete(registeredAppenders, appenderType)
+	return nil
 }
 
 // Creates the all relevant general logger from config elements
