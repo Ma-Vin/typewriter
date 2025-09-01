@@ -16,8 +16,14 @@ type DelimiterFormatter struct {
 }
 
 // Creates a new formatter from a given config
-func CreateDelimiterFormatterFromConfig(config config.DelimiterFormatterConfig) Formatter {
-	return DelimiterFormatter{delimiter: config.Delimiter, timeLayout: config.TimeLayout()}
+func CreateDelimiterFormatterFromConfig(formatterConfig *config.FormatterConfig) (*Formatter, error) {
+	delimiterFormatterConfig, ok := (*formatterConfig).(config.DelimiterFormatterConfig)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert interface to DelimiterFormatterConfig for formatter %s", (*formatterConfig).FormatterType())
+	}
+
+	var result Formatter = DelimiterFormatter{delimiter: delimiterFormatterConfig.Delimiter, timeLayout: delimiterFormatterConfig.TimeLayout()}
+	return &result, nil
 }
 
 // Formats the given parameter to a string to log

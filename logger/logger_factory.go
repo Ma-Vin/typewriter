@@ -20,6 +20,9 @@ var formatters []format.Formatter
 // map containing creator functions for appender
 var registeredAppenders map[string]func(config *config.AppenderConfig, formatter *format.Formatter) (*appender.Appender, error)
 
+// map containing creator functions for formatter
+var registeredFormatters map[string]func(config *config.FormatterConfig) (*format.Formatter, error)
+
 // returns the main logger. If not initialized, a new one will be created from config
 func getLoggers() *MainLogger {
 	loggerCreationMu.Lock()
@@ -31,6 +34,9 @@ func getLoggers() *MainLogger {
 
 	if len(registeredAppenders) == 0 {
 		initializeRegisteredAppenders()
+	}
+	if len(registeredFormatters) == 0 {
+		initializeRegisteredFormatters()
 	}
 
 	conf := config.GetConfig()
@@ -50,6 +56,17 @@ func getLoggers() *MainLogger {
 	return &mLogger
 }
 
+// initializes the registered appenders and formatters. Marks the whole logger and configuration as not initialized also
+func ResetRegisteredAppenderAndFormatters() {
+	loggerCreationMu.Lock()
+	defer loggerCreationMu.Unlock()
+
+	initializeRegisteredAppenders()
+	initializeRegisteredFormatters()
+
+	loggersInitialized = false
+}
+
 // Creates the all relevant formatters from config elements
 func createFormatters(formatterConfigs *[]config.FormatterConfig, formatterConfigMapping *map[string]*format.Formatter) {
 	for _, fc1 := range *formatterConfigs {
@@ -66,20 +83,31 @@ func createFormatters(formatterConfigs *[]config.FormatterConfig, formatterConfi
 			continue
 		}
 
-		switch fc1.FormatterType() {
-		case config.FORMATTER_DELIMITER:
-			appendFormatter(format.CreateDelimiterFormatterFromConfig(fc1.(config.DelimiterFormatterConfig)))
-			setLastFormatter(fc1.Id(), formatterConfigMapping)
-		case config.FORMATTER_TEMPLATE:
-			appendFormatter(format.CreateTemplateFormatterFromConfig(fc1.(config.TemplateFormatterConfig)))
-			setLastFormatter(fc1.Id(), formatterConfigMapping)
-		case config.FORMATTER_JSON:
-			appendFormatter(format.CreateJsonFormatterFromConfig(fc1.(config.JsonFormatterConfig)))
-			setLastFormatter(fc1.Id(), formatterConfigMapping)
-		default:
-			// not relevant: handled at config load
+		result := createFormatter(fc1)
+		appendFormatter(*result)
+		setLastFormatter(fc1.Id(), formatterConfigMapping)
+	}
+}
+
+func createFormatter(formatterConfig config.FormatterConfig) *format.Formatter {
+	var result *format.Formatter
+	var err error
+	if creator, exist := registeredFormatters[formatterConfig.FormatterType()]; exist {
+		result, err = creator(&formatterConfig)
+		if err != nil {
+			fmt.Printf("Fail to create formatter %s, because of error: %s", formatterConfig.FormatterType(), err)
+			fmt.Println()
 		}
 	}
+	if result == nil {
+		var defaultFormatConfig config.FormatterConfig = config.DelimiterFormatterConfig{
+			Delimiter: config.DEFAULT_DELIMITER,
+			Common:    &config.CommonFormatterConfig{FormatterType: config.FORMATTER_DELIMITER, TimeLayout: config.DEFAULT_TIME_LAYOUT},
+		}
+		result, _ = format.CreateDelimiterFormatterFromConfig(&defaultFormatConfig)
+	}
+	return result
+
 }
 
 func appendFormatter(formatter format.Formatter) {
@@ -88,6 +116,61 @@ func appendFormatter(formatter format.Formatter) {
 
 func setLastFormatter(formatterId string, formatterConfigMapping *map[string]*format.Formatter) {
 	(*formatterConfigMapping)[formatterId] = &formatters[len(formatters)-1]
+}
+
+// Registers the out of the box delimiter-, template- and json-formatter
+func initializeRegisteredFormatters() {
+	registeredFormatters = make(map[string]func(formatterConfig *config.FormatterConfig) (*format.Formatter, error))
+
+	registerFormatterInternal(config.FORMATTER_DELIMITER, format.CreateDelimiterFormatterFromConfig)
+	registerFormatterInternal(config.FORMATTER_TEMPLATE, format.CreateTemplateFormatterFromConfig)
+	registerFormatterInternal(config.FORMATTER_JSON, format.CreateJsonFormatterFromConfig)
+}
+
+// Registers a creator of a formatter with the given identifier 'formatterType' and resets any existing configuration. But without initiation check and mutex lock
+func registerFormatterInternal(formatterType string, formatterCreator func(formatterConfig *config.FormatterConfig) (*format.Formatter, error)) error {
+	registeredFormatters[formatterType] = formatterCreator
+	return nil
+}
+
+// Registers a creator of a formatter with the given identifier 'formatterType' and resets any existing configuration.
+func RegisterFormatter(formatterType string, formatterCreator func(formatterConfig *config.FormatterConfig) (*format.Formatter, error)) error {
+	loggerCreationMu.Lock()
+	defer loggerCreationMu.Unlock()
+
+	loggersInitialized = false
+
+	if len(registeredFormatters) == 0 {
+		initializeRegisteredFormatters()
+	}
+
+	formatterType = strings.ToUpper(formatterType)
+
+	if _, exists := registeredFormatters[formatterType]; exists {
+		return fmt.Errorf("there exists a creator of a formatter %s already. The existing one will not be replaced", formatterType)
+	}
+
+	return registerFormatterInternal(formatterType, formatterCreator)
+}
+
+// Removes a registered creator of a configuration for a formatter. Build in ones will not be removed
+func DeregisterFormatter(formatterType string) error {
+	formatterType = strings.ToUpper(formatterType)
+
+	if formatterType == config.FORMATTER_DELIMITER || formatterType == config.FORMATTER_TEMPLATE || formatterType == config.FORMATTER_JSON {
+		return fmt.Errorf("the build in formatter creator for  %s is not deletable", formatterType)
+	}
+	if _, exists := registeredFormatters[formatterType]; !exists {
+		return fmt.Errorf("there does not exists any creator of formatter %s", formatterType)
+	}
+
+	loggerCreationMu.Lock()
+	defer loggerCreationMu.Unlock()
+
+	loggersInitialized = false
+
+	delete(registeredFormatters, formatterType)
+	return nil
 }
 
 // Creates the all relevant appenders from config elements

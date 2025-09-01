@@ -18,7 +18,7 @@ func createJsonFormatterForTest(timeKey string, severityKey string, messageKey s
 	customValuesAsSubElement bool) Formatter {
 
 	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout}
-	config := config.JsonFormatterConfig{
+	var config config.FormatterConfig = config.JsonFormatterConfig{
 		Common:                   &commonConfig,
 		TimeKey:                  timeKey,
 		SeverityKey:              severityKey,
@@ -30,7 +30,8 @@ func createJsonFormatterForTest(timeKey string, severityKey string, messageKey s
 		CallerFileLineKey:        callerFileLineKey,
 		CustomValuesAsSubElement: customValuesAsSubElement,
 	}
-	return CreateJsonFormatterFromConfig(config)
+	result, _ := CreateJsonFormatterFromConfig(&config)
+	return *result
 }
 
 var jsonFormatTestTime = time.Date(2024, time.November, 15, 20, 00, 0, 0, time.UTC)

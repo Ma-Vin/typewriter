@@ -24,19 +24,26 @@ type JsonFormatter struct {
 }
 
 // Creates a new formatter from a given config
-func CreateJsonFormatterFromConfig(config config.JsonFormatterConfig) Formatter {
-	return JsonFormatter{
-		timeKey:                  config.TimeKey,
-		severityKey:              config.SeverityKey,
-		messageKey:               config.MessageKey,
-		correlationKey:           config.CorrelationKey,
-		customValuesKey:          config.CustomValuesKey,
-		timeLayout:               config.TimeLayout(),
-		callerFunctionKey:        config.CallerFunctionKey,
-		callerFileKey:            config.CallerFileKey,
-		callerFileLineKey:        config.CallerFileLineKey,
-		customValuesAsSubElement: config.CustomValuesAsSubElement,
+func CreateJsonFormatterFromConfig(formatterConfig *config.FormatterConfig) (*Formatter, error) {
+	jsonFormatterConfig, ok := (*formatterConfig).(config.JsonFormatterConfig)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert interface to JsonFormatterConfig for formatter %s", (*formatterConfig).FormatterType())
 	}
+
+	var result Formatter = JsonFormatter{
+		timeKey:                  jsonFormatterConfig.TimeKey,
+		severityKey:              jsonFormatterConfig.SeverityKey,
+		messageKey:               jsonFormatterConfig.MessageKey,
+		correlationKey:           jsonFormatterConfig.CorrelationKey,
+		customValuesKey:          jsonFormatterConfig.CustomValuesKey,
+		timeLayout:               jsonFormatterConfig.TimeLayout(),
+		callerFunctionKey:        jsonFormatterConfig.CallerFunctionKey,
+		callerFileKey:            jsonFormatterConfig.CallerFileKey,
+		callerFileLineKey:        jsonFormatterConfig.CallerFileLineKey,
+		customValuesAsSubElement: jsonFormatterConfig.CustomValuesAsSubElement,
+	}
+
+	return &result, nil
 }
 
 // Formats the given parameter to a string to log

@@ -592,8 +592,9 @@ func IsFatalEnabled() bool {
 	return getLoggers().IsFatalEnabled()
 }
 
-// Resets loggers. Configuration will be loaded and loggers will be created again
+// Resets loggers. Configuration will be loaded and loggers will be created again.
+// The registered custom appenders, formatters and their configurations will be reset also
 func Reset() {
-	loggersInitialized = false
-	config.ClearConfig()
+	ResetRegisteredAppenderAndFormatters() 
+	config.ResetRegisteredAppenderAndFormatterConfigs()
 }

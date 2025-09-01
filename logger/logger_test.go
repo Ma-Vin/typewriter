@@ -4,21 +4,28 @@ import (
 	"testing"
 
 	"github.com/ma-vin/testutil-go"
+	"github.com/ma-vin/typewriter/config"
 )
 
 func initLoggerViaPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
+	// dummy config initialization, otherwise loggersInitialized=true will be without effect
+	config.GetConfig()
 	initMainLoggerViaPackageTest(envCommonLogLevel, envPackageLogLevel)
 	mLogger = mainLogger
 	loggersInitialized = true
 }
 
 func initLoggerViaCommonTest(envCommonLogLevel string, envPackageLogLevel string) {
+	// dummy config initialization, otherwise loggersInitialized=true will be without effect
+	config.GetConfig()
 	initMainLoggerViaCommonTest(envCommonLogLevel, envPackageLogLevel)
 	mLogger = mainLogger
 	loggersInitialized = true
 }
 
 func initLoggerOnlyCommonTest(envCommonLogLevel string) {
+	// dummy config initialization, otherwise loggersInitialized=true will be without effect
+	config.GetConfig()
 	initMainLoggerOnlyCommonTest(envCommonLogLevel)
 	mLogger = mainLogger
 	loggersInitialized = true

@@ -178,6 +178,29 @@ func ClearConfig() {
 	configInitialized = false
 }
 
+// initializes the registered appender and formatter configurations. Marks the whole config as not initialized also
+func ResetRegisteredAppenderAndFormatterConfigs() {
+	configCreationMu.Lock()
+	defer configCreationMu.Unlock()
+
+	relevantKeyPrefixes = []string{
+		DEFAULT_LOG_LEVEL_PROPERTY_NAME,
+		DEFAULT_LOG_APPENDER_PROPERTY_NAME,
+		DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
+		PACKAGE_LOG_PACKAGE_PROPERTY_NAME,
+		PACKAGE_LOG_LEVEL_PROPERTY_NAME,
+		PACKAGE_LOG_APPENDER_PROPERTY_NAME,
+		PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
+		LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
+		LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
+	}
+
+	initializeRegisteredAppenderConfigs()
+	initializeRegisteredFormatterConfigs()
+
+	configInitialized = false
+}
+
 func IsConfigInitialized() bool {
 	configCreationMu.Lock()
 	defer configCreationMu.Unlock()
@@ -313,7 +336,7 @@ func createAppenderConfigEntry(relevantKeyValues *map[string]string, packagePara
 	if creator, exist := registeredAppenderConfigs[commonAppenderConfig.AppenderType]; exist {
 		result, err := creator(relevantKeyValues, &commonAppenderConfig)
 		if err != nil {
-			fmt.Printf("Fail to create appender %s, because of error: %s", commonAppenderConfig.AppenderType, err)
+			fmt.Printf("Fail to create appender config %s, because of error: %s", commonAppenderConfig.AppenderType, err)
 			fmt.Println()
 		}
 		return result
@@ -471,7 +494,7 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 	if creator, exist := registeredFormatterConfigs[commonFormatterConfig.FormatterType]; exist {
 		result, err := creator(relevantKeyValues, &commonFormatterConfig)
 		if err != nil {
-			fmt.Printf("Fail to create formatter %s, because of error: %s", commonFormatterConfig.FormatterType, err)
+			fmt.Printf("Fail to create formatter config %s, because of error: %s", commonFormatterConfig.FormatterType, err)
 			fmt.Println()
 		}
 		return result

@@ -16,7 +16,7 @@ func createTemplateFormatterForTest(template string, correlationIdTemplate strin
 	timeLayout string, trimSeverityText bool) Formatter {
 
 	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout}
-	config := config.TemplateFormatterConfig{
+	var config config.FormatterConfig = config.TemplateFormatterConfig{
 		Common:                      &commonConfig,
 		Template:                    template,
 		CallerTemplate:              callerTemplate,
@@ -26,7 +26,8 @@ func createTemplateFormatterForTest(template string, correlationIdTemplate strin
 		CallerCustomTemplate:        callerCustomTemplate,
 		TrimSeverityText:            trimSeverityText,
 	}
-	return CreateTemplateFormatterFromConfig(config)
+	result, _ := CreateTemplateFormatterFromConfig(&config)
+	return *result
 }
 
 var templateFormatter Formatter = createTemplateFormatterForTest(

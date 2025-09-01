@@ -15,8 +15,9 @@ import (
 
 func createDelimiterFormatterForTest() format.Formatter {
 	commonConfig := config.CommonFormatterConfig{TimeLayout: time.RFC3339}
-	config := config.DelimiterFormatterConfig{Common: &commonConfig, Delimiter: " - "}
-	return format.CreateDelimiterFormatterFromConfig(config)
+	var config config.FormatterConfig = config.DelimiterFormatterConfig{Common: &commonConfig, Delimiter: " - "}
+	result, _ := format.CreateDelimiterFormatterFromConfig(&config)
+	return *result
 }
 
 func CreateStandardOutputAppenderForTest(formatter *format.Formatter) Appender {

@@ -35,17 +35,24 @@ type TemplateFormatter struct {
 }
 
 // Creates a new formatter from a given config
-func CreateTemplateFormatterFromConfig(config config.TemplateFormatterConfig) Formatter {
-	return TemplateFormatter{
-		template:                    config.Template,
-		callerTemplate:              config.CallerTemplate,
-		correlationIdTemplate:       config.CorrelationIdTemplate,
-		callerCorrelationIdTemplate: config.CallerCorrelationIdTemplate,
-		customTemplate:              config.CustomTemplate,
-		callerCustomTemplate:        config.CallerCustomTemplate,
-		timeLayout:                  config.TimeLayout(),
-		trimSeverityText:            config.TrimSeverityText,
+func CreateTemplateFormatterFromConfig(formatterConfig *config.FormatterConfig) (*Formatter, error) {
+	templateFormatterConfig, ok := (*formatterConfig).(config.TemplateFormatterConfig)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert interface to TemplateFormatterConfig for formatter %s", (*formatterConfig).FormatterType())
 	}
+
+	var result Formatter = TemplateFormatter{
+		template:                    templateFormatterConfig.Template,
+		callerTemplate:              templateFormatterConfig.CallerTemplate,
+		correlationIdTemplate:       templateFormatterConfig.CorrelationIdTemplate,
+		callerCorrelationIdTemplate: templateFormatterConfig.CallerCorrelationIdTemplate,
+		customTemplate:              templateFormatterConfig.CustomTemplate,
+		callerCustomTemplate:        templateFormatterConfig.CallerCustomTemplate,
+		timeLayout:                  templateFormatterConfig.TimeLayout(),
+		trimSeverityText:            templateFormatterConfig.TrimSeverityText,
+	}
+
+	return &result, nil
 }
 
 // Formats the given parameter to a string to log

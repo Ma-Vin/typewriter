@@ -23,7 +23,7 @@ func createJsonFormatterForTest(timeKey string, severityKey string, messageKey s
 	customValuesAsSubElement bool) format.Formatter {
 
 	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout}
-	config := config.JsonFormatterConfig{
+	var config config.FormatterConfig = config.JsonFormatterConfig{
 		Common:                   &commonConfig,
 		TimeKey:                  timeKey,
 		SeverityKey:              severityKey,
@@ -35,7 +35,8 @@ func createJsonFormatterForTest(timeKey string, severityKey string, messageKey s
 		CallerFileLineKey:        callerFileLineKey,
 		CustomValuesAsSubElement: customValuesAsSubElement,
 	}
-	return format.CreateJsonFormatterFromConfig(config)
+	result, _ := format.CreateJsonFormatterFromConfig(&config)
+	return *result
 }
 
 func CreateFileAppenderForTest(pathToLogFile string, formatter *format.Formatter, cronExpression string, limitByteSize string) Appender {
