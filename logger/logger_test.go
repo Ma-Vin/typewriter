@@ -1,10 +1,15 @@
 package logger
 
 import (
+	"os"
+	"reflect"
 	"testing"
 
 	"github.com/ma-vin/testutil-go"
+	"github.com/ma-vin/typewriter/appender"
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/config"
+	"github.com/ma-vin/typewriter/format"
 )
 
 func initLoggerViaPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
@@ -2221,4 +2226,235 @@ func TestLoggerOnlyCommonFatalWithExit(t *testing.T) {
 	FatalWithExit("fatal test message")
 
 	assertMessageWithExit(t, "Fatal", "1fatal test message")
+}
+
+// -------------------
+//
+// De-/Register appender and formatter
+//
+// -------------------
+
+type DummyAppenderConfig struct {
+	common *config.CommonAppenderConfig
+}
+
+func (c DummyAppenderConfig) Id() string {
+	return c.common.Id
+}
+func (c DummyAppenderConfig) AppenderType() string {
+	return c.common.AppenderType
+}
+func (c DummyAppenderConfig) IsDefault() bool {
+	return c.common.IsDefault
+}
+func (c DummyAppenderConfig) PackageParameter() string {
+	return c.common.PackageParameter
+}
+func (c DummyAppenderConfig) GetCommon() *config.CommonAppenderConfig {
+	return c.common
+}
+func (c DummyAppenderConfig) Equals(other *config.AppenderConfig) bool {
+	return c.common.Equals((*other).GetCommon())
+}
+func (c DummyAppenderConfig) CreateFullCopy() config.AppenderConfig {
+	return c
+}
+
+func createDummyAppenderConfig(relevantKeyValues *map[string]string, commonConfig *config.CommonAppenderConfig) (*config.AppenderConfig, error) {
+	var result config.AppenderConfig = DummyAppenderConfig{common: commonConfig}
+	return &result, nil
+}
+
+type DummyAppender struct {
+	formatter *format.Formatter
+}
+
+func (s DummyAppender) Write(logValues *common.LogValues) {}
+func (s DummyAppender) Close()                            {}
+
+func createDummyAppender(appenderConfig *config.AppenderConfig, formatter *format.Formatter) (*appender.Appender, error) {
+	var result appender.Appender = DummyAppender{formatter: formatter}
+	return &result, nil
+}
+
+func TestAppenderRegistration(t *testing.T) {
+	customAppenderName := "CUSTOM_APPENDER"
+
+	appender.SkipFileCreationForTest = true
+	os.Clearenv()
+	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, customAppenderName)
+
+	Reset()
+
+	// Check fallback to default one if CUSTOM_FORMATTER is not registered yet
+	result := getLoggers()
+	testutil.AssertNotNil(result, t, "before register - result")
+	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.generalLogger.appender).Name(), t, "before register - generalLogger.appender.Name")
+
+	// Register custom one
+	err := RegisterAppenderWithConfig(customAppenderName, []string{}, createDummyAppender, createDummyAppenderConfig)
+	testutil.AssertNil(err, t, "err of RegisterAppenderWithConfig")
+
+	result = getLoggers()
+	testutil.AssertNotNil(result, t, "after register - result")
+	testutil.AssertEquals("DummyAppender", reflect.TypeOf(*result.generalLogger.appender).Name(), t, "after register - generalLogger.appender.Name")
+
+	// Deregister custom one
+	err = DeregisterAppenderTogetherWithConfig(customAppenderName)
+	testutil.AssertNil(err, t, "err of DeregisterAppenderTogetherWithConfig")
+
+	// Load config without registered appender: fallback to default one
+	result = getLoggers()
+	testutil.AssertNotNil(result, t, "deregister - result")
+	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.generalLogger.appender).Name(), t, "deregister - generalLogger.appender.Name")
+}
+
+func TestAppenderRegistrationKnownAppender(t *testing.T) {
+	Reset()
+	err := RegisterAppenderWithConfig(config.APPENDER_STDOUT, []string{}, createDummyAppender, createDummyAppenderConfig)
+	testutil.AssertNotNil(err, t, "registered known standard output appender")
+
+	err = RegisterAppenderWithConfig(config.APPENDER_FILE, []string{}, createDummyAppender, createDummyAppenderConfig)
+	testutil.AssertNotNil(err, t, "registered known file appender")
+}
+
+func TestAppenderRegistrationWithError(t *testing.T) {
+	customAppenderName := "CUSTOM_APPENDER"
+
+	Reset()
+	// Appender already exist
+	err := RegisterAppender(customAppenderName, createDummyAppender)
+	testutil.AssertNil(err, t, "RegisterFormatter")
+	err = RegisterAppenderWithConfig(customAppenderName, []string{}, createDummyAppender, createDummyAppenderConfig)
+	testutil.AssertNotNil(err, t, "RegisterAppenderWithConfig")
+}
+
+func TestAppenderDeregistrationBuildInAppender(t *testing.T) {
+	Reset()
+	err := DeregisterAppenderTogetherWithConfig(config.APPENDER_STDOUT)
+	testutil.AssertNotNil(err, t, "deregistered standard output appender")
+
+	err = DeregisterAppenderTogetherWithConfig(config.APPENDER_FILE)
+	testutil.AssertNotNil(err, t, "deregistered file appender")
+}
+
+type DummyFormatterConfig struct {
+	common *config.CommonFormatterConfig
+}
+
+func (c DummyFormatterConfig) Id() string {
+	return c.common.Id
+}
+func (c DummyFormatterConfig) FormatterType() string {
+	return c.common.FormatterType
+}
+func (c DummyFormatterConfig) IsDefault() bool {
+	return c.common.IsDefault
+}
+func (c DummyFormatterConfig) PackageParameter() string {
+	return c.common.PackageParameter
+}
+func (c DummyFormatterConfig) TimeLayout() string {
+	return c.common.TimeLayout
+}
+func (c DummyFormatterConfig) GetCommon() *config.CommonFormatterConfig {
+	return c.common
+}
+func (c DummyFormatterConfig) Equals(other *config.FormatterConfig) bool {
+	return c.common.Equals((*other).GetCommon())
+}
+func (c DummyFormatterConfig) CreateFullCopy() config.FormatterConfig {
+	return c
+}
+
+func createDummyFormatterConfig(relevantKeyValues *map[string]string, commonConfig *config.CommonFormatterConfig) (*config.FormatterConfig, error) {
+	var result config.FormatterConfig = DummyFormatterConfig{common: commonConfig}
+	return &result, nil
+}
+
+type DummyFormatter struct {
+}
+
+func (f DummyFormatter) Format(logValues *common.LogValues) string {
+	return logValues.Message
+}
+
+func createDummyFormatter(formatterConfig *config.FormatterConfig) (*format.Formatter, error) {
+	var result format.Formatter = DummyFormatter{}
+	return &result, nil
+}
+
+func TestFormatterRegistration(t *testing.T) {
+
+	customAppenderName := "CUSTOM_APPENDER"
+	customFormatterName := "CUSTOM_FORMATTER"
+
+	appender.SkipFileCreationForTest = true
+	os.Clearenv()
+	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, customAppenderName)
+	os.Setenv(config.DEFAULT_LOG_FORMATTER_PROPERTY_NAME, customFormatterName)
+
+	Reset()
+
+	err := RegisterAppenderWithConfig(customAppenderName, []string{}, createDummyAppender, createDummyAppenderConfig)
+	testutil.AssertNil(err, t, "err of RegisterAppenderWithConfig")
+
+	// Check fallback to default one if CUSTOM_FORMATTER is not registered yet
+	result := getLoggers()
+	testutil.AssertNotNil(result, t, "before register - result")
+	testutil.AssertEquals("DelimiterFormatter", reflect.TypeOf(*(*result.generalLogger.appender).(DummyAppender).formatter).Name(), t, "before register - generalLogger.appender.formatter.Name")
+
+	// Register custom one
+	err = RegisterFormatterWithConfig(customFormatterName, []string{}, createDummyFormatter, createDummyFormatterConfig)
+	testutil.AssertNil(err, t, "err of RegisterFormatterWithConfig")
+
+	result = getLoggers()
+	testutil.AssertNotNil(result, t, "after register - result")
+	testutil.AssertEquals("DummyFormatter", reflect.TypeOf(*(*result.generalLogger.appender).(DummyAppender).formatter).Name(), t, "after register - generalLogger.appender.formatter.Name")
+
+	// Deregister custom one
+	err = DeregisterFormatterTogetherWithConfig(customFormatterName)
+	testutil.AssertNil(err, t, "err of DeregisterFormatter")
+
+	// Load config without registered formatter: fallback to default one
+	result = getLoggers()
+	testutil.AssertNotNil(result, t, "deregister - result")
+	testutil.AssertEquals("DelimiterFormatter", reflect.TypeOf(*(*result.generalLogger.appender).(DummyAppender).formatter).Name(), t, "deregister - generalLogger.appender.formatter.Name")
+}
+
+func TestFormatterRegistrationKnownFormatter(t *testing.T) {
+	Reset()
+	err := RegisterFormatterWithConfig(config.FORMATTER_DELIMITER, []string{}, createDummyFormatter, createDummyFormatterConfig)
+	testutil.AssertNotNil(err, t, "registered known delimiter formatter")
+
+	err = RegisterFormatterWithConfig(config.FORMATTER_TEMPLATE, []string{}, createDummyFormatter, createDummyFormatterConfig)
+	testutil.AssertNotNil(err, t, "registered known template formatter")
+
+	err = RegisterFormatterWithConfig(config.FORMATTER_JSON, []string{}, createDummyFormatter, createDummyFormatterConfig)
+	testutil.AssertNotNil(err, t, "registered known json formatter")
+}
+
+func TestFormatterRegistrationWithError(t *testing.T) {
+	customFormatterName := "CUSTOM_FORMATTER"
+
+	Reset()
+	// Formatter already exist
+	err := RegisterFormatter(customFormatterName, createDummyFormatter)
+	testutil.AssertNil(err, t, "RegisterFormatter")
+	err = RegisterFormatterWithConfig(customFormatterName, []string{}, createDummyFormatter, createDummyFormatterConfig)
+	testutil.AssertNotNil(err, t, "RegisterFormatterWithConfig")
+}
+
+func TestFormatterDeregistrationBuildInFormatter(t *testing.T) {
+	Reset()
+	err := DeregisterFormatterTogetherWithConfig(config.FORMATTER_DELIMITER)
+	testutil.AssertNotNil(err, t, "deregistered delimiter formatter")
+
+	err = DeregisterFormatterTogetherWithConfig(config.FORMATTER_TEMPLATE)
+	testutil.AssertNotNil(err, t, "deregistered template formatter")
+
+	err = DeregisterFormatterTogetherWithConfig(config.FORMATTER_JSON)
+	testutil.AssertNotNil(err, t, "deregistered json formatter")
 }

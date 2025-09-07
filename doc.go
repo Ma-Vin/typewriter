@@ -98,5 +98,25 @@ If “TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>” is not defined but an other
   - “TYPEWRITER_LOG_FORMATTER_TYPE” -> “TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_LOGGER”
   - “TYPEWRITER_LOG_FORMATTER_PARAMETER” -> “TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER”
   - “TYPEWRITER_LOG_FORMATTER_PARAMETER_DELIMITER” -> “TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER_DELIMITER”
+
+# 3. Custom appender and formatter
+
+It is possible to register or deregister custom appender and formatter together with their configuration provider.
+
+1. To register a custom appender use [pkg/github.com/ma-vin/typewriter/logger.RegisterAppenderWithConfig], where to pass
+  - the name of the appender to access it via property “TYPEWRITER_LOG_APPENDER_TYPE” and its package variant (You are not able to override the build in ones)
+  - a slice of key prefixes for properties that you want to map to your configuration implementation (It will be used to filter values of environment or property file before passing them to your configuration constructor)
+  - your constructor function for your implementation of the [pkg/github.com/ma-vin/typewriter/appender.Appender] interface
+  - your constructor function for your implementation of the corresponding [pkg/github.com/ma-vin/typewriter/config.AppenderConfig] interface
+
+2. To deregister a custom appender use [pkg/github.com/ma-vin/typewriter/logger.DeregisterAppenderTogetherWithConfig], where to pass the name of your appender (You are not able to remove the build in ones)
+
+3. To register a custom formatter use [pkg/github.com/ma-vin/typewriter/logger.RegisterFormatterWithConfig], where to pass
+  - the name of the formatter to access it via property “TYPEWRITER_LOG_FORMATTER_TYPE” and its package variant (You are not able to override the build in ones)
+  - a slice of key prefixes for properties that you want to map to your configuration implementation (It will be used to filter values of environment or property file before passing them to your configuration constructor)
+  - your constructor function for your implementation of the [pkg/github.com/ma-vin/typewriter/format.Formatter] interface
+  - your constructor function for your implementation of the corresponding [pkg/github.com/ma-vin/typewriter/config.FormatterConfig] interface
+
+4. To deregister a custom formatter use [pkg/github.com/ma-vin/typewriter/logger.DeregisterFormatterTogetherWithConfig], where to pass the name of your formatter (You are not able to remove the build in ones)
 */
 package typewriter

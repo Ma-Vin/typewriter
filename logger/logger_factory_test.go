@@ -8,7 +8,6 @@ import (
 
 	"github.com/ma-vin/testutil-go"
 	"github.com/ma-vin/typewriter/appender"
-	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/format"
 )
@@ -404,19 +403,6 @@ func createJsonConfigForTest(relevantKeyValues *map[string]string, commonFormatt
 		CallerFileKey:            config.DEFAULT_CALLER_FILE_KEY,
 		CallerFileLineKey:        config.DEFAULT_CALLER_FILE_LINE_KEY,
 	}
-	return &result, nil
-}
-
-type DummyAppender struct {
-	formatter *format.Formatter
-}
-
-func (s DummyAppender) Write(logValues *common.LogValues) {}
-
-func (s DummyAppender) Close() {}
-
-func createDummyAppender(appenderConfig *config.AppenderConfig, formatter *format.Formatter) (*appender.Appender, error) {
-	var result appender.Appender = DummyAppender{formatter: formatter}
 	return &result, nil
 }
 

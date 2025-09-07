@@ -2,7 +2,11 @@
 // which provides all logging functions by implementing the interface [pkg/github.com/ma-vin/typewriter/logger.Logger]
 package logger
 
-import "github.com/ma-vin/typewriter/config"
+import (
+	"github.com/ma-vin/typewriter/appender"
+	"github.com/ma-vin/typewriter/config"
+	"github.com/ma-vin/typewriter/format"
+)
 
 type Logger interface {
 
@@ -595,6 +599,64 @@ func IsFatalEnabled() bool {
 // Resets loggers. Configuration will be loaded and loggers will be created again.
 // The registered custom appenders, formatters and their configurations will be reset also
 func Reset() {
-	ResetRegisteredAppenderAndFormatters() 
+	ResetRegisteredAppenderAndFormatters()
 	config.ResetRegisteredAppenderAndFormatterConfigs()
+}
+
+// Registers an appender and its configuration constructor functions: appenderCreator and appenderConfigCreator.
+// The 'appenderType' contains the name which can be referenced by the configuration entry TYPEWRITER_LOG_APPENDER_TYPE or the package variant at environment or file.
+// To provide all relevant configuration entries from environment or file their key prefix has to be set by 'keyPrefixes'
+func RegisterAppenderWithConfig(appenderType string, keyPrefixes []string,
+	appenderCreator func(appenderConfig *config.AppenderConfig, formatter *format.Formatter) (*appender.Appender, error),
+	appenderConfigCreator func(relevantKeyValues *map[string]string, commonConfig *config.CommonAppenderConfig) (*config.AppenderConfig, error)) error {
+
+	err := config.RegisterAppenderConfig(appenderType, keyPrefixes, appenderConfigCreator)
+	if err != nil {
+		return err
+	}
+
+	err = RegisterAppender(appenderType, appenderCreator)
+	if err != nil {
+		config.DeregisterAppenderConfig(appenderType)
+		return err
+	}
+	return nil
+}
+
+// Removes an appender and its configuration constructor functions from registration
+func DeregisterAppenderTogetherWithConfig(appenderType string) error {
+	err := config.DeregisterAppenderConfig(appenderType)
+	if err != nil {
+		return err
+	}
+	return DeregisterAppender(appenderType)
+}
+
+// Registers a formatter and its configuration constructor functions: formatterCreator and formatterConfigCreator.
+// The 'formatterType' contains the name which can be referenced by the configuration entry TYPEWRITER_LOG_FORMATTER_TYPE or the package variant at environment or file.
+// To provide all relevant configuration entries from environment or file their key prefix has to be set by 'keyPrefixes'
+func RegisterFormatterWithConfig(formatterType string, keyPrefixes []string,
+	formatterCreator func(formatterConfig *config.FormatterConfig) (*format.Formatter, error),
+	formatterConfigCreator func(relevantKeyValues *map[string]string, commonConfig *config.CommonFormatterConfig) (*config.FormatterConfig, error)) error {
+
+	err := config.RegisterFormatterConfig(formatterType, keyPrefixes, formatterConfigCreator)
+	if err != nil {
+		return err
+	}
+
+	err = RegisterFormatter(formatterType, formatterCreator)
+	if err != nil {
+		config.DeregisterFormatterConfig(formatterType)
+		return err
+	}
+	return nil
+}
+
+// Removes an formatter and its configuration constructor functions from registration
+func DeregisterFormatterTogetherWithConfig(formatterType string) error {
+	err := config.DeregisterFormatterConfig(formatterType)
+	if err != nil {
+		return err
+	}
+	return DeregisterFormatter(formatterType)
 }

@@ -1,7 +1,6 @@
 [![Build and test](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml/badge.svg)](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/ma-vin/typewriter.svg)](https://pkg.go.dev/github.com/ma-vin/typewriter)
 
-
 # Typewriter
 
 This repository provides a GoLang logging package, which are inspired by some Log4j features like package specific enablement.
@@ -125,6 +124,23 @@ The table shows the corresponding variable names for the example package *logger
 | `TYPEWRITER_LOG_FORMATTER_PARAMETER_DELIMITER` | `TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER_DELIMITER` |
 
 If `TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>` is not defined but an other package specific element. The `identifier` in lower case will be used as package name instead.
+
+### Custom appender and formatter
+
+It is possible to register or deregister custom appender and formatter together with their configuration provider.
+
+* To register a custom appender use `logger.RegisterAppenderWithConfig`, where to pass
+  * the name of the appender to access it via property `TYPEWRITER_LOG_APPENDER_TYPE` and its package variant (You are not able to override the build in ones)
+  * a slice of key prefixes for properties that you want to map to your configuration implementation (It will be used to filter values of environment or property file before passing them to your configuration constructor)
+  * your constructor function for your implementation of the `appender.Appender` interface at [appender/appender.go](appender/appender.go)
+  * your constructor function for your implementation of the corresponding `config.AppenderConfig` interface  at [config/appender_configuration.go](config/appender_configuration.go)
+* To deregister a custom appender use `logger.DeregisterAppenderTogetherWithConfig`, where to pass the name of your appender (You are not able to remove the build in ones)
+* To register a custom formatter use `logger.RegisterFormatterWithConfig`, where to pass
+  * the name of the formatter to access it via property `TYPEWRITER_LOG_FORMATTER_TYPE` and its package variant (You are not able to override the build in ones)
+  * a slice of key prefixes for properties that you want to map to your configuration implementation (It will be used to filter values of environment or property file before passing them to your configuration constructor)
+  * your constructor function for your implementation of the `format.Formatter` interface at [format/formatter.go](format/formatter.go)
+  * your constructor function for your implementation of the corresponding `config.FormatterConfig` interface at [config/formatter_configuration.go](config/formatter_configuration.go)
+* To deregister a custom formatter use `logger.DeregisterFormatterTogetherWithConfig`, where to pass the name of your formatter (You are not able to remove the build in ones)
 
 ## Examples
 
