@@ -1117,7 +1117,6 @@ func TestRegisterKnownAppenderConfig(t *testing.T) {
 	testutil.AssertNotNil(err, t, "registered known appender")
 }
 
-
 func TestDeregisterBuildInAppenderConfig(t *testing.T) {
 	err := DeregisterAppenderConfig(APPENDER_STDOUT)
 	testutil.AssertNotNil(err, t, "deregistered standard output appender")
@@ -1180,7 +1179,6 @@ func TestRegisterKnownFormatterConfig(t *testing.T) {
 	testutil.AssertNotNil(err, t, "registered known formatter")
 }
 
-
 func TestDeregisterBuildInFormatterConfig(t *testing.T) {
 	err := DeregisterFormatterConfig(FORMATTER_DELIMITER)
 	testutil.AssertNotNil(err, t, "deregistered delimiter formatter")
@@ -1195,4 +1193,55 @@ func TestDeregisterBuildInFormatterConfig(t *testing.T) {
 func TestDeregisterUnknownFormatterConfig(t *testing.T) {
 	err := DeregisterFormatterConfig("Anything")
 	testutil.AssertNotNil(err, t, "deregistered unknown formatter")
+}
+
+func TestGetConfigMultiAppender(t *testing.T) {
+	logFilePath := "pathToLogFile"
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, fmt.Sprintf("%s, %s", APPENDER_STDOUT, APPENDER_FILE))
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
+
+		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
+		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "result.appender[0].PackageParameter")
+		testutil.AssertEquals(APPENDER_MULTIPLE, result.Appender[0].AppenderType(), t, "result.appender[0].appenderType")
+		multiAppender := result.Appender[0].(MultiAppenderConfig)
+		testutil.AssertEquals(2, len(*multiAppender.AppenderConfigs), t, "len(*multiAppender.AppenderConfigs)")
+		testutil.AssertEquals(APPENDER_STDOUT, (*multiAppender.AppenderConfigs)[0].AppenderType(), t, "(*multiAppender.AppenderConfigs)[0].AppenderType()")
+		testutil.AssertEquals(APPENDER_FILE, (*multiAppender.AppenderConfigs)[1].AppenderType(), t, "(*multiAppender.AppenderConfigs)[1].AppenderType()")
+		testutil.AssertEquals(logFilePath, (*multiAppender.AppenderConfigs)[1].(FileAppenderConfig).PathToLogFile, t, "(*multiAppender.AppenderConfigs)[1].(FileAppenderConfig).PathToLogFile")
+
+		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+	}
+}
+
+func TestGetConfigMultiAppenderUnknown(t *testing.T){
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, fmt.Sprintf("%s, %s", "abc", APPENDER_FILE))
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
+
+		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
+		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "result.appender[0].PackageParameter")
+		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType(), t, "result.appender[0].appenderType")
+
+		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+	}
 }

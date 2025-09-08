@@ -75,8 +75,9 @@ const (
 	FORMATTER_TEMPLATE  = "TEMPLATE"
 	FORMATTER_JSON      = "JSON"
 
-	APPENDER_STDOUT = "STDOUT"
-	APPENDER_FILE   = "FILE"
+	APPENDER_STDOUT   = "STDOUT"
+	APPENDER_FILE     = "FILE"
+	APPENDER_MULTIPLE = "MULTIPLE"
 
 	LOGGER_GENERAL = "GENERAL"
 
@@ -333,7 +334,7 @@ func createAppenderConfigEntry(relevantKeyValues *map[string]string, packagePara
 		PackageParameter: packageParameter,
 	}
 
-	if creator, exist := registeredAppenderConfigs[commonAppenderConfig.AppenderType]; exist {
+	if creator, exist := getAppenderConfigCreator(&commonAppenderConfig); exist {
 		result, err := creator(relevantKeyValues, &commonAppenderConfig)
 		if err != nil {
 			fmt.Printf("Fail to create appender config %s, because of error: %s", commonAppenderConfig.AppenderType, err)
@@ -344,6 +345,21 @@ func createAppenderConfigEntry(relevantKeyValues *map[string]string, packagePara
 
 	printHint(commonAppenderConfig.AppenderType, appenderKey)
 	return nil
+}
+
+func getAppenderConfigCreator(commonAppenderConfig *CommonAppenderConfig) (func(relevantKeyValues *map[string]string, commonConfig *CommonAppenderConfig) (*AppenderConfig, error), bool) {
+	if strings.Contains(commonAppenderConfig.AppenderType, ",") {
+		for s := range strings.SplitSeq(commonAppenderConfig.AppenderType, ",") {
+			_, exist := registeredAppenderConfigs[strings.TrimSpace(s)]
+			if !exist {
+				return nil, false
+			}
+		}
+		creator, exist := registeredAppenderConfigs[APPENDER_MULTIPLE]
+		return creator, exist
+	}
+	creator, exist := registeredAppenderConfigs[commonAppenderConfig.AppenderType]
+	return creator, exist
 }
 
 // Creates a standard output appender configuration
@@ -380,6 +396,33 @@ func createFileAppenderConfig(relevantKeyValues *map[string]string, commonAppend
 	return nil, fmt.Errorf("cannot use file appender, because there is no value at %s. Use %s appender instead", fileParameterKey, APPENDER_STDOUT)
 }
 
+func createMultipleAppenderConfig(relevantKeyValues *map[string]string, commonAppenderConfig *CommonAppenderConfig) (*AppenderConfig, error) {
+	appenderTypes := strings.Split(commonAppenderConfig.AppenderType, ",")
+	appenderConfigs := make([]AppenderConfig, len(appenderTypes))
+
+	for i, s := range appenderTypes {
+		s = strings.TrimSpace(s)
+		subCommonAppenderConfig := CommonAppenderConfig{
+			AppenderType:     s,
+			IsDefault:        commonAppenderConfig.IsDefault,
+			PackageParameter: commonAppenderConfig.PackageParameter,
+		}
+		appenderConfig, err := registeredAppenderConfigs[s](relevantKeyValues, &subCommonAppenderConfig)
+		if err != nil {
+			return nil, err
+		}
+		appenderConfigs[i] = *appenderConfig
+	}
+
+	commonAppenderConfig.AppenderType = APPENDER_MULTIPLE
+	var result AppenderConfig = MultiAppenderConfig{
+		Common:          commonAppenderConfig,
+		AppenderConfigs: &appenderConfigs,
+	}
+
+	return &result, nil
+}
+
 // Registers the out of the box stdOut- and file-appender
 func initializeRegisteredAppenderConfigs() {
 	registeredAppenderConfigs = make(map[string]func(relevantKeyValues *map[string]string, commonAppenderConfig *CommonAppenderConfig) (*AppenderConfig, error))
@@ -395,6 +438,7 @@ func initializeRegisteredAppenderConfigs() {
 
 	registerAppenderConfigInternal(APPENDER_STDOUT, []string{}, createStdOutAppenderConfig)
 	registerAppenderConfigInternal(APPENDER_FILE, fileKeyPrefixes, createFileAppenderConfig)
+	registerAppenderConfigInternal(APPENDER_MULTIPLE, []string{}, createMultipleAppenderConfig)
 }
 
 // Registers a creator of a configuration for an appender with the given identifier 'appenderType'. But without initialization check and mutex lock.
@@ -897,14 +941,22 @@ func determineFormatterIds() {
 }
 
 func determineAppenderIds() {
-	for i := 0; i < len(config.Appender); i++ {
-		if config.Appender[i].Id() != "" {
+	allAppenders := make([]AppenderConfig, 0, len(config.Appender))
+	for _, a1 := range config.Appender {
+		allAppenders = append(allAppenders, a1)
+		if a1.GetCommon().AppenderType == APPENDER_MULTIPLE {
+			allAppenders = append(allAppenders, *a1.(MultiAppenderConfig).AppenderConfigs...)
+		}
+	}
+
+	for i := 0; i < len(allAppenders); i++ {
+		if allAppenders[i].Id() != "" {
 			continue
 		}
-		config.Appender[i].GetCommon().Id = fmt.Sprint("appender", i)
-		for j := i + 1; j < len(config.Appender); j++ {
-			if config.Appender[i].Equals(&config.Appender[j]) {
-				config.Appender[j].GetCommon().Id = config.Appender[i].Id()
+		allAppenders[i].GetCommon().Id = fmt.Sprint("appender", i)
+		for j := i + 1; j < len(allAppenders); j++ {
+			if allAppenders[i].Equals(&allAppenders[j]) {
+				allAppenders[j].GetCommon().Id = allAppenders[i].Id()
 			}
 		}
 	}

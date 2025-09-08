@@ -111,3 +111,58 @@ func (c StdOutAppenderConfig) CreateFullCopy() AppenderConfig {
 	c.Common = &commonConfig
 	return c
 }
+
+type MultiAppenderConfig struct {
+	Common          *CommonAppenderConfig
+	AppenderConfigs *[]AppenderConfig
+}
+
+func (c MultiAppenderConfig) Id() string {
+	return c.Common.Id
+}
+
+func (c MultiAppenderConfig) AppenderType() string {
+	return c.Common.AppenderType
+}
+
+func (c MultiAppenderConfig) IsDefault() bool {
+	return c.Common.IsDefault
+}
+
+func (c MultiAppenderConfig) PackageParameter() string {
+	return c.Common.PackageParameter
+}
+
+func (c MultiAppenderConfig) GetCommon() *CommonAppenderConfig {
+	return c.Common
+}
+
+func (c MultiAppenderConfig) Equals(other *AppenderConfig) bool {
+	if !c.Common.Equals((*other).GetCommon()) || len(*c.AppenderConfigs) != len(*(*other).(MultiAppenderConfig).AppenderConfigs) {
+		return false
+	}
+	for _, a1 := range *c.AppenderConfigs {
+		exist := false
+		for _, a2 := range *(*other).(MultiAppenderConfig).AppenderConfigs {
+			if a1.Equals(&a2) {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			return false
+		}
+	}
+	return true
+}
+
+func (c MultiAppenderConfig) CreateFullCopy() AppenderConfig {
+	commonConfig := *c.Common
+	c.Common = &commonConfig
+	appenderConfigs := make([]AppenderConfig, len(*c.AppenderConfigs))
+	for i, a := range *c.AppenderConfigs {
+		appenderConfigs[i] = a.CreateFullCopy()
+	}
+	c.AppenderConfigs = &appenderConfigs
+	return c
+}
