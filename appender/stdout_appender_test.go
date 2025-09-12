@@ -31,18 +31,16 @@ var testDelimiterFormatter = createDelimiterFormatterForTest()
 var delimiterFormatterTestTime = time.Date(2024, time.November, 30, 19, 0, 0, 0, time.UTC)
 var delimiterFormatterTestTimeText = delimiterFormatterTestTime.Format(time.RFC3339)
 
-func TestDefaultIsStdOut(t *testing.T) {
+func TestStandardOutputAppenderDefaultIsStdOut(t *testing.T) {
 	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)
 
 	testutil.AssertEquals(os.Stdout, appender.writer, t, "default output")
 }
 
-func TestWrite(t *testing.T) {
+func TestStandardOutputAppenderWrite(t *testing.T) {
 	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
 
-	buf := new(bytes.Buffer)
-	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)
-	appender.writer = buf
+	appender, buf := createTestStandardOutputAppender()
 
 	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
 	appender.Write(&logValuesToFormat)
@@ -50,13 +48,11 @@ func TestWrite(t *testing.T) {
 	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - Testmessage", strings.TrimSpace(buf.String()), t, "Write")
 }
 
-func TestWriteWithCorrelation(t *testing.T) {
+func TestStandardOutputAppenderWriteWithCorrelation(t *testing.T) {
 	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
 	correlation := "someCorrelationId"
 
-	buf := new(bytes.Buffer)
-	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)
-	appender.writer = buf
+	appender, buf := createTestStandardOutputAppender()
 
 	logValuesToFormat := common.CreateLogValuesWithCorrelation(common.INFORMATION_SEVERITY, &correlation, "Testmessage")
 	appender.Write(&logValuesToFormat)
@@ -64,12 +60,10 @@ func TestWriteWithCorrelation(t *testing.T) {
 	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - someCorrelationId - Testmessage", strings.TrimSpace(buf.String()), t, "WriteWithCorrelation")
 }
 
-func TestWriteCustom(t *testing.T) {
+func TestStandardOutputAppenderWriteCustom(t *testing.T) {
 	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
 
-	buf := new(bytes.Buffer)
-	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)
-	appender.writer = buf
+	appender, buf := createTestStandardOutputAppender()
 
 	customProperties := map[string]any{
 		"first":  "abc",
@@ -81,4 +75,12 @@ func TestWriteCustom(t *testing.T) {
 	appender.Write(&logValuesToFormat)
 
 	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - Testmessage - abc - 1 - true", strings.TrimSpace(buf.String()), t, "WriteCustom")
+}
+
+func createTestStandardOutputAppender() (Appender, *bytes.Buffer) {
+	buf := new(bytes.Buffer)
+	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)
+	appender.writer = buf
+
+	return appender, buf
 }

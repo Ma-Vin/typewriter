@@ -125,6 +125,32 @@ func TestGetLoggersCreateFromEnvDefaultFileAppender(t *testing.T) {
 	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
 }
 
+func TestGetLoggersCreateFromEnvDefaultMultiAppender(t *testing.T) {
+	appender.SkipFileCreationForTest = true
+	logFilePath := "pathToLogFile"
+	os.Clearenv()
+	os.Setenv(config.DEFAULT_LOG_LEVEL_PROPERTY_NAME, config.LOG_LEVEL_INFO)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_PROPERTY_NAME, config.APPENDER_FILE+","+config.APPENDER_STDOUT)
+	os.Setenv(config.DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
+	Reset()
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.generalLogger, t, "generalLogger")
+	testutil.AssertFalse(result.generalLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertTrue(result.generalLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertTrue(result.generalLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.generalLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.generalLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.generalLogger.appender, t, "generalLogger.appender")
+	testutil.AssertEquals("MultiAppender", reflect.TypeOf(*result.generalLogger.appender).Name(), t, "generalLogger.appender.Name")
+	testutil.AssertTrue((*result.generalLogger.appender).(appender.MultiAppender).CheckSubAppenderTypesForTest([]string{"FileAppender", "StandardOutputAppender"}), t, "CheckSubAppenderTypesForTest")
+
+	testutil.AssertFalse(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
+	testutil.AssertEquals(0, len(result.packageLoggers), t, "len(result.packageLoggers)")
+}
+
 //
 // Get Loggers with packages
 //
@@ -264,6 +290,40 @@ func TestGetLoggersCreateFromEnvPackagePartialOnlyAppender(t *testing.T) {
 	testutil.AssertNotNil(result.packageLoggers[packageName].appender, t, "packageLoggers[packageName].appender")
 
 	testutil.AssertNotEquals(result.generalLogger.appender, result.packageLoggers[packageName].appender, t, "packageLoggers[packageName].appender.")
+}
+func TestGetLoggersCreateFromEnvPackagePartialOnlyMultiAppender(t *testing.T) {
+	appender.SkipFileCreationForTest = true
+	packageName := "testPackage"
+	logFilePath := "pathToLogFile"
+	os.Clearenv()
+	os.Setenv(config.PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+	os.Setenv(config.PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, config.APPENDER_FILE+","+config.APPENDER_STDOUT)
+	os.Setenv(config.PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
+	Reset()
+
+	result := getLoggers()
+
+	testutil.AssertNotNil(result.generalLogger, t, "generalLogger")
+	testutil.AssertFalse(result.generalLogger.debugEnabled, t, "debugEnabled")
+	testutil.AssertFalse(result.generalLogger.informationEnabled, t, "informationEnabled")
+	testutil.AssertFalse(result.generalLogger.warningEnabled, t, "warningEnabled")
+	testutil.AssertTrue(result.generalLogger.errorEnabled, t, "errorEnabled")
+	testutil.AssertTrue(result.generalLogger.fatalEnabled, t, "fatalEnabled")
+	testutil.AssertNotNil(result.generalLogger.appender, t, "generalLogger.appender")
+	testutil.AssertEquals("StandardOutputAppender", reflect.TypeOf(*result.generalLogger.appender).Name(), t, "generalLogger.appender.Name")
+
+	testutil.AssertTrue(result.existPackageLogger, t, "existPackageLogger")
+	testutil.AssertFalse(result.useFullQualifiedPackage, t, "useFullQualifiedPackage")
+	testutil.AssertEquals(1, len(result.packageLoggers), t, "len(result.packageLoggers)")
+	testutil.AssertNotNil(result.packageLoggers[packageName], t, "packageLoggers[packageName]")
+	testutil.AssertFalse(result.packageLoggers[packageName].debugEnabled, t, "packageLoggers[packageName].debugEnabled")
+	testutil.AssertFalse(result.packageLoggers[packageName].informationEnabled, t, "packageLoggers[packageName].informationEnabled")
+	testutil.AssertFalse(result.packageLoggers[packageName].warningEnabled, t, "packageLoggers[packageName].warningEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageName].errorEnabled, t, "packageLoggers[packageName].errorEnabled")
+	testutil.AssertTrue(result.packageLoggers[packageName].fatalEnabled, t, "packageLoggers[packageName].fatalEnabled")
+	testutil.AssertNotNil(result.packageLoggers[packageName].appender, t, "packageLoggers[packageName].appender")
+	testutil.AssertEquals("MultiAppender", reflect.TypeOf(*result.packageLoggers[packageName].appender).Name(), t, "generalLogger.appender.Name")
+	testutil.AssertTrue((*result.packageLoggers[packageName].appender).(appender.MultiAppender).CheckSubAppenderTypesForTest([]string{"FileAppender", "StandardOutputAppender"}), t, "CheckSubAppenderTypesForTest")
 }
 
 func TestGetLoggersCreateFromEnvPackagePartialOnlyFormatterWithParameter(t *testing.T) {

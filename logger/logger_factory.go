@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 
@@ -176,31 +177,71 @@ func DeregisterFormatter(formatterType string) error {
 // Creates the all relevant appenders from config elements
 func createAppenders(conf *config.Config, appenderConfigMapping *map[string]*appender.Appender, formatterConfigMapping *map[string]*format.Formatter) {
 	appender.CleanFileDeductions()
-	for _, ac1 := range conf.Appender {
-		alreadyCreated := false
-		ac1FormatterId := (*getFormatterConfigForPackage(&ac1.GetCommon().PackageParameter, &conf.Formatter)).Id()
-
-		for _, ac2 := range conf.Appender {
-			if ac1.Id() == ac2.Id() && ac1FormatterId == (*getFormatterConfigForPackage(&ac2.GetCommon().PackageParameter, &conf.Formatter)).Id() {
-
-				_, alreadyCreated = (*appenderConfigMapping)[ac1.Id()+ac1FormatterId]
-				break
-			}
-		}
-
-		if alreadyCreated {
+	flattenAppenderConfigs := flattenAppenderConfigs(&conf.Appender)
+	for i, ac1 := range *flattenAppenderConfigs {
+		if getExistingAppender(i, ac1, flattenAppenderConfigs, &conf.Formatter, appenderConfigMapping) != nil {
 			continue
 		}
 
-		result := createAppender(ac1, (*formatterConfigMapping)[ac1FormatterId])
-		appendAppender(*result)
+		ac1FormatterId := (*getFormatterConfigForPackage(&ac1.GetCommon().PackageParameter, &conf.Formatter)).Id()
+		appender := createAppender(ac1, (*formatterConfigMapping)[ac1FormatterId], ac1FormatterId, appenderConfigMapping)
+		appendAppender(*appender)
 		setLastAppender(ac1.Id()+ac1FormatterId, appenderConfigMapping)
 	}
 }
 
-func createAppender(appenderConfig config.AppenderConfig, formatter *format.Formatter) *appender.Appender {
+// Flattens a list of appender configs by adding the sub-appenders to the result list also
+func flattenAppenderConfigs(appenderConfigs *[]config.AppenderConfig) *[]config.AppenderConfig {
+	result := make([]config.AppenderConfig, 0, len(*appenderConfigs))
+	for _, c := range *appenderConfigs {
+		if containsAppenderConfig(&result, &c) {
+			continue
+		}
+		if c.GetCommon().AppenderType == config.APPENDER_MULTIPLE {
+			for _, c2 := range *c.(config.MultiAppenderConfig).AppenderConfigs {
+				if !containsAppenderConfig(&result, &c2) {
+					result = append(result, c2)
+				}
+			}
+		}
+		result = append(result, c)
+	}
+	return &result
+}
+
+// Checks whether an appender config is contained by id and package name at a slice of configs or not
+func containsAppenderConfig(appenderConfigs *[]config.AppenderConfig, appenderConfig *config.AppenderConfig) bool {
+	return slices.ContainsFunc(*appenderConfigs, func(c config.AppenderConfig) bool {
+		return (*appenderConfig).Id() == c.Id() && (*appenderConfig).PackageParameter() == c.PackageParameter()
+	})
+}
+
+// Determines if there exists an appender for a given config with respect to its id and the package relevant formatter id. If there does not exist any, nil will be returned.
+func getExistingAppender(appenderConfigIndex int, appenderConfig config.AppenderConfig, flattenAppenderConfigs *[]config.AppenderConfig,
+	formatterConfigs *[]config.FormatterConfig, appenderConfigMapping *map[string]*appender.Appender) *appender.Appender {
+
+	formatterId := (*getFormatterConfigForPackage(&appenderConfig.GetCommon().PackageParameter, formatterConfigs)).Id()
+
+	for i, a := range *flattenAppenderConfigs {
+		if i >= appenderConfigIndex {
+			return nil
+		}
+		if appenderConfig.Id() == a.Id() && formatterId == (*getFormatterConfigForPackage(&a.GetCommon().PackageParameter, formatterConfigs)).Id() {
+			return (*appenderConfigMapping)[appenderConfig.Id()+formatterId]
+		}
+	}
+	return nil
+}
+
+// Creates the appender for a given config and formatter. To be able to find existing sub-appenders for a multi appender, the id of the formatter and appender id map is relevant also
+func createAppender(appenderConfig config.AppenderConfig, formatter *format.Formatter, formatterId string, appenderConfigMapping *map[string]*appender.Appender) *appender.Appender {
+	if appenderConfig.GetCommon().AppenderType == config.APPENDER_MULTIPLE {
+		return createMultiAppender(appenderConfig.(config.MultiAppenderConfig), formatterId, appenderConfigMapping)
+	}
+
 	var result *appender.Appender
 	var err error
+
 	if creator, exist := registeredAppenders[appenderConfig.AppenderType()]; exist {
 		result, err = creator(&appenderConfig, formatter)
 		if err != nil {
@@ -212,7 +253,17 @@ func createAppender(appenderConfig config.AppenderConfig, formatter *format.Form
 		result, _ = appender.CreateStandardOutputAppenderFromConfig(nil, formatter)
 	}
 	return result
+}
 
+// Creates a new multi appender. All sub-appenders have to created before usage
+func createMultiAppender(appenderConfig config.MultiAppenderConfig, formatterId string, appenderConfigMapping *map[string]*appender.Appender) *appender.Appender {
+	multiAppender := appender.CreateMultiAppenderWithCapacity(len(*appenderConfig.AppenderConfigs))
+	for _, ac := range *appenderConfig.AppenderConfigs {
+		subAppender := (*appenderConfigMapping)[ac.Id()+formatterId]
+		multiAppender.AddSubAppender(subAppender)
+	}
+	var appender appender.Appender = *multiAppender
+	return &appender
 }
 
 func appendAppender(appender appender.Appender) {

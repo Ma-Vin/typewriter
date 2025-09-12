@@ -48,6 +48,8 @@ There are two types of appender at the moment. They can be configured by setting
   - FILE: File appender which writes to a file. The target file of the appender has to be configured by setting the path to “TYPEWRITER_LOG_APPENDER_FILE”.
     Renaming of the log file with existing entries at a specific point in time can be configured with a cron expression at “TYPEWRITER_LOG_APPENDER_CRON_RENAMING” (allowed characters are “* , - /”. The day of week is zero based)
     Renaming of the log file with existing entries, if a limit of bytes will be exceeded by next log entry, can be configured by an integer at “TYPEWRITER_LOG_APPENDER_SIZE_RENAMING” (“kb”/“KB” or “mb”/“MB” can be added). This value will be ignored if “TYPEWRITER_LOG_APPENDER_CRON_RENAMING” is set also.
+  - Your id of a registered custom appender
+  - It is possible to use multiple appenders in parallel by setting them as comma separated list
 
 # 2.4 Formatter
 

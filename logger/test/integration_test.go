@@ -119,6 +119,25 @@ func TestFileAppenderSizeRenameLongRun(t *testing.T) {
 	testutil.AssertEquals(expectedLogSize, logSize, t, "logSize")
 }
 
+func TestMultiAppender(t *testing.T) {
+	logFilePath := testutil.DetermineTestCaseFilePathAt("multiAppender", "log", true, true, testResourceTarget)
+
+	os.Clearenv()
+	logger.Reset()
+
+	os.Setenv("TYPEWRITER_LOG_LEVEL", "INFO")
+	os.Setenv("TYPEWRITER_LOG_APPENDER_TYPE", "FILE,STDOUT")
+	os.Setenv("TYPEWRITER_LOG_APPENDER_FILE", logFilePath)
+
+	for i := 0; i < 10; i++ {
+		logger.Information("some info message ", i)
+	}
+
+	stat, err := os.Stat(logFilePath)
+	testutil.AssertNil(err, t, "err of os.Stat(logFilePath)")
+	testutil.AssertEquals(int64(560), stat.Size(), t, "stat.Size()")
+}
+
 func waitForStartTime() {
 	second := time.Now().Second()
 	if second > 0 && second < 10 {
