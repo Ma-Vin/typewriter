@@ -128,6 +128,8 @@ func TestMultiAppender(t *testing.T) {
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "INFO")
 	os.Setenv("TYPEWRITER_LOG_APPENDER_TYPE", "FILE,STDOUT")
 	os.Setenv("TYPEWRITER_LOG_APPENDER_FILE", logFilePath)
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TIME_LAYOUT", time.DateTime)
+
 
 	for i := 0; i < 10; i++ {
 		logger.Information("some info message ", i)
@@ -135,7 +137,7 @@ func TestMultiAppender(t *testing.T) {
 
 	stat, err := os.Stat(logFilePath)
 	testutil.AssertNil(err, t, "err of os.Stat(logFilePath)")
-	testutil.AssertEquals(int64(560), stat.Size(), t, "stat.Size()")
+	testutil.AssertEquals(int64(500), stat.Size(), t, "stat.Size()")
 }
 
 func waitForStartTime() {
