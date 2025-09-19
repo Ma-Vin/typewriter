@@ -660,3 +660,16 @@ func DeregisterFormatterTogetherWithConfig(formatterType string) error {
 	}
 	return DeregisterFormatter(formatterType)
 }
+
+// Closes all appenders and marks the loggers and configuration as uninitialized
+func Close() {
+	loggerCreationMu.Lock()
+	defer loggerCreationMu.Unlock()
+
+	loggersInitialized = false
+	config.ClearConfig()
+
+	for _, a := range appenders {
+		a.Close()
+	}
+}

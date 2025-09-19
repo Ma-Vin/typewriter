@@ -245,6 +245,22 @@ func TestFileAppenderWriteCustom(t *testing.T) {
 	checkLogFileEntry(logFilePath, "{\"first\":\"abc\",\"message\":\"Testmessage\",\"severity\":\"INFO\",\"time\":\""+jsonFormatTestTimeText+"\"}", t)
 }
 
+func TestFileAppenderClose(t *testing.T) {
+	logFilePath := getAppenderTestLogFile("close")
+	common.SetLogValuesMockTime(&jsonFormatTestTime)
+
+	appender := CreateFileAppenderForTest(logFilePath, &testJsonFormatter, "", "").(FileAppender)
+
+	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
+	testutil.AssertFalse(*appender.isClosed, t, "isNotClosed")
+	appender.Close()
+	appender.Write(&logValuesToFormat)
+	appender.Close()
+	testutil.AssertTrue(*appender.isClosed, t, "isClosed")
+
+	checkLogFileEntry(logFilePath, "", t)
+}
+
 func checkLogFileEntry(logFilePath string, entry string, t *testing.T) {
 	checkLogFileEntries(logFilePath, []string{entry}, t)
 }

@@ -27,6 +27,8 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 	*testMainGeneralLoggerAppender.(TestAppender).content = []string{}
 	*testMainPackageLoggerAppender.(TestAppender).content = []string{}
 
+	appenders = []appender.Appender{testMainGeneralLoggerAppender, testMainPackageLoggerAppender}
+
 	testMainGeneralLogger = CreateGeneralLoggerForTest(&testMainGeneralLoggerAppender, config.SeverityLevelMap[envCommonLogLevel], false)
 	testMainPackageLogger = CreateGeneralLoggerForTest(&testMainPackageLoggerAppender, config.SeverityLevelMap[envPackageLogLevel], false)
 

@@ -2458,3 +2458,12 @@ func TestFormatterDeregistrationBuildInFormatter(t *testing.T) {
 	err = DeregisterFormatterTogetherWithConfig(config.FORMATTER_JSON)
 	testutil.AssertNotNil(err, t, "deregistered json formatter")
 }
+
+func TestClose(t *testing.T) {
+	initLoggerViaPackageTest("OFF", "DEBUG")
+
+	Close()
+
+	testutil.AssertEquals(2, testGeneralLoggerCounterAppenderClosed, t, "number of closed appenders")
+	testutil.AssertFalse(config.IsConfigInitialized(), t, "config initialized")
+}

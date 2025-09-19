@@ -118,6 +118,9 @@ func createSizeRenamer(pathToLogFile string, file *os.File, limitByteSizeText st
 
 // Writes the given logValues to the defined output file and checks whether to rename existing log file or not
 func (f FileAppender) Write(logValues *common.LogValues) {
+	if *f.isClosed {
+		return
+	}
 	if f.cronRenamer != nil {
 		f.cronRenamer.CheckFile(logValues)
 	}

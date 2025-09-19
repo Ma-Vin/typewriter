@@ -22,6 +22,7 @@ This repository provides a GoLang logging package, which are inspired by some Lo
 
 The logger can be accessed via importing `github.com/ma-vin/typewriter/logger` and using the `Log()` method at `logger` package. This will return a struct implementing the `Logger` interface.
 There are also the same methods directly in the `logger` package, but without returning an interface.
+If you use `Log()` in combination with `Close()` afterwards, keep in mind that the appenders used by the logger returned by `Log()` might referenced a closed appender (A closed appender will not write any log entries).
 
 #### Log Methods
 

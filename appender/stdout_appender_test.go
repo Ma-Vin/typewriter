@@ -44,6 +44,9 @@ func TestStandardOutputAppenderWrite(t *testing.T) {
 
 	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
 	appender.Write(&logValuesToFormat)
+	appender.Close()
+	testutil.AssertTrue(*appender.(StandardOutputAppender).isClosed, t, "isClosed")
+	appender.Close()
 
 	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - Testmessage", strings.TrimSpace(buf.String()), t, "Write")
 }
@@ -76,6 +79,21 @@ func TestStandardOutputAppenderWriteCustom(t *testing.T) {
 
 	testutil.AssertEquals(delimiterFormatterTestTimeText+" - INFO  - Testmessage - abc - 1 - true", strings.TrimSpace(buf.String()), t, "WriteCustom")
 }
+
+func TestStandardOutputAppenderClose(t *testing.T) {
+	common.SetLogValuesMockTime(&delimiterFormatterTestTime)
+
+	appender, buf := createTestStandardOutputAppender()
+
+	logValuesToFormat := common.CreateLogValues(common.INFORMATION_SEVERITY, "Testmessage")
+	testutil.AssertFalse(*appender.(StandardOutputAppender).isClosed, t, "isNotClosed")
+	appender.Close()
+	appender.Write(&logValuesToFormat)
+	testutil.AssertTrue(*appender.(StandardOutputAppender).isClosed, t, "isClosed")
+
+	testutil.AssertEquals("", strings.TrimSpace(buf.String()), t, "Write")
+}
+
 
 func createTestStandardOutputAppender() (Appender, *bytes.Buffer) {
 	buf := new(bytes.Buffer)
