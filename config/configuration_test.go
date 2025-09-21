@@ -76,6 +76,7 @@ func TestGetConfigNoEnv(t *testing.T) {
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
 	testutil.AssertFalse(result.Logger[0].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[0].IsCallerToSet")
+	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -108,6 +109,7 @@ func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
 	testutil.AssertTrue(result.Logger[0].IsDefault(), t, "result.logger[0].isDefault")
 	testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
+	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -136,6 +138,7 @@ func TestGetConfigNonExistingFile(t *testing.T) {
 	testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -166,6 +169,7 @@ func TestGetConfigCaller(t *testing.T) {
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
 	testutil.AssertTrue(result.Logger[0].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[0].IsCallerToSet")
+	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -199,6 +203,7 @@ func TestGetConfigDefaultDelimiter(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -238,6 +243,7 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -274,6 +280,7 @@ func TestGetConfigDefaultTemplateWithoutParameter(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -321,6 +328,7 @@ func TestGetConfigDefaultJson(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -361,6 +369,7 @@ func TestGetConfigDefaultJsonWithoutParameter(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -402,6 +411,7 @@ func TestGetConfigDefaultFileAppender(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -433,6 +443,7 @@ func TestGetConfigDefaultFileAppenderMissingPath(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -463,6 +474,7 @@ func TestGetConfigDefaultUnknown(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -499,6 +511,7 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -543,10 +556,12 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(packageName, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -594,10 +609,12 @@ func TestGetConfigPackageDelimiterFullQualifiedPackageName(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameterUpperName, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(fullQualifiedPackageName, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -646,10 +663,12 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(packageName, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -704,10 +723,12 @@ func TestGetConfigPackageJson(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(packageName, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -756,10 +777,12 @@ func TestGetConfigPackagePartialOnlyLevel(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(packageNameLower, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.DEBUG_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -802,10 +825,12 @@ func TestGetConfigPackagePartialOnlyAppender(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(packageNameLower, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -848,10 +873,12 @@ func TestGetConfigPackagePartialOnlyFormatter(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(packageNameLower, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -895,10 +922,12 @@ func TestGetConfigPackagePartialOnlyFormatterWithParameterDelimiter(t *testing.T
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(packageNameLower, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -943,10 +972,12 @@ func TestGetConfigPackageFileAppender(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(packageName, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -999,6 +1030,7 @@ func TestGetConfigFromFileButAllCommentOut(t *testing.T) {
 	testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -1039,10 +1071,12 @@ func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 		testutil.AssertFalse(result.Logger[1].IsDefault(), t, "result.logger[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
 		testutil.AssertEquals(packageName, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
 		testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[1].(GeneralLoggerConfig).Severity, t, "result.logger[1].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[1].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[1].Common.CorrelationIdKey")
 
 		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
 		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -1224,7 +1258,7 @@ func TestGetConfigMultiAppender(t *testing.T) {
 	}
 }
 
-func TestGetConfigMultiAppenderUnknown(t *testing.T){
+func TestGetConfigMultiAppenderUnknown(t *testing.T) {
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, fmt.Sprintf("%s, %s", "abc", APPENDER_FILE))
@@ -1243,5 +1277,36 @@ func TestGetConfigMultiAppenderUnknown(t *testing.T){
 
 		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+	}
+}
+
+func TestGetConfigCorrelationIdKeyWithoutLoggerConfig(t *testing.T) {
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME, "SomethingNew")
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
+		testutil.AssertEquals("SomethingNew", result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
+	}
+}
+
+func TestGetConfigCorrelationIdKeyWithLoggerConfig(t *testing.T) {
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME, "SomethingNew")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_DEBUG)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
+		testutil.AssertEquals("SomethingNew", result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 	}
 }

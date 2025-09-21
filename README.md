@@ -29,8 +29,9 @@ If you use `Log()` in combination with `Close()` afterwards, keep in mind that t
 There are permutations of the following categories for each severity
 
 * log without additional parameters, e.g. `Information(args ...any)`
-* log with correlation, e.g. `InformationWithCorrelation(correlationId string, args ...any)`
+* log with correlation id, e.g. `InformationWithCorrelation(correlationId string, args ...any)`
 * log with custom values map, e.g. `InformationCustom(customValues map[string]any, args ...any)`
+* log with correlation id from context, e.g. `InformationCtx(context context.Context, args ...any)`
 * message format with args, e.g. `Informationf(format string, args ...any)`
 * panic (only for warning, error and fatal) e.g. `ErrorWithPanic(args ...any)`
 * exit (only for fatal) e.g. `FatalWithExit(args ...any)`
@@ -110,6 +111,11 @@ The default formatter is the delimiter one.
 #### Caller
 
 The logging of the caller function, file and line can be activated by setting `true` at `TYPEWRITER_LOG_CALLER`. The default is `false`.
+
+#### Context
+
+The key, which is used to get the correlation id from `context.Context.Value(key)`, can be defined by setting `TYPEWRITER_CONTEXT_CORRELATION_ID_KEY`.
+The default value is `correlationId`. If `context.Context.Value(key)` returns `nil`, a log statement without correlation id will be used.
 
 #### Package specific configuration
 

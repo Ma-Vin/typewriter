@@ -7,6 +7,7 @@ type CommonLoggerConfig struct {
 	IsDefault        bool
 	PackageParameter string
 	PackageName      string
+	CorrelationIdKey string
 }
 
 // Checks whether an other common config equals with this one with respect to type

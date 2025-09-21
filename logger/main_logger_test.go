@@ -39,7 +39,7 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 	testGeneralLoggerCounterAppenderClosedExpected = 2
 
 	mainLogger = MainLogger{
-		generalLogger:            &testMainGeneralLogger,
+		generalLogger:           &testMainGeneralLogger,
 		existPackageLogger:      true,
 		useFullQualifiedPackage: isFullQualified,
 		packageLoggers:          map[string]*GeneralLogger{packageName: &testMainPackageLogger},
@@ -66,7 +66,7 @@ func initMainLoggerOnlyCommonTest(envCommonLogLevel string) {
 	initMainLoggerViaCommonTest(envCommonLogLevel, envCommonLogLevel)
 	testGeneralLoggerCounterAppenderClosedExpected = 1
 	mainLogger = MainLogger{
-		generalLogger:       &testMainGeneralLogger,
+		generalLogger:      &testMainGeneralLogger,
 		existPackageLogger: false,
 		packageLoggers:     make(map[string]*GeneralLogger),
 	}
@@ -288,6 +288,21 @@ func TestMainLoggerViaPackageInactiveDebugCustom(t *testing.T) {
 	assertNoMessage(t, "DebugCustom")
 }
 
+func TestMainLoggerViaPackageDebugCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertMessageViaPackage(t, "DebugCtx", "51234debug test message")
+}
+
+func TestMainLoggerViaPackageInactiveDebugCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("INFO", "INFO")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertNoMessage(t, "DebugCtx")
+}
 func TestMainLoggerViaPackageDebugf(t *testing.T) {
 	initMainLoggerViaPackageTest("DEBUG", "DEBUG")
 
@@ -334,6 +349,22 @@ func TestMainLoggerViaPackageInactiveDebugCustomf(t *testing.T) {
 	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
 
 	assertNoMessage(t, "DebugCustomf")
+}
+
+func TestMainLoggerViaPackageDebugCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertMessageViaPackage(t, "DebugCtxf", "51234debug test message")
+}
+
+func TestMainLoggerViaPackageInactiveDebugCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("INFO", "INFO")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertNoMessage(t, "DebugCtxf")
 }
 
 // -------------------
@@ -390,6 +421,22 @@ func TestMainLoggerViaFullQualifiedPackageInactiveDebugCustom(t *testing.T) {
 	assertNoMessage(t, "DebugCustom")
 }
 
+func TestMainLoggerViaFullQualifiedPackageDebugCtx(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertMessageViaPackage(t, "DebugCtx", "51234debug test message")
+}
+
+func TestMainLoggerViaFullQualifiedPackageInactiveDebugCtx(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("INFO", "INFO")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertNoMessage(t, "DebugCtx")
+}
+
 func TestMainLoggerViaFullQualifiedPackageDebugf(t *testing.T) {
 	initMainLoggerViaFullQualifiedPackageTest("DEBUG", "DEBUG")
 
@@ -436,6 +483,22 @@ func TestMainLoggerViaFullQualifiedPackageInactiveDebugCustomf(t *testing.T) {
 	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
 
 	assertNoMessage(t, "DebugCustomf")
+}
+
+func TestMainLoggerViaFullQualifiedPackageDebugCtxf(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertMessageViaPackage(t, "DebugCtxf", "51234debug test message")
+}
+
+func TestMainLoggerViaFullQualifiedPackageInactiveDebugCtxf(t *testing.T) {
+	initMainLoggerViaFullQualifiedPackageTest("INFO", "INFO")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertNoMessage(t, "DebugCtxf")
 }
 
 // -------------------
@@ -492,6 +555,22 @@ func TestMainLoggerViaCommonInactiveDebugCustom(t *testing.T) {
 	assertNoMessage(t, "DebugCustom")
 }
 
+func TestMainLoggerViaCommonDebugCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertMessageViaCommon(t, "DebugCtx", "51234debug test message")
+}
+
+func TestMainLoggerViaCommonInactiveDebugCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("INFO", "INFO")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertNoMessage(t, "DebugCtx")
+}
+
 func TestMainLoggerViaCommonDebugf(t *testing.T) {
 	initMainLoggerViaCommonTest("DEBUG", "DEBUG")
 
@@ -538,6 +617,22 @@ func TestMainLoggerViaCommonInactiveDebugCustomf(t *testing.T) {
 	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
 
 	assertNoMessage(t, "DebugCustomf")
+}
+
+func TestMainLoggerViaCommonDebugCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertMessageViaCommon(t, "DebugCtxf", "51234debug test message")
+}
+
+func TestMainLoggerViaCommonInactiveDebugCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("INFO", "INFO")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertNoMessage(t, "DebugCtxf")
 }
 
 // -------------------
@@ -594,6 +689,22 @@ func TestMainLoggerViaCommonFullQualifiedInactiveDebugCustom(t *testing.T) {
 	assertNoMessage(t, "DebugCustom")
 }
 
+func TestMainLoggerViaCommonFullQualifiedDebugCtx(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertMessageViaCommon(t, "DebugCtx", "51234debug test message")
+}
+
+func TestMainLoggerViaCommonFullQualifiedInactiveDebugCtx(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("INFO", "INFO")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertNoMessage(t, "DebugCtx")
+}
+
 func TestMainLoggerViaCommonFullQualifiedDebugf(t *testing.T) {
 	initMainLoggerViaCommonFullQualifiedTest("DEBUG", "DEBUG")
 
@@ -640,6 +751,22 @@ func TestMainLoggerViaCommonFullQualifiedInactiveDebugCustomf(t *testing.T) {
 	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
 
 	assertNoMessage(t, "DebugCustomf")
+}
+
+func TestMainLoggerViaCommonFullQualifiedDebugCtxf(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("DEBUG", "DEBUG")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertMessageViaCommon(t, "DebugCtxf", "51234debug test message")
+}
+
+func TestMainLoggerViaCommonFullQualifiedInactiveDebugCtxf(t *testing.T) {
+	initMainLoggerViaCommonFullQualifiedTest("INFO", "INFO")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertNoMessage(t, "DebugCtxf")
 }
 
 // -------------------
@@ -696,6 +823,22 @@ func TestMainLoggerOnlyCommonInactiveDebugCustom(t *testing.T) {
 	assertNoMessage(t, "DebugCustom")
 }
 
+func TestMainLoggerOnlyCommonDebugCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("DEBUG")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertMessageViaCommon(t, "DebugCtx", "51234debug test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveDebugCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("INFO")
+
+	mainLogger.DebugCtx(testDummyContext, "debug test message")
+
+	assertNoMessage(t, "DebugCtx")
+}
+
 func TestMainLoggerOnlyCommonDebugf(t *testing.T) {
 	initMainLoggerOnlyCommonTest("DEBUG")
 
@@ -742,6 +885,22 @@ func TestMainLoggerOnlyCommonInactiveDebugCustomf(t *testing.T) {
 	mainLogger.DebugCustomf(map[string]any{"test": 123}, "debug test %s", "message")
 
 	assertNoMessage(t, "DebugCustomf")
+}
+
+func TestMainLoggerOnlyCommonDebugCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("DEBUG")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertMessageViaCommon(t, "DebugCtxf", "51234debug test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveDebugCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("INFO")
+
+	mainLogger.DebugCtxf(testDummyContext, "debug test %s", "message")
+
+	assertNoMessage(t, "DebugCtxf")
 }
 
 // -------------------
@@ -798,6 +957,22 @@ func TestMainLoggerViaPackageInactiveInformationCustom(t *testing.T) {
 	assertNoMessage(t, "InformationCustom")
 }
 
+func TestMainLoggerViaPackageInformationCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("INFO", "INFO")
+
+	mainLogger.InformationCtx(testDummyContext, "info test message")
+
+	assertMessageViaPackage(t, "InformationCtx", "41234info test message")
+}
+
+func TestMainLoggerViaPackageInactiveInformationCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("WARN", "WARN")
+
+	mainLogger.InformationCtx(testDummyContext, "info test message")
+
+	assertNoMessage(t, "InformationCtx")
+}
+
 func TestMainLoggerViaPackageInformationf(t *testing.T) {
 	initMainLoggerViaPackageTest("INFO", "INFO")
 
@@ -844,6 +1019,22 @@ func TestMainLoggerViaPackageInactiveInformationCustomf(t *testing.T) {
 	mainLogger.InformationCustomf(map[string]any{"test": 123}, "info test %s", "message")
 
 	assertNoMessage(t, "InformationCustomf")
+}
+
+func TestMainLoggerViaPackageInformationCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("INFO", "INFO")
+
+	mainLogger.InformationCtxf(testDummyContext, "info test %s", "message")
+
+	assertMessageViaPackage(t, "InformationCtxf", "41234info test message")
+}
+
+func TestMainLoggerViaPackageInactiveInformationCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("WARN", "WARN")
+
+	mainLogger.InformationCtxf(testDummyContext, "info test %s", "message")
+
+	assertNoMessage(t, "InformationCtxf")
 }
 
 // -------------------
@@ -900,6 +1091,22 @@ func TestMainLoggerViaCommonInactiveInformationCustom(t *testing.T) {
 	assertNoMessage(t, "InformationCustom")
 }
 
+func TestMainLoggerViaCommonInformationCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("INFO", "INFO")
+
+	mainLogger.InformationCtx(testDummyContext, "info test message")
+
+	assertMessageViaCommon(t, "InformationCtx", "41234info test message")
+}
+
+func TestMainLoggerViaCommonInactiveInformationCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("WARN", "WARN")
+
+	mainLogger.InformationCtx(testDummyContext, "info test message")
+
+	assertNoMessage(t, "InformationCtx")
+}
+
 func TestMainLoggerViaCommonInformationf(t *testing.T) {
 	initMainLoggerViaCommonTest("INFO", "INFO")
 
@@ -946,6 +1153,22 @@ func TestMainLoggerViaCommonInactiveInformationCustomf(t *testing.T) {
 	mainLogger.InformationCustomf(map[string]any{"test": 123}, "info test %s", "message")
 
 	assertNoMessage(t, "InformationCustomf")
+}
+
+func TestMainLoggerViaCommonInformationCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("INFO", "INFO")
+
+	mainLogger.InformationCtxf(testDummyContext, "info test %s", "message")
+
+	assertMessageViaCommon(t, "InformationCtxf", "41234info test message")
+}
+
+func TestMainLoggerViaCommonInactiveInformationCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("WARN", "WARN")
+
+	mainLogger.InformationCtxf(testDummyContext, "info test %s", "message")
+
+	assertNoMessage(t, "InformationCtxf")
 }
 
 // -------------------
@@ -1002,6 +1225,22 @@ func TestMainLoggerOnlyCommonInactiveInformationCustom(t *testing.T) {
 	assertNoMessage(t, "InformationCustom")
 }
 
+func TestMainLoggerOnlyCommonInformationCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("INFO")
+
+	mainLogger.InformationCtx(testDummyContext, "info test message")
+
+	assertMessageViaCommon(t, "InformationCtx", "41234info test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveInformationCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("WARN")
+
+	mainLogger.InformationCtx(testDummyContext, "info test message")
+
+	assertNoMessage(t, "InformationCtx")
+}
+
 func TestMainLoggerOnlyCommonInformationf(t *testing.T) {
 	initMainLoggerOnlyCommonTest("INFO")
 
@@ -1040,6 +1279,22 @@ func TestMainLoggerOnlyCommonInformationCustomf(t *testing.T) {
 	mainLogger.InformationCustomf(map[string]any{"test": 123}, "info test %s", "message")
 
 	assertMessageViaCommon(t, "InformationCustomf", "4 map[test:123]info test message")
+}
+
+func TestMainLoggerOnlyCommonInformationCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("INFO")
+
+	mainLogger.InformationCtxf(testDummyContext, "info test %s", "message")
+
+	assertMessageViaCommon(t, "InformationCtxf", "41234info test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveInformationCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("WARN")
+
+	mainLogger.InformationCtxf(testDummyContext, "info test %s", "message")
+
+	assertNoMessage(t, "InformationCtxf")
 }
 
 // -------------------
@@ -1096,6 +1351,22 @@ func TestMainLoggerViaPackageInactiveWarningCustom(t *testing.T) {
 	assertNoMessage(t, "WarningCustom")
 }
 
+func TestMainLoggerViaPackageWarningCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("WARN", "WARN")
+
+	mainLogger.WarningCtx(testDummyContext, "warn test message")
+
+	assertMessageViaPackage(t, "WarningCtx", "31234warn test message")
+}
+
+func TestMainLoggerViaPackageInactiveWarningCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("ERROR", "ERROR")
+
+	mainLogger.WarningCtx(testDummyContext, "warn test message")
+
+	assertNoMessage(t, "WarningCtx")
+}
+
 func TestMainLoggerViaPackageWarningf(t *testing.T) {
 	initMainLoggerViaPackageTest("WARN", "WARN")
 
@@ -1142,6 +1413,22 @@ func TestMainLoggerViaPackageInactiveWarningCustomf(t *testing.T) {
 	mainLogger.WarningCustomf(map[string]any{"test": 123}, "warn test %s", "message")
 
 	assertNoMessage(t, "WarningCustomf")
+}
+
+func TestMainLoggerViaPackageWarningCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("WARN", "WARN")
+
+	mainLogger.WarningCtxf(testDummyContext, "warn test %s", "message")
+
+	assertMessageViaPackage(t, "WarningCtxf", "31234warn test message")
+}
+
+func TestMainLoggerViaPackageInactiveWarningCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("ERROR", "ERROR")
+
+	mainLogger.WarningCtxf(testDummyContext, "warn test %s", "message")
+
+	assertNoMessage(t, "WarningCtxf")
 }
 
 // -------------------
@@ -1198,6 +1485,22 @@ func TestMainLoggerViaCommonInactiveWarningCustom(t *testing.T) {
 	assertNoMessage(t, "WarningCustom")
 }
 
+func TestMainLoggerViaCommonWarningCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("WARN", "WARN")
+
+	mainLogger.WarningCtx(testDummyContext, "warn test message")
+
+	assertMessageViaCommon(t, "WarningCtx", "31234warn test message")
+}
+
+func TestMainLoggerViaCommonInactiveWarningCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("ERROR", "ERROR")
+
+	mainLogger.WarningCtx(testDummyContext, "warn test message")
+
+	assertNoMessage(t, "WarningCtx")
+}
+
 func TestMainLoggerViaCommonWarningf(t *testing.T) {
 	initMainLoggerViaCommonTest("WARN", "WARN")
 
@@ -1244,6 +1547,22 @@ func TestMainLoggerViaCommonInactiveWarningCustomf(t *testing.T) {
 	mainLogger.WarningCustomf(map[string]any{"test": 123}, "warn test %s", "message")
 
 	assertNoMessage(t, "WarningCustomf")
+}
+
+func TestMainLoggerViaCommonWarningCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("WARN", "WARN")
+
+	mainLogger.WarningCtxf(testDummyContext, "warn test %s", "message")
+
+	assertMessageViaCommon(t, "WarningCtxf", "31234warn test message")
+}
+
+func TestMainLoggerViaCommonInactiveWarningCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("ERROR", "ERROR")
+
+	mainLogger.WarningCtxf(testDummyContext, "warn test %s", "message")
+
+	assertNoMessage(t, "WarningCtxf")
 }
 
 // -------------------
@@ -1300,6 +1619,22 @@ func TestMainLoggerOnlyCommonInactiveWarningCustom(t *testing.T) {
 	assertNoMessage(t, "WarningCustom")
 }
 
+func TestMainLoggerOnlyCommonWarningCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("WARN")
+
+	mainLogger.WarningCtx(testDummyContext, "warn test message")
+
+	assertMessageViaCommon(t, "WarningCtx", "31234warn test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveWarningCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("ERROR")
+
+	mainLogger.WarningCtx(testDummyContext, "warn test message")
+
+	assertNoMessage(t, "WarningCtx")
+}
+
 func TestMainLoggerOnlyCommonWarningf(t *testing.T) {
 	initMainLoggerOnlyCommonTest("WARN")
 
@@ -1330,6 +1665,37 @@ func TestMainLoggerOnlyCommonInactiveWarningWithCorrelationf(t *testing.T) {
 	mainLogger.WarningWithCorrelationf("1234", "warn test %s", "message")
 
 	assertNoMessage(t, "WarningWithCorrelationf")
+}
+
+func TestMainLoggerOnlyCommonWarningCustomf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("WARN")
+
+	mainLogger.WarningCustomf(map[string]any{"test": 123}, "warn test %s", "message")
+
+	assertMessageViaCommon(t, "WarningCustomf", "3 map[test:123]warn test message")
+}
+func TestMainLoggerOnlyCommonInactiveWarningCustomf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("ERROR")
+
+	mainLogger.WarningCustomf(map[string]any{"test": 123}, "warn test %s", "message")
+
+	assertNoMessage(t, "WarningCustom")
+}
+
+func TestMainLoggerOnlyCommonWarningCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("WARN")
+
+	mainLogger.WarningCtxf(testDummyContext, "warn test %s", "message")
+
+	assertMessageViaCommon(t, "WarningCtxf", "31234warn test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveWarningCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("ERROR")
+
+	mainLogger.WarningCtxf(testDummyContext, "warn test %s", "message")
+
+	assertNoMessage(t, "WarningCtxf")
 }
 
 // -------------------
@@ -1386,6 +1752,22 @@ func TestMainLoggerInactiveWarningCustomWithPanic(t *testing.T) {
 	assertNoMessageWithPanic(t, "WarningCustomWithPanic")
 }
 
+func TestMainLoggerWarningCtxWithPanic(t *testing.T) {
+	initMainLoggerViaCommonTest("WARN", "WARN")
+
+	mainLogger.WarningCtxWithPanic(testDummyContext, "warn test message")
+
+	assertMessageWithPanic(t, "WarningCtxWithPanic", "31234warn test message")
+}
+
+func TestMainLoggerInactiveWarningCtxWithPanic(t *testing.T) {
+	initMainLoggerViaCommonTest("ERROR", "ERROR")
+
+	mainLogger.WarningCtxWithPanic(testDummyContext, "warn test message")
+
+	assertNoMessageWithPanic(t, "WarningCtxWithPanic")
+}
+
 func TestMainLoggerWarningWithPanicf(t *testing.T) {
 	initMainLoggerViaCommonTest("WARN", "WARN")
 
@@ -1432,6 +1814,22 @@ func TestMainLoggerInactiveWarningCustomWithPanicf(t *testing.T) {
 	mainLogger.WarningCustomWithPanicf(map[string]any{"test": 123}, "warn test %s", "message")
 
 	assertNoMessageWithPanic(t, "WarningCustomWithPanicf")
+}
+
+func TestMainLoggerWarningCtxWithPanicf(t *testing.T) {
+	initMainLoggerViaCommonTest("WARN", "WARN")
+
+	mainLogger.WarningCtxWithPanicf(testDummyContext, "warn test %s", "message")
+
+	assertMessageWithPanic(t, "WarningCtxWithPanicf", "31234warn test message")
+}
+
+func TestMainLoggerInactiveWarningCtxWithPanicf(t *testing.T) {
+	initMainLoggerViaCommonTest("ERROR", "ERROR")
+
+	mainLogger.WarningCtxWithPanicf(testDummyContext, "warn test %s", "message")
+
+	assertNoMessageWithPanic(t, "WarningCtxWithPanicf")
 }
 
 // -------------------
@@ -1488,6 +1886,22 @@ func TestMainLoggerViaPackageInactiveErrorCustom(t *testing.T) {
 	assertNoMessage(t, "ErrorCustom")
 }
 
+func TestMainLoggerViaPackageErrorCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("ERROR", "ERROR")
+
+	mainLogger.ErrorCtx(testDummyContext, "error test message")
+
+	assertMessageViaPackage(t, "ErrorCtx", "21234error test message")
+}
+
+func TestMainLoggerViaPackageInactiveErrorCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.ErrorCtx(testDummyContext, "error test message")
+
+	assertNoMessage(t, "ErrorCtx")
+}
+
 func TestMainLoggerViaPackageErrorf(t *testing.T) {
 	initMainLoggerViaPackageTest("ERROR", "ERROR")
 
@@ -1534,6 +1948,22 @@ func TestMainLoggerViaPackageInactiveErrorCustomf(t *testing.T) {
 	mainLogger.ErrorCustomf(map[string]any{"test": 123}, "error test %s", "message")
 
 	assertNoMessage(t, "ErrorCustomf")
+}
+
+func TestMainLoggerViaPackageErrorCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("ERROR", "ERROR")
+
+	mainLogger.ErrorCtxf(testDummyContext, "error test %s", "message")
+
+	assertMessageViaPackage(t, "ErrorCtxf", "21234error test message")
+}
+
+func TestMainLoggerViaPackageInactiveErrorCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.ErrorCtxf(testDummyContext, "error test %s", "message")
+
+	assertNoMessage(t, "ErrorCtxf")
 }
 
 // -------------------
@@ -1590,6 +2020,22 @@ func TestMainLoggerViaCommonInactiveErrorCustom(t *testing.T) {
 	assertNoMessage(t, "ErrorCustom")
 }
 
+func TestMainLoggerViaCommonErrorCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("ERROR", "ERROR")
+
+	mainLogger.ErrorCtx(testDummyContext, "error test message")
+
+	assertMessageViaCommon(t, "ErrorCtx", "21234error test message")
+}
+
+func TestMainLoggerViaCommonInactiveErrorCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.ErrorCtx(testDummyContext, "error test message")
+
+	assertNoMessage(t, "ErrorCtx")
+}
+
 func TestMainLoggerViaCommonErrorf(t *testing.T) {
 	initMainLoggerViaCommonTest("ERROR", "ERROR")
 
@@ -1636,6 +2082,22 @@ func TestMainLoggerViaCommonInactiveErrorCustomf(t *testing.T) {
 	mainLogger.ErrorCustomf(map[string]any{"test": 123}, "error test %s", "message")
 
 	assertNoMessage(t, "ErrorCustomf")
+}
+
+func TestMainLoggerViaCommonErrorCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("ERROR", "ERROR")
+
+	mainLogger.ErrorCtxf(testDummyContext, "error test %s", "message")
+
+	assertMessageViaCommon(t, "ErrorCtxf", "21234error test message")
+}
+
+func TestMainLoggerViaCommonInactiveErrorCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.ErrorCtxf(testDummyContext, "error test %s", "message")
+
+	assertNoMessage(t, "ErrorCtxf")
 }
 
 // -------------------
@@ -1692,6 +2154,22 @@ func TestMainLoggerOnlyCommonInactiveErrorCustom(t *testing.T) {
 	assertNoMessage(t, "ErrorCustom")
 }
 
+func TestMainLoggerOnlyCommonErrorCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("ERROR")
+
+	mainLogger.ErrorCtx(testDummyContext, "error test message")
+
+	assertMessageViaCommon(t, "ErrorCtx", "21234error test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveErrorCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("FATAL")
+
+	mainLogger.ErrorCtx(testDummyContext, "error test message")
+
+	assertNoMessage(t, "ErrorWithCorErrorCtxelation")
+}
+
 func TestMainLoggerOnlyCommonErrorf(t *testing.T) {
 	initMainLoggerOnlyCommonTest("ERROR")
 
@@ -1730,6 +2208,30 @@ func TestMainLoggerOnlyCommonErrorCustomf(t *testing.T) {
 	mainLogger.ErrorCustomf(map[string]any{"test": 123}, "error test %s", "message")
 
 	assertMessageViaCommon(t, "ErrorCustomf", "2 map[test:123]error test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveErrorCustomf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("FATAL")
+
+	mainLogger.ErrorCustomf(map[string]any{"test": 123}, "error test %s", "message")
+
+	assertNoMessage(t, "ErrorCustomf")
+}
+
+func TestMainLoggerOnlyCommonErrorCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("ERROR")
+
+	mainLogger.ErrorCtxf(testDummyContext, "error test %s", "message")
+
+	assertMessageViaCommon(t, "ErrorCtxf", "21234error test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveErrorCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("FATAL")
+
+	mainLogger.ErrorCtxf(testDummyContext, "error test %s", "message")
+
+	assertNoMessage(t, "ErrorCtxf")
 }
 
 // -------------------
@@ -1786,6 +2288,22 @@ func TestMainLoggerInactiveErrorCustomWithPanic(t *testing.T) {
 	assertNoMessageWithPanic(t, "ErrorCustomWithPanic")
 }
 
+func TestMainLoggerErrorCtxWithPanic(t *testing.T) {
+	initMainLoggerViaCommonTest("ERROR", "ERROR")
+
+	mainLogger.ErrorCtxWithPanic(testDummyContext, "error test message")
+
+	assertMessageWithPanic(t, "ErrorCtxWithPanic", "21234error test message")
+}
+
+func TestMainLoggerInactiveErrorCtxWithPanic(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.ErrorCtxWithPanic(testDummyContext, "error test message")
+
+	assertNoMessageWithPanic(t, "ErrorCtxWithPanic")
+}
+
 func TestMainLoggerErrorWithPanicf(t *testing.T) {
 	initMainLoggerViaCommonTest("ERROR", "ERROR")
 
@@ -1832,6 +2350,22 @@ func TestMainLoggerInactiveErrorCustomWithPanicf(t *testing.T) {
 	mainLogger.ErrorCustomWithPanicf(map[string]any{"test": 123}, "error test %s", "message")
 
 	assertNoMessageWithPanic(t, "ErrorCustomWithPanicf")
+}
+
+func TestMainLoggerErrorCtxWithPanicf(t *testing.T) {
+	initMainLoggerViaCommonTest("ERROR", "ERROR")
+
+	mainLogger.ErrorCtxWithPanicf(testDummyContext, "error test %s", "message")
+
+	assertMessageWithPanic(t, "ErrorCtxWithPanicf", "21234error test message")
+}
+
+func TestMainLoggerInactiveErrorCtxWithPanicf(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.ErrorCtxWithPanicf(testDummyContext, "error test %s", "message")
+
+	assertNoMessageWithPanic(t, "ErrorCtxWithPanicf")
 }
 
 // -------------------
@@ -1888,6 +2422,22 @@ func TestMainLoggerViaPackageInactiveFatalCustom(t *testing.T) {
 	assertNoMessage(t, "FatalCustom")
 }
 
+func TestMainLoggerViaPackageFatalCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtx(testDummyContext, "fatal test message")
+
+	assertMessageViaPackage(t, "FatalCtx", "11234fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalCtx(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalCtx(testDummyContext, "fatal test message")
+
+	assertNoMessage(t, "FatalCtx")
+}
+
 func TestMainLoggerViaPackageFatalf(t *testing.T) {
 	initMainLoggerViaPackageTest("FATAL", "FATAL")
 
@@ -1934,6 +2484,22 @@ func TestMainLoggerViaPackageInactiveFatalCustomf(t *testing.T) {
 	mainLogger.FatalCustomf(map[string]any{"test": 123}, "fatal test %s", "message")
 
 	assertNoMessage(t, "FatalCustomf")
+}
+
+func TestMainLoggerViaPackageFatalCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtxf(testDummyContext, "fatal test %s", "message")
+
+	assertMessageViaPackage(t, "FatalCtxf", "11234fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalCtxf(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalCtxf(testDummyContext, "fatal test %s", "message")
+
+	assertNoMessage(t, "FatalCtxf")
 }
 
 // -------------------
@@ -1990,6 +2556,22 @@ func TestMainLoggerViaCommonInactiveFatalCustom(t *testing.T) {
 	assertNoMessage(t, "FatalCustom")
 }
 
+func TestMainLoggerViaCommonFatalCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtx(testDummyContext, "fatal test message")
+
+	assertMessageViaCommon(t, "FatalCtx", "11234fatal test message")
+}
+
+func TestMainLoggerViaCommonInactiveFatalCtx(t *testing.T) {
+	initMainLoggerViaCommonTest("OFF", "OFF")
+
+	mainLogger.FatalCtx(testDummyContext, "fatal test message")
+
+	assertNoMessage(t, "FatalCtx")
+}
+
 func TestMainLoggerViaCommonFatalf(t *testing.T) {
 	initMainLoggerViaCommonTest("FATAL", "FATAL")
 
@@ -2036,6 +2618,22 @@ func TestMainLoggerViaCommonInactiveFatalCustomf(t *testing.T) {
 	mainLogger.FatalCustomf(map[string]any{"test": 123}, "fatal test %s", "message")
 
 	assertNoMessage(t, "FatalCustomf")
+}
+
+func TestMainLoggerViaCommonFatalCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtxf(testDummyContext, "fatal test %s", "message")
+
+	assertMessageViaCommon(t, "FatalCtxf", "11234fatal test message")
+}
+
+func TestMainLoggerViaCommonInactiveFatalCtxf(t *testing.T) {
+	initMainLoggerViaCommonTest("OFF", "OFF")
+
+	mainLogger.FatalCtxf(testDummyContext, "fatal test %s", "message")
+
+	assertNoMessage(t, "FatalCtxf")
 }
 
 // -------------------
@@ -2092,6 +2690,22 @@ func TestMainLoggerOnlyCommonInactiveFatalCustom(t *testing.T) {
 	assertNoMessage(t, "FatalCustom")
 }
 
+func TestMainLoggerOnlyCommonFatalCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("FATAL")
+
+	mainLogger.FatalCtx(testDummyContext, "fatal test message")
+
+	assertMessageViaCommon(t, "FatalCtx", "11234fatal test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveFatalCtx(t *testing.T) {
+	initMainLoggerOnlyCommonTest("OFF")
+
+	mainLogger.FatalCtx(testDummyContext, "fatal test message")
+
+	assertNoMessage(t, "FatalCtx")
+}
+
 func TestMainLoggerOnlyCommonFatalf(t *testing.T) {
 	initMainLoggerOnlyCommonTest("FATAL")
 
@@ -2132,12 +2746,28 @@ func TestMainLoggerOnlyCommonFatalCustomf(t *testing.T) {
 	assertMessageViaCommon(t, "FatalCustomf", "1 map[test:123]fatal test message")
 }
 
-func TestMainLoggerOnlyCommonWarningCustomf(t *testing.T) {
-	initMainLoggerOnlyCommonTest("WARN")
+func TestMainLoggerOnlyCommonInactiveFatalCustomf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("OFF")
 
-	mainLogger.WarningCustomf(map[string]any{"test": 123}, "warn test %s", "message")
+	mainLogger.FatalCustomf(map[string]any{"test": 123}, "fatal test %s", "message")
 
-	assertMessageViaCommon(t, "WarningCustomf", "3 map[test:123]warn test message")
+	assertNoMessage(t, "FatalCustomf")
+}
+
+func TestMainLoggerOnlyCommonFatalCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("FATAL")
+
+	mainLogger.FatalCtxf(testDummyContext, "fatal test %s", "message")
+
+	assertMessageViaCommon(t, "FatalCtxf", "11234fatal test message")
+}
+
+func TestMainLoggerOnlyCommonInactiveFatalCtxf(t *testing.T) {
+	initMainLoggerOnlyCommonTest("OFF")
+
+	mainLogger.FatalCtxf(testDummyContext, "fatal test %s", "message")
+
+	assertNoMessage(t, "FatalCtxf")
 }
 
 // -------------------
@@ -2194,6 +2824,22 @@ func TestMainLoggerInactiveFatalCustomWithPanic(t *testing.T) {
 	assertNoMessageWithPanic(t, "FatalCustomWithPanic")
 }
 
+func TestMainLoggerFatalCtxWithPanic(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtxWithPanic(testDummyContext, "fatal test message")
+
+	assertMessageWithPanic(t, "FatalCtxWithPanic", "11234fatal test message")
+}
+
+func TestMainLoggerInactiveFatalCtxWithPanic(t *testing.T) {
+	initMainLoggerViaCommonTest("OFF", "OFF")
+
+	mainLogger.FatalCtxWithPanic(testDummyContext, "fatal test message")
+
+	assertNoMessageWithPanic(t, "FatalCtxWithPanic")
+}
+
 func TestMainLoggerFatalWithPanicf(t *testing.T) {
 	initMainLoggerViaCommonTest("FATAL", "FATAL")
 
@@ -2240,6 +2886,22 @@ func TestMainLoggerInactiveFatalCustomWithPanicf(t *testing.T) {
 	mainLogger.FatalCustomWithPanicf(map[string]any{"test": 123}, "fatal test %s", "message")
 
 	assertNoMessageWithPanic(t, "FatalCustomWithPanicf")
+}
+
+func TestMainLoggerFatalCtxWithPanicf(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtxWithPanicf(testDummyContext, "fatal test %s", "message")
+
+	assertMessageWithPanic(t, "FatalCtxWithPanicf", "11234fatal test message")
+}
+
+func TestMainLoggerInactiveFatalCtxWithPanicf(t *testing.T) {
+	initMainLoggerViaCommonTest("OFF", "OFF")
+
+	mainLogger.FatalCtxWithPanicf(testDummyContext, "fatal test %s", "message")
+
+	assertNoMessageWithPanic(t, "FatalCtxWithPanicf")
 }
 
 // -------------------
@@ -2296,6 +2958,22 @@ func TestMainLoggerInactiveFatalCustomWithExit(t *testing.T) {
 	assertNoMessageWithExit(t, "FatalCustomWithExit")
 }
 
+func TestMainLoggerFatalCtxWithExit(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtxWithExit(testDummyContext, "fatal test message")
+
+	assertMessageWithExit(t, "FatalCtxWithExit", "11234fatal test message")
+}
+
+func TestMainLoggerInactiveFatalCtxWithExit(t *testing.T) {
+	initMainLoggerViaCommonTest("OFF", "OFF")
+
+	mainLogger.FatalCtxWithExit(testDummyContext, "fatal test message")
+
+	assertNoMessageWithExit(t, "FatalCtxWithExit")
+}
+
 func TestMainLoggerFatalWithExitf(t *testing.T) {
 	initMainLoggerViaCommonTest("FATAL", "FATAL")
 
@@ -2342,6 +3020,22 @@ func TestMainLoggerInactiveFatalCustomWithExitf(t *testing.T) {
 	mainLogger.FatalCustomWithExitf(map[string]any{"test": 123}, "fatal test %s", "message")
 
 	assertNoMessageWithExit(t, "FatalCustomWithExitf")
+}
+
+func TestMainLoggerFatalCtxWithExitf(t *testing.T) {
+	initMainLoggerViaCommonTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtxWithExitf(testDummyContext, "fatal test %s", "message")
+
+	assertMessageWithExit(t, "FatalCtxWithExitf", "11234fatal test message")
+}
+
+func TestMainLoggerInactiveFatalCtxWithExitf(t *testing.T) {
+	initMainLoggerViaCommonTest("OFF", "OFF")
+
+	mainLogger.FatalCtxWithExitf(testDummyContext, "fatal test %s", "message")
+
+	assertNoMessageWithExit(t, "FatalCtxWithExitf")
 }
 
 // -------------------
@@ -2398,6 +3092,22 @@ func TestMainLoggerViaPackageInactiveFatalCustomWithExit(t *testing.T) {
 	assertNoMessageWithExit(t, "FatalCustomWithExit")
 }
 
+func TestMainLoggerViaPackageFatalCtxWithExit(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtxWithExit(testDummyContext, "fatal test message")
+
+	assertMessageViaPackageWithExit(t, "FatalCtxWithExit", "11234fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalCtxWithExit(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalCtxWithExit(testDummyContext, "fatal test message")
+
+	assertNoMessageWithExit(t, "FatalCtxWithExit")
+}
+
 func TestMainLoggerViaPackageFatalWithExitf(t *testing.T) {
 	initMainLoggerViaPackageTest("FATAL", "FATAL")
 
@@ -2444,6 +3154,22 @@ func TestMainLoggerViaPackageInactiveFatalCustomWithExitf(t *testing.T) {
 	mainLogger.FatalCustomWithExitf(map[string]any{"test": 123}, "fatal test %s", "message")
 
 	assertNoMessageWithExit(t, "FatalCustomWithExitf")
+}
+
+func TestMainLoggerViaPackageFatalCtxWithExitf(t *testing.T) {
+	initMainLoggerViaPackageTest("FATAL", "FATAL")
+
+	mainLogger.FatalCtxWithExitf(testDummyContext, "fatal test %s", "message")
+
+	assertMessageViaPackageWithExit(t, "FatalCtxWithExitf", "11234fatal test message")
+}
+
+func TestMainLoggerViaPackageInactiveFatalCtxWithExitf(t *testing.T) {
+	initMainLoggerViaPackageTest("OFF", "OFF")
+
+	mainLogger.FatalCtxWithExitf(testDummyContext, "fatal test %s", "message")
+
+	assertNoMessageWithExit(t, "FatalCtxWithExitf")
 }
 
 // -------------------

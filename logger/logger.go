@@ -3,6 +3,8 @@
 package logger
 
 import (
+	"context"
+
 	"github.com/ma-vin/typewriter/appender"
 	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/format"
@@ -22,6 +24,10 @@ type Logger interface {
 	// Arguments are handled in the manner of [fmt.Sprint].
 	DebugCustom(customValues map[string]any, args ...any)
 
+	// Logs a message together with a correlation id from context if debug level is enabled.
+	// Arguments are handled in the manner of [fmt.Sprint].
+	DebugCtx(context context.Context, args ...any)
+
 	// Logs a message derived from format if debug level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	Debugf(format string, args ...any)
@@ -33,6 +39,10 @@ type Logger interface {
 	// Logs a message derived from format together with custom values if debug level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	DebugCustomf(customValues map[string]any, format string, args ...any)
+
+	// Logs a message derived from format together with a correlation id from context if debug level is enabled
+	// Arguments are handled in the manner of [fmt.Sprintf].
+	DebugCtxf(context context.Context, format string, args ...any)
 
 	// Logs a message if information level is enabled
 	// Arguments are handled in the manner of [fmt.Sprint].
@@ -46,6 +56,10 @@ type Logger interface {
 	// Arguments are handled in the manner of [fmt.Sprint].
 	InformationCustom(customValues map[string]any, args ...any)
 
+	// Logs a message together with a correlation id from context if information level is enabled.
+	// Arguments are handled in the manner of [fmt.Sprint].
+	InformationCtx(context context.Context, args ...any)
+
 	// Logs a message derived from format if information level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	Informationf(format string, args ...any)
@@ -57,6 +71,10 @@ type Logger interface {
 	// Logs a message derived from format together with custom values if information level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	InformationCustomf(customValues map[string]any, format string, args ...any)
+
+	// Logs a message derived from format together with a correlation id from context if information level is enabled
+	// Arguments are handled in the manner of [fmt.Sprintf].
+	InformationCtxf(context context.Context, format string, args ...any)
 
 	// Logs a message if warning level is enabled
 	// Arguments are handled in the manner of [fmt.Sprint].
@@ -70,6 +88,10 @@ type Logger interface {
 	// Arguments are handled in the manner of [fmt.Sprint].
 	WarningCustom(customValues map[string]any, args ...any)
 
+	// Logs a message together with a correlation id from context if warning level is enabled.
+	// Arguments are handled in the manner of [fmt.Sprint].
+	WarningCtx(context context.Context, args ...any)
+
 	// Logs a message derived from format if warning level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	Warningf(format string, args ...any)
@@ -81,6 +103,10 @@ type Logger interface {
 	// Logs a message derived from format together with custom values if warning level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	WarningCustomf(customValues map[string]any, format string, args ...any)
+
+	// Logs a message derived from format together with a correlation id from context if warning level is enabled
+	// Arguments are handled in the manner of [fmt.Sprintf].
+	WarningCtxf(context context.Context, format string, args ...any)
 
 	// Logs a message if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprint].
@@ -94,6 +120,10 @@ type Logger interface {
 	// Arguments are handled in the manner of [fmt.Sprint].
 	WarningCustomWithPanic(customValues map[string]any, args ...any)
 
+	// Logs a message together with a correlation id from context if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+	// Arguments are handled in the manner of [fmt.Sprint].
+	WarningCtxWithPanic(context context.Context, args ...any)
+
 	// Logs a message derived from format if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	WarningWithPanicf(format string, args ...any)
@@ -105,6 +135,10 @@ type Logger interface {
 	// Logs a message derived from format together with custom values if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	WarningCustomWithPanicf(customValues map[string]any, format string, args ...any)
+
+	// Logs a message derived from format together with a correlation id from context if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+	// Arguments are handled in the manner of [fmt.Sprintf].
+	WarningCtxWithPanicf(context context.Context, format string, args ...any)
 
 	// Logs a message if error level is enabled
 	// Arguments are handled in the manner of [fmt.Sprint].
@@ -118,6 +152,10 @@ type Logger interface {
 	// Arguments are handled in the manner of [fmt.Sprint].
 	ErrorCustom(customValues map[string]any, args ...any)
 
+	// Logs a message together with a correlation id from context if error level is enabled.
+	// Arguments are handled in the manner of [fmt.Sprint].
+	ErrorCtx(context context.Context, args ...any)
+
 	// Logs a message derived from format if error level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	Errorf(format string, args ...any)
@@ -129,6 +167,10 @@ type Logger interface {
 	// Logs a message derived from format together with custom values if error level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	ErrorCustomf(customValues map[string]any, format string, args ...any)
+
+	// Logs a message derived from format together with a correlation id from context if error level is enabled
+	// Arguments are handled in the manner of [fmt.Sprintf].
+	ErrorCtxf(context context.Context, format string, args ...any)
 
 	// Logs a message if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprint].
@@ -142,6 +184,10 @@ type Logger interface {
 	// Arguments are handled in the manner of [fmt.Sprint].
 	ErrorCustomWithPanic(customValues map[string]any, args ...any)
 
+	// Logs a message together with a correlation id from context if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+	// Arguments are handled in the manner of [fmt.Sprint].
+	ErrorCtxWithPanic(context context.Context, args ...any)
+
 	// Logs a message derived from format if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	ErrorWithPanicf(format string, args ...any)
@@ -153,6 +199,10 @@ type Logger interface {
 	// Logs a message derived from format together with custom values if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	ErrorCustomWithPanicf(customValues map[string]any, format string, args ...any)
+
+	// Logs a message derived from format together with a correlation id from context if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+	// Arguments are handled in the manner of [fmt.Sprintf].
+	ErrorCtxWithPanicf(context context.Context, format string, args ...any)
 
 	// Logs a message if fatal level is enabled
 	// Arguments are handled in the manner of [fmt.Sprint].
@@ -166,6 +216,10 @@ type Logger interface {
 	// Arguments are handled in the manner of [fmt.Sprint].
 	FatalCustom(customValues map[string]any, args ...any)
 
+	// Logs a message together with a correlation id from context if fatal level is enabled.
+	// Arguments are handled in the manner of [fmt.Sprint].
+	FatalCtx(context context.Context, args ...any)
+
 	// Logs a message derived from format if fatal level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	Fatalf(format string, args ...any)
@@ -177,6 +231,10 @@ type Logger interface {
 	// Logs a message derived from format together with custom values if fatal level is enabled
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	FatalCustomf(customValues map[string]any, format string, args ...any)
+
+	// Logs a message derived from format together with a correlation id from context if fatal level is enabled
+	// Arguments are handled in the manner of [fmt.Sprintf].
+	FatalCtxf(context context.Context, format string, args ...any)
 
 	// Logs a message if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprint].
@@ -190,6 +248,10 @@ type Logger interface {
 	// Arguments are handled in the manner of [fmt.Sprint].
 	FatalCustomWithPanic(customValues map[string]any, args ...any)
 
+	// Logs a message together with a correlation id from context if fatal level is enabled  and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+	// Arguments are handled in the manner of [fmt.Sprint].
+	FatalCtxWithPanic(context context.Context, args ...any)
+
 	// Logs a message derived from format if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	FatalWithPanicf(format string, args ...any)
@@ -201,6 +263,10 @@ type Logger interface {
 	// Logs a message derived from format together with custom values if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	FatalCustomWithPanicf(customValues map[string]any, format string, args ...any)
+
+	// Logs a message derived from format together with a correlation id from context if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+	// Arguments are handled in the manner of [fmt.Sprintf].
+	FatalCtxWithPanicf(context context.Context, format string, args ...any)
 
 	// Logs a message if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprint].
@@ -214,6 +280,10 @@ type Logger interface {
 	// Arguments are handled in the manner of [fmt.Sprint].
 	FatalCustomWithExit(customValues map[string]any, args ...any)
 
+	// Logs a message together with a correlation id from context if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+	// Arguments are handled in the manner of [fmt.Sprint].
+	FatalCtxWithExit(context context.Context, args ...any)
+
 	// Logs a message derived from format if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	FatalWithExitf(format string, args ...any)
@@ -225,6 +295,10 @@ type Logger interface {
 	// Logs a message derived from format together with custom values if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 	// Arguments are handled in the manner of [fmt.Sprintf].
 	FatalCustomWithExitf(customValues map[string]any, format string, args ...any)
+
+	// Logs a message derived from format together with a correlation id from context if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+	// Arguments are handled in the manner of [fmt.Sprintf].
+	FatalCtxWithExitf(context context.Context, format string, args ...any)
 
 	// Indicator whether debug level is enabled or not
 	IsDebugEnabled() bool
@@ -265,6 +339,12 @@ func DebugCustom(customValues map[string]any, args ...any) {
 	getLoggers().DebugCustom(customValues, args...)
 }
 
+// Logs a message together with a correlation id from context if debug level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func DebugCtx(context context.Context, args ...any) {
+	getLoggers().DebugCtx(context, args...)
+}
+
 // Logs a message derived from format if debug level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func Debugf(format string, args ...any) {
@@ -281,6 +361,12 @@ func DebugWithCorrelationf(correlationId string, format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func DebugCustomf(customValues map[string]any, format string, args ...any) {
 	getLoggers().DebugCustomf(customValues, format, args...)
+}
+
+// Logs a message derived from format together with a correlation id from context if debug level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func DebugCtxf(context context.Context, format string, args ...any) {
+	getLoggers().DebugCtxf(context, format, args...)
 }
 
 // Logs a message if information level is enabled
@@ -301,6 +387,12 @@ func InformationCustom(customValues map[string]any, args ...any) {
 	getLoggers().InformationCustom(customValues, args...)
 }
 
+// Logs a message together with a correlation id from context if information level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func InformationCtx(context context.Context, args ...any) {
+	getLoggers().InformationCtx(context, args...)
+}
+
 // Logs a message derived from format if information level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func Informationf(format string, args ...any) {
@@ -317,6 +409,12 @@ func InformationWithCorrelationf(correlationId string, format string, args ...an
 // Arguments are handled in the manner of [fmt.Sprintf].
 func InformationCustomf(customValues map[string]any, format string, args ...any) {
 	getLoggers().InformationCustomf(customValues, format, args...)
+}
+
+// Logs a message derived from format together with a correlation id from context if information level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func InformationCtxf(context context.Context, format string, args ...any) {
+	getLoggers().InformationCtxf(context, format, args...)
 }
 
 // Logs a message if warning level is enabled
@@ -337,6 +435,12 @@ func WarningCustom(customValues map[string]any, args ...any) {
 	getLoggers().WarningCustom(customValues, args...)
 }
 
+// Logs a message together with a correlation id from context if warning level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func WarningCtx(context context.Context, args ...any) {
+	getLoggers().WarningCtx(context, args...)
+}
+
 // Logs a message derived from format if warning level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func Warningf(format string, args ...any) {
@@ -353,6 +457,12 @@ func WarningWithCorrelationf(correlationId string, format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func WarningCustomf(customValues map[string]any, format string, args ...any) {
 	getLoggers().WarningCustomf(customValues, format, args...)
+}
+
+// Logs a message derived from format together with a correlation id from context if warning level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func WarningCtxf(context context.Context, format string, args ...any) {
+	getLoggers().WarningCtxf(context, format, args...)
 }
 
 // Logs a message if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
@@ -373,6 +483,12 @@ func WarningCustomWithPanic(customValues map[string]any, args ...any) {
 	getLoggers().WarningCustomWithPanic(customValues, args...)
 }
 
+// Logs a message together with a correlation id from context if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func WarningCtxWithPanic(context context.Context, args ...any) {
+	getLoggers().WarningCtxWithPanic(context, args...)
+}
+
 // Logs a message derived from format if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func WarningWithPanicf(format string, args ...any) {
@@ -389,6 +505,12 @@ func WarningWithCorrelationAndPanicf(correlationId string, format string, args .
 // Arguments are handled in the manner of [fmt.Sprintf].
 func WarningCustomWithPanicf(customValues map[string]any, format string, args ...any) {
 	getLoggers().WarningCustomWithPanicf(customValues, format, args...)
+}
+
+// Logs a message derived from format together with a correlation id from context if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func WarningCtxWithPanicf(context context.Context, format string, args ...any) {
+	getLoggers().WarningCtxWithPanicf(context, format, args...)
 }
 
 // Logs a message if error level is enabled
@@ -409,6 +531,12 @@ func ErrorCustom(customValues map[string]any, args ...any) {
 	getLoggers().ErrorCustom(customValues, args...)
 }
 
+// Logs a message together with a correlation id from context if error level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func ErrorCtx(context context.Context, args ...any) {
+	getLoggers().ErrorCtx(context, args...)
+}
+
 // Logs a message derived from format if error level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func Errorf(format string, args ...any) {
@@ -425,6 +553,12 @@ func ErrorWithCorrelationf(correlationId string, format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func ErrorCustomf(customValues map[string]any, format string, args ...any) {
 	getLoggers().ErrorCustomf(customValues, format, args...)
+}
+
+// Logs a message derived from format together with a correlation id from context if error level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func ErrorCtxf(context context.Context, format string, args ...any) {
+	getLoggers().ErrorCtxf(context, format, args...)
 }
 
 // Logs a message if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
@@ -445,6 +579,12 @@ func ErrorCustomWithPanic(customValues map[string]any, args ...any) {
 	getLoggers().ErrorCustomWithPanic(customValues, args...)
 }
 
+// Logs a message together with a correlation id from context if debug level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func ErrorCtxWithPanic(context context.Context, args ...any) {
+	getLoggers().ErrorCtxWithPanic(context, args...)
+}
+
 // Logs a message derived from format if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func ErrorWithPanicf(format string, args ...any) {
@@ -461,6 +601,12 @@ func ErrorWithCorrelationAndPanicf(correlationId string, format string, args ...
 // Arguments are handled in the manner of [fmt.Sprintf].
 func ErrorCustomWithPanicf(customValues map[string]any, format string, args ...any) {
 	getLoggers().ErrorCustomWithPanicf(customValues, format, args...)
+}
+
+// Logs a message derived from format together with a correlation id from context if debug level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func ErrorCtxWithPanicf(context context.Context, format string, args ...any) {
+	getLoggers().ErrorCtxWithPanicf(context, format, args...)
 }
 
 // Logs a message if fatal level is enabled
@@ -481,6 +627,12 @@ func FatalCustom(customValues map[string]any, args ...any) {
 	getLoggers().FatalCustom(customValues, args...)
 }
 
+// Logs a message together with a correlation id from context if fatal level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalCtx(context context.Context, args ...any) {
+	getLoggers().FatalCtx(context, args...)
+}
+
 // Logs a message derived from format if fatal level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func Fatalf(format string, args ...any) {
@@ -497,6 +649,12 @@ func FatalWithCorrelationf(correlationId string, format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func FatalCustomf(customValues map[string]any, format string, args ...any) {
 	getLoggers().FatalCustomf(customValues, format, args...)
+}
+
+// Logs a message derived from format together with a correlation id from context if fatal level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalCtxf(context context.Context, format string, args ...any) {
+	getLoggers().FatalCtxf(context, format, args...)
 }
 
 // Logs a message if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
@@ -517,6 +675,12 @@ func FatalCustomWithPanic(customValues map[string]any, args ...any) {
 	getLoggers().FatalCustomWithPanic(customValues, args...)
 }
 
+// Logs a message together with a correlation id from context if fatal level is enabled  and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalCtxWithPanic(context context.Context, args ...any) {
+	getLoggers().FatalCtxWithPanic(context, args...)
+}
+
 // Logs a message derived from format if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func FatalWithPanicf(format string, args ...any) {
@@ -533,6 +697,12 @@ func FatalWithCorrelationAndPanicf(correlationId string, format string, args ...
 // Arguments are handled in the manner of [fmt.Sprintf].
 func FatalCustomWithPanicf(customValues map[string]any, format string, args ...any) {
 	getLoggers().FatalCustomWithPanicf(customValues, format, args...)
+}
+
+// Logs a message derived from format together with a correlation id from context if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalCtxWithPanicf(context context.Context, format string, args ...any) {
+	getLoggers().FatalCtxWithPanicf(context, format, args...)
 }
 
 // Logs a message if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
@@ -553,6 +723,12 @@ func FatalCustomWithExit(customValues map[string]any, args ...any) {
 	getLoggers().FatalCustomWithExit(customValues, args...)
 }
 
+// Logs a message together with a correlation id from context if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func FatalCtxWithExit(context context.Context, args ...any) {
+	getLoggers().FatalCtxWithExit(context, args...)
+}
+
 // Logs a message derived from format if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func FatalWithExitf(format string, args ...any) {
@@ -569,6 +745,12 @@ func FatalWithCorrelationAndExitf(correlationId string, format string, args ...a
 // Arguments are handled in the manner of [fmt.Sprintf].
 func FatalCustomWithExitf(customValues map[string]any, format string, args ...any) {
 	getLoggers().FatalCustomWithExitf(customValues, format, args...)
+}
+
+// Logs a message derived from format together with a correlation id from context if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func FatalCtxWithExitf(context context.Context, format string, args ...any) {
+	getLoggers().FatalCtxWithExitf(context, format, args...)
 }
 
 // Indicator whether debug level is enabled or not

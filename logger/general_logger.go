@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"runtime"
@@ -20,6 +21,7 @@ type GeneralLogger struct {
 	fatalEnabled       bool
 	isCallerToSet      bool
 	appender           *appender.Appender
+	correlationIdKey   string
 }
 
 var mockPanicAndExitAtGeneralLogger = false
@@ -31,6 +33,7 @@ func CreateGeneralLoggerFromConfig(generalLoggerConfig config.GeneralLoggerConfi
 	result := GeneralLogger{
 		appender:      appender,
 		isCallerToSet: generalLoggerConfig.IsCallerToSet,
+		correlationIdKey: generalLoggerConfig.Common.CorrelationIdKey,
 	}
 	determineSeverityByLevel(&result, generalLoggerConfig.Severity)
 	return result
@@ -69,6 +72,14 @@ func (l GeneralLogger) DebugCustom(customValues map[string]any, args ...any) {
 	}
 }
 
+// Logs a message together with a correlation id from context if debug level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func (l GeneralLogger) DebugCtx(context context.Context, args ...any) {
+	if l.debugEnabled {
+		l.writeWithCtx(common.DEBUG_SEVERITY, context, fmt.Sprint(args...))
+	}
+}
+
 // Logs a message derived from format if debug level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) Debugf(format string, args ...any) {
@@ -90,6 +101,14 @@ func (l GeneralLogger) DebugWithCorrelationf(correlationId string, format string
 func (l GeneralLogger) DebugCustomf(customValues map[string]any, format string, args ...any) {
 	if l.debugEnabled {
 		l.writeCustom(common.DEBUG_SEVERITY, fmt.Sprintf(format, args...), customValues)
+	}
+}
+
+// Logs a message derived from format together with a correlation id from context if debug level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func (l GeneralLogger) DebugCtxf(context context.Context, format string, args ...any) {
+	if l.debugEnabled {
+		l.writeWithCtx(common.DEBUG_SEVERITY, context, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -117,6 +136,14 @@ func (l GeneralLogger) InformationCustom(customValues map[string]any, args ...an
 	}
 }
 
+// Logs a message together with a correlation id from context if information level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func (l GeneralLogger) InformationCtx(context context.Context, args ...any) {
+	if l.informationEnabled {
+		l.writeWithCtx(common.INFORMATION_SEVERITY, context, fmt.Sprint(args...))
+	}
+}
+
 // Logs a message derived from format if information level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) Informationf(format string, args ...any) {
@@ -138,6 +165,14 @@ func (l GeneralLogger) InformationWithCorrelationf(correlationId string, format 
 func (l GeneralLogger) InformationCustomf(customValues map[string]any, format string, args ...any) {
 	if l.informationEnabled {
 		l.writeCustom(common.INFORMATION_SEVERITY, fmt.Sprintf(format, args...), customValues)
+	}
+}
+
+// Logs a message derived from format together with a correlation id from context if information level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func (l GeneralLogger) InformationCtxf(context context.Context, format string, args ...any) {
+	if l.informationEnabled {
+		l.writeWithCtx(common.INFORMATION_SEVERITY, context, fmt.Sprintf(format, args...))
 	}
 }
 
@@ -165,6 +200,14 @@ func (l GeneralLogger) WarningCustom(customValues map[string]any, args ...any) {
 	}
 }
 
+// Logs a message together with a correlation id from context if warning level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func (l GeneralLogger) WarningCtx(context context.Context, args ...any) {
+	if l.warningEnabled {
+		l.writeWithCtx(common.WARNING_SEVERITY, context, fmt.Sprint(args...))
+	}
+}
+
 // Logs a message derived from format if warning level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) Warningf(format string, args ...any) {
@@ -189,6 +232,14 @@ func (l GeneralLogger) WarningCustomf(customValues map[string]any, format string
 	}
 }
 
+// Logs a message derived from format together with a correlation id from context if warning level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func (l GeneralLogger) WarningCtxf(context context.Context, format string, args ...any) {
+	if l.warningEnabled {
+		l.writeWithCtx(common.WARNING_SEVERITY, context, fmt.Sprintf(format, args...))
+	}
+}
+
 // Logs a message if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) WarningWithPanic(args ...any) {
@@ -210,6 +261,13 @@ func (l GeneralLogger) WarningCustomWithPanic(customValues map[string]any, args 
 	panicOrMock(fmt.Sprint(args...))
 }
 
+// Logs a message together with a correlation id from context if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func (l GeneralLogger) WarningCtxWithPanic(context context.Context, args ...any) {
+	l.WarningCtx(context, args...)
+	panicOrMock(fmt.Sprint(args...))
+}
+
 // Logs a message derived from format if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) WarningWithPanicf(format string, args ...any) {
@@ -228,6 +286,13 @@ func (l GeneralLogger) WarningWithCorrelationAndPanicf(correlationId string, for
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) WarningCustomWithPanicf(customValues map[string]any, format string, args ...any) {
 	l.WarningCustomf(customValues, format, args...)
+	panicOrMock(fmt.Sprint(args...))
+}
+
+// Logs a message derived from format together with a correlation id from context if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func (l GeneralLogger) WarningCtxWithPanicf(context context.Context, format string, args ...any) {
+	l.WarningCtxf(context, format, args...)
 	panicOrMock(fmt.Sprint(args...))
 }
 
@@ -255,6 +320,14 @@ func (l GeneralLogger) ErrorCustom(customValues map[string]any, args ...any) {
 	}
 }
 
+// Logs a message together with a correlation id from context if error level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func (l GeneralLogger) ErrorCtx(context context.Context, args ...any) {
+	if l.errorEnabled {
+		l.writeWithCtx(common.ERROR_SEVERITY, context, fmt.Sprint(args...))
+	}
+}
+
 // Logs a message derived from format if error level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) Errorf(format string, args ...any) {
@@ -279,6 +352,14 @@ func (l GeneralLogger) ErrorCustomf(customValues map[string]any, format string, 
 	}
 }
 
+// Logs a message derived from format together with a correlation id from context if error level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func (l GeneralLogger) ErrorCtxf(context context.Context, format string, args ...any) {
+	if l.errorEnabled {
+		l.writeWithCtx(common.ERROR_SEVERITY, context, fmt.Sprintf(format, args...))
+	}
+}
+
 // Logs a message if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) ErrorWithPanic(args ...any) {
@@ -300,6 +381,13 @@ func (l GeneralLogger) ErrorCustomWithPanic(customValues map[string]any, args ..
 	panicOrMock(fmt.Sprint(args...))
 }
 
+// Logs a message together with a correlation id from context if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func (l GeneralLogger) ErrorCtxWithPanic(context context.Context, args ...any) {
+	l.ErrorCtx(context, args...)
+	panicOrMock(fmt.Sprint(args...))
+}
+
 // Logs a message derived from format if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) ErrorWithPanicf(format string, args ...any) {
@@ -318,6 +406,13 @@ func (l GeneralLogger) ErrorWithCorrelationAndPanicf(correlationId string, forma
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) ErrorCustomWithPanicf(customValues map[string]any, format string, args ...any) {
 	l.ErrorCustomf(customValues, format, args...)
+	panicOrMock(fmt.Sprint(args...))
+}
+
+// Logs a message derived from format together with a correlation id from context if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func (l GeneralLogger) ErrorCtxWithPanicf(context context.Context, format string, args ...any) {
+	l.ErrorCtxf(context, format, args...)
 	panicOrMock(fmt.Sprint(args...))
 }
 
@@ -345,6 +440,14 @@ func (l GeneralLogger) FatalCustom(customValues map[string]any, args ...any) {
 	}
 }
 
+// Logs a message together with a correlation id from context if fatal level is enabled.
+// Arguments are handled in the manner of [fmt.Sprint].
+func (l GeneralLogger) FatalCtx(context context.Context, args ...any) {
+	if l.fatalEnabled {
+		l.writeWithCtx(common.FATAL_SEVERITY, context, fmt.Sprint(args...))
+	}
+}
+
 // Logs a message derived from format if fatal level is enabled
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) Fatalf(format string, args ...any) {
@@ -369,6 +472,14 @@ func (l GeneralLogger) FatalCustomf(customValues map[string]any, format string, 
 	}
 }
 
+// Logs a message derived from format together with a correlation id from context if fatal level is enabled
+// Arguments are handled in the manner of [fmt.Sprintf].
+func (l GeneralLogger) FatalCtxf(context context.Context, format string, args ...any) {
+	if l.fatalEnabled {
+		l.writeWithCtx(common.FATAL_SEVERITY, context, fmt.Sprintf(format, args...))
+	}
+}
+
 // Logs a message if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) FatalWithPanic(args ...any) {
@@ -387,6 +498,13 @@ func (l GeneralLogger) FatalWithCorrelationAndPanic(correlationId string, args .
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) FatalCustomWithPanic(customValues map[string]any, args ...any) {
 	l.FatalCustom(customValues, args...)
+	panicOrMock(fmt.Sprint(args...))
+}
+
+// Logs a message together with a correlation id from context if fatal level is enabled  and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func (l GeneralLogger) FatalCtxWithPanic(context context.Context, args ...any) {
+	l.FatalCtx(context, args...)
 	panicOrMock(fmt.Sprint(args...))
 }
 
@@ -411,6 +529,13 @@ func (l GeneralLogger) FatalCustomWithPanicf(customValues map[string]any, format
 	panicOrMock(fmt.Sprint(args...))
 }
 
+// Logs a message derived from format together with a correlation id from context if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func (l GeneralLogger) FatalCtxWithPanicf(context context.Context, format string, args ...any) {
+	l.FatalCtxf(context, format, args...)
+	panicOrMock(fmt.Sprint(args...))
+}
+
 // Logs a message if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) FatalWithExit(args ...any) {
@@ -432,6 +557,13 @@ func (l GeneralLogger) FatalCustomWithExit(customValues map[string]any, args ...
 	l.exitOrMock(1)
 }
 
+// Logs a message together with a correlation id from context if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprint].
+func (l GeneralLogger) FatalCtxWithExit(context context.Context, args ...any) {
+	l.FatalCtx(context, args...)
+	l.exitOrMock(1)
+}
+
 // Logs a message derived from format if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) FatalWithExitf(format string, args ...any) {
@@ -450,6 +582,13 @@ func (l GeneralLogger) FatalWithCorrelationAndExitf(correlationId string, format
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) FatalCustomWithExitf(customValues map[string]any, format string, args ...any) {
 	l.FatalCustomf(customValues, format, args...)
+	l.exitOrMock(1)
+}
+
+// Logs a message derived from format together with a correlation id from context if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
+// Arguments are handled in the manner of [fmt.Sprintf].
+func (l GeneralLogger) FatalCtxWithExitf(context context.Context, format string, args ...any) {
+	l.FatalCtxf(context, format, args...)
 	l.exitOrMock(1)
 }
 
@@ -514,6 +653,18 @@ func (l *GeneralLogger) writeWithCorrelation(severity int, correlationId string,
 
 func (l *GeneralLogger) writeCustom(severity int, message string, customValues map[string]any) {
 	logValuesToWrite := common.CreateLogValuesCustom(severity, message, &customValues)
+	l.setCallerValues(&logValuesToWrite)
+	(*l.appender).Write(&logValuesToWrite)
+}
+
+func (l *GeneralLogger) writeWithCtx(severity int, context context.Context, message string) {
+	correlationId, exists := context.Value(l.correlationIdKey).(string)
+	var logValuesToWrite common.LogValues
+	if exists {
+		logValuesToWrite = common.CreateLogValuesWithCorrelation(severity, &correlationId, message)
+	} else {
+		logValuesToWrite = common.CreateLogValues(severity, message)
+	}
 	l.setCallerValues(&logValuesToWrite)
 	(*l.appender).Write(&logValuesToWrite)
 }

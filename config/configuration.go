@@ -59,9 +59,10 @@ const (
 	TEMPLATE_CALLER_CORRELATION_PARAMETER = "_TEMPLATE_CALLER_CORRELATION"
 	TEMPLATE_CALLER_CUSTOM_PARAMETER      = "_TEMPLATE_CALLER_CUSTOM"
 
-	LOG_CONFIG_FILE_ENV_NAME                   = "TYPEWRITER_CONFIG_FILE"
-	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME       = "TYPEWRITER_LOG_CALLER"
-	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME = "TYPEWRITER_PACKAGE_FULL_QUALIFIED"
+	LOG_CONFIG_FILE_ENV_NAME                       = "TYPEWRITER_CONFIG_FILE"
+	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME           = "TYPEWRITER_LOG_CALLER"
+	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME     = "TYPEWRITER_PACKAGE_FULL_QUALIFIED"
+	LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME = "TYPEWRITER_CONTEXT_CORRELATION_ID_KEY"
 
 	LOG_LEVEL_DEBUG       = "DEBUG"
 	LOG_LEVEL_INFO        = "INFO"
@@ -99,6 +100,7 @@ const (
 	DEFAULT_CALLER_FILE_KEY             = "file"
 	DEFAULT_CALLER_FILE_LINE_KEY        = "line"
 	DEFAULT_TIME_LAYOUT                 = time.RFC3339
+	DEFAULT_CONTEXT_CORRELATION_ID_KEY  = "correlationId"
 )
 
 var configInitialized = false
@@ -127,6 +129,7 @@ var relevantKeyPrefixes = []string{
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
 	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
+	LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME,
 }
 
 // map containing creator functions of configurations of formatter
@@ -194,6 +197,7 @@ func ResetRegisteredAppenderAndFormatterConfigs() {
 		PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
 		LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
 		LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
+		LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME,
 	}
 
 	initializeRegisteredAppenderConfigs()
@@ -215,7 +219,7 @@ func deriveConfigFromFile() bool {
 
 // Checks whether any environment variable of a severity log level is set
 func deriveConfigFromEnv() bool {
-	return existsAnyAtEnv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME) ||
+	return existsAnyAtEnv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME) ||
 		existsAnyPrefixAtEnv(PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
 }
 
@@ -726,6 +730,7 @@ func createLoggerConfigEntry(relevantKeyValues *map[string]string, packageParame
 			LoggerType:       LOGGER_GENERAL,
 			PackageParameter: packageParameter,
 			PackageName:      packageName,
+			CorrelationIdKey: getValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME, DEFAULT_CONTEXT_CORRELATION_ID_KEY),
 		},
 		Severity:      severity,
 		IsCallerToSet: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, "false")) == "true",
@@ -750,7 +755,7 @@ func printHint(propertyValue string, propertyName string) {
 
 // creates default configs if missing and adds package specific copies of defaults if at least one of the other config types exists as package variant
 func completeConfig(relevantKeyValues *map[string]string) {
-	completeDefaults()
+	completeDefaults(relevantKeyValues)
 
 	completeAppenderConfigPackageForward()
 	completeFormatterConfigPackageForward()
@@ -763,7 +768,7 @@ func completeConfig(relevantKeyValues *map[string]string) {
 }
 
 // creates default configs if missing
-func completeDefaults() {
+func completeDefaults(relevantKeyValues *map[string]string) {
 	found := false
 
 	for _, fc := range config.Formatter {
@@ -795,7 +800,8 @@ func completeDefaults() {
 		}
 	}
 	if !found {
-		config.Logger = append(config.Logger, GeneralLoggerConfig{Common: &CommonLoggerConfig{LoggerType: LOGGER_GENERAL, IsDefault: true, PackageParameter: ""}, Severity: common.ERROR_SEVERITY})
+		correlationIdKey := getValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME, DEFAULT_CONTEXT_CORRELATION_ID_KEY)
+		config.Logger = append(config.Logger, GeneralLoggerConfig{Common: &CommonLoggerConfig{LoggerType: LOGGER_GENERAL, IsDefault: true, PackageParameter: "", CorrelationIdKey: correlationIdKey}, Severity: common.ERROR_SEVERITY})
 	}
 }
 

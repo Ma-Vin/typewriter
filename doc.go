@@ -88,7 +88,16 @@ The keys of the custom value map will be used 1:1. The properties can be set via
 
 The default formatter is the delimiter one.
 
-# 2.5 Package specific configuration
+# 2.5 Caller
+
+The logging of the caller function, file and line can be activated by setting ”true” at ”TYPEWRITER_LOG_CALLER”. The default is ”false”.
+
+# 2.6 Context
+
+The key, which is used to get the correlation id from [context.Context.Value], can be defined by setting ”TYPEWRITER_CONTEXT_CORRELATION_ID_KEY”.
+The default value is ”correlationId”. If [context.Context.Value] returns ”nil”, a log statement without correlation id will be used.
+
+# 2.7 Package specific configuration
 
 Each configuration element can be declared package specific by replacing “TYPEWRITER” with “TYPEWRITER_PACKAGE” and adding the package identifier as postfix at environment variable names.
 The identifier is mapped to the package by setting the package name at “TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>”.
