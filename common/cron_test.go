@@ -111,7 +111,6 @@ func TestCreateCronCrontabMinuteList(t *testing.T) {
 	checkEmptyMonth(result, t)
 	checkEmptyDayOfWeek(result, t)
 
-
 	testutil.AssertEquals(time.Date(2025, time.March, 1, 16, 30, 0, 0, time.UTC), *result.NextTime, t, "init result.NextTime")
 }
 

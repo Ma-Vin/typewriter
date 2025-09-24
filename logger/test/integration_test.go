@@ -130,7 +130,6 @@ func TestMultiAppender(t *testing.T) {
 	os.Setenv("TYPEWRITER_LOG_APPENDER_FILE", logFilePath)
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TIME_LAYOUT", time.DateTime)
 
-
 	for i := 0; i < 10; i++ {
 		logger.Information("some info message ", i)
 	}

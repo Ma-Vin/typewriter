@@ -94,7 +94,6 @@ func TestStandardOutputAppenderClose(t *testing.T) {
 	testutil.AssertEquals("", strings.TrimSpace(buf.String()), t, "Write")
 }
 
-
 func createTestStandardOutputAppender() (Appender, *bytes.Buffer) {
 	buf := new(bytes.Buffer)
 	appender := CreateStandardOutputAppenderForTest(&testDelimiterFormatter).(StandardOutputAppender)

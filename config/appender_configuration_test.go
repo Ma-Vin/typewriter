@@ -75,7 +75,7 @@ func TestEqualsMultiAppenderConfig(t *testing.T) {
 
 	multiCommonConfig := CommonAppenderConfig{AppenderType: APPENDER_MULTIPLE}
 	var multiConfig AppenderConfig = MultiAppenderConfig{
-		Common:    &multiCommonConfig,
+		Common:          &multiCommonConfig,
 		AppenderConfigs: &[]AppenderConfig{stdOutConfig, fileConfig},
 	}
 
@@ -96,7 +96,7 @@ func TestNotEqualsMultiAppenderConfig(t *testing.T) {
 
 	multiCommonConfig := CommonAppenderConfig{AppenderType: APPENDER_MULTIPLE}
 	var multiConfig = MultiAppenderConfig{
-		Common:    &multiCommonConfig,
+		Common:          &multiCommonConfig,
 		AppenderConfigs: &[]AppenderConfig{stdOutConfig, fileConfig},
 	}
 

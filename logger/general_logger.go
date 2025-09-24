@@ -31,8 +31,8 @@ var exitMockActivated = false
 // Creates a general logger which delegates messages to the given appender if the log level is enabled by given severity
 func CreateGeneralLoggerFromConfig(generalLoggerConfig config.GeneralLoggerConfig, appender *appender.Appender) GeneralLogger {
 	result := GeneralLogger{
-		appender:      appender,
-		isCallerToSet: generalLoggerConfig.IsCallerToSet,
+		appender:         appender,
+		isCallerToSet:    generalLoggerConfig.IsCallerToSet,
 		correlationIdKey: generalLoggerConfig.Common.CorrelationIdKey,
 	}
 	determineSeverityByLevel(&result, generalLoggerConfig.Severity)
