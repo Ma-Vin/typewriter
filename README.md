@@ -1,5 +1,6 @@
 [![Build and test](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml/badge.svg)](https://github.com/Ma-Vin/typewriter/actions/workflows/go-build.yaml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/ma-vin/typewriter.svg)](https://pkg.go.dev/github.com/ma-vin/typewriter)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ma-vin/typewriter)](https://goreportcard.com/report/github.com/ma-vin/typewriter)
 
 # Typewriter
 
