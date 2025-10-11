@@ -303,6 +303,40 @@ func TestTemplateFormatCorrelationOrderCaller(t *testing.T) {
 	}
 }
 
+func TestTemplateFormatCustomCallerDefaultFormat(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+
+	var templateFormatterDefaultCustom Formatter = createTemplateFormatterForTest(
+		"time: %s severity: %s message: %s",
+		"time: %s severity: %s correlation: %s message: %s",
+		DEFAULT_TEMPLATE,
+		"time: %s severity: %s caller: %s file: %s line: %d message: %s",
+		"time: %s severity: %s correlation: %s caller: %s file: %s line: %d message: %s",
+		DEFAULT_CALLER_TEMPLATE,
+		time.RFC1123Z,
+		false)
+
+	customProperties := map[string]any{
+		"first":  "abc",
+		"third":  true,
+		"second": 1,
+	}
+
+	expectedResults := map[int]string{
+		common.DEBUG_SEVERITY:       "[" + templateFormatTestTimeText + "] DEBUG someFunction(someFile.42): Testmessage [first]: abc [second]: 1 [third]: true",
+		common.INFORMATION_SEVERITY: "[" + templateFormatTestTimeText + "] INFO  someFunction(someFile.42): Testmessage [first]: abc [second]: 1 [third]: true",
+		common.WARNING_SEVERITY:     "[" + templateFormatTestTimeText + "] WARN  someFunction(someFile.42): Testmessage [first]: abc [second]: 1 [third]: true",
+		common.ERROR_SEVERITY:       "[" + templateFormatTestTimeText + "] ERROR someFunction(someFile.42): Testmessage [first]: abc [second]: 1 [third]: true",
+		common.FATAL_SEVERITY:       "[" + templateFormatTestTimeText + "] FATAL someFunction(someFile.42): Testmessage [first]: abc [second]: 1 [third]: true",
+	}
+
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValuesCustom(severity, "Testmessage", &customProperties)
+		setCallerValues(&logValuesToFormat)
+		testutil.AssertEquals(expectedMessage, templateFormatterDefaultCustom.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+	}
+}
+
 func TestTemplateFormatCustomCaller(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
 

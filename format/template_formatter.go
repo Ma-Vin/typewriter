@@ -57,46 +57,81 @@ func CreateTemplateFormatterFromConfig(formatterConfig *config.FormatterConfig) 
 
 // Formats the given parameter to a string to log
 func (t TemplateFormatter) Format(logValues *common.LogValues) string {
-	if logValues.CustomValues != nil {
-		return t.formatCustom(logValues)
-	}
-	if logValues.IsCallerSet {
-		if logValues.CorrelationId != nil {
-			return formatValues(t.callerCorrelationIdTemplate, t.formatTime(logValues), t.getSeverityText(logValues.Severity), *logValues.CorrelationId,
-				logValues.CallerFunction, logValues.CallerFile, logValues.CallerFileLine, logValues.Message)
-		}
-		return formatValues(t.callerTemplate, t.formatTime(logValues), t.getSeverityText(logValues.Severity),
-			logValues.CallerFunction, logValues.CallerFile, logValues.CallerFileLine, logValues.Message)
-	}
-	if logValues.CorrelationId != nil {
-		return formatValues(t.correlationIdTemplate, t.formatTime(logValues), t.getSeverityText(logValues.Severity), *logValues.CorrelationId, logValues.Message)
-	}
-	return formatValues(t.template, t.formatTime(logValues), t.getSeverityText(logValues.Severity), logValues.Message)
+	template := *t.determineTemplate(logValues)
+	args := *t.createSliceFromLogValues(logValues)
+	return formatValues(template, args...)
 }
 
-// Formats the given parameter to a string to log and the customValues will be added at the end
-func (t TemplateFormatter) formatCustom(logValues *common.LogValues) string {
-	if t.customTemplate == DEFAULT_TEMPLATE {
-		for i := 0; i < len(*logValues.CustomValues); i++ {
-			t.customTemplate += " [%s]: %v"
-		}
+// Creates a pointer to a slice with all relevant log entries. The values will be added as key-value pairs
+func (t TemplateFormatter) createSliceFromLogValues(logValues *common.LogValues) *[]any {
+	capacity := 3
+	if logValues.IsCallerSet {
+		capacity += 3
 	}
-	args := make([]any, 0, 2*len(*logValues.CustomValues)+3)
+	if logValues.CorrelationId != nil {
+		capacity += 1
+	}
+	if logValues.CustomValues != nil {
+		capacity += 2 * len(*logValues.CustomValues)
+	}
+
+	args := make([]any, 0, capacity)
 
 	args = append(args, t.formatTime(logValues))
 	args = append(args, t.getSeverityText(logValues.Severity))
+	if logValues.CorrelationId != nil {
+		args = append(args, *logValues.CorrelationId)
+	}
 	if logValues.IsCallerSet {
 		args = append(args, logValues.CallerFunction)
 		args = append(args, logValues.CallerFile)
 		args = append(args, logValues.CallerFileLine)
 	}
 	args = append(args, logValues.Message)
-	args = appendCustomValues(args, logValues.CustomValues)
-
-	if logValues.IsCallerSet {
-		return formatValues(t.callerCustomTemplate, args...)
+	if logValues.CustomValues != nil {
+		args = appendCustomValues(args, logValues.CustomValues)
 	}
-	return formatValues(t.customTemplate, args...)
+
+	return &args
+}
+
+// Determines the template to use custom, with caller, correlation or default one
+func (t TemplateFormatter) determineTemplate(logValues *common.LogValues) *string {
+	if logValues.CustomValues != nil {
+		return t.determineCustomTemplate(logValues)
+	} else {
+		if logValues.IsCallerSet {
+			if logValues.CorrelationId != nil {
+				return &t.callerCorrelationIdTemplate
+			}
+			return &t.callerTemplate
+		}
+		if logValues.CorrelationId != nil {
+			return &t.correlationIdTemplate
+		}
+		return &t.template
+	}
+}
+
+// Determines the custom template
+func (t TemplateFormatter) determineCustomTemplate(logValues *common.LogValues) *string {
+	var result string
+	if logValues.IsCallerSet {
+		result = t.callerCustomTemplate
+		if result == DEFAULT_CALLER_TEMPLATE {
+			for i := 0; i < len(*logValues.CustomValues); i++ {
+				result += " [%s]: %v"
+			}
+		}
+	} else {
+		result = t.customTemplate
+		if result == DEFAULT_TEMPLATE {
+			for i := 0; i < len(*logValues.CustomValues); i++ {
+				result += " [%s]: %v"
+			}
+		}
+	}
+	return &result
 }
 
 func (t *TemplateFormatter) formatTime(logValues *common.LogValues) string {
