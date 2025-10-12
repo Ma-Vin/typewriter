@@ -264,12 +264,13 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 	}
 }
 
-func TestGetConfigDefaultTemplateWithoutParameter(t *testing.T) {
+func TestGetConfigDefaultTemplateInactiveSequenceWithoutParameter(t *testing.T) {
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_TEMPLATE)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+SEQUENCE_ACTIVE_PARAMETER, "false")
 		allPostInitConfigTest[i](optionalFile)
 		configInitialized = false
 
@@ -298,6 +299,43 @@ func TestGetConfigDefaultTemplateWithoutParameter(t *testing.T) {
 		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[0].CallerTemplate")
 		testutil.AssertEquals("[%s] %s %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
 		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
+	}
+}
+
+func TestGetConfigDefaultTemplateActiveSequenceWithoutParameter(t *testing.T) {
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_TEMPLATE)
+		allPostInitConfigTest[i](optionalFile)
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
+		testutil.AssertTrue(result.Logger[0].IsDefault(), t, "result.logger[0].isDefault")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
+		testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+		testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
+
+		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
+		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "result.appender[0].PackageParameter")
+		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType(), t, "result.appender[0].appenderType")
+
+		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+		testutil.AssertEquals("[%s] %d %s: %s", result.Formatter[0].(TemplateFormatterConfig).Template, t, "result.formatter[0].template")
+		testutil.AssertEquals("[%s] %d %s %s: %s", result.Formatter[0].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
+		testutil.AssertEquals("[%s] %d %s: %s", result.Formatter[0].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[0].customTemplate")
+		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
+		testutil.AssertEquals("[%s] %d %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[0].CallerTemplate")
+		testutil.AssertEquals("[%s] %d %s %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
+		testutil.AssertEquals("[%s] %d %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
 	}
 }
 

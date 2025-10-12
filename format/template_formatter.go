@@ -8,9 +8,6 @@ import (
 	"github.com/ma-vin/typewriter/config"
 )
 
-const DEFAULT_TEMPLATE = config.DEFAULT_TEMPLATE
-const DEFAULT_CALLER_TEMPLATE = config.DEFAULT_CALLER_TEMPLATE
-
 // Formatter which uses given different templates for Format, FormatWithCorrelation and FormatCustom
 // The templates will be used in combination with [fmt.Sprintf]
 //
@@ -31,6 +28,7 @@ type TemplateFormatter struct {
 	customTemplate              string
 	callerCustomTemplate        string
 	timeLayout                  string
+	isSequenceActive            bool
 	trimSeverityText            bool
 }
 
@@ -50,6 +48,7 @@ func CreateTemplateFormatterFromConfig(formatterConfig *config.FormatterConfig) 
 		callerCustomTemplate:        templateFormatterConfig.CallerCustomTemplate,
 		timeLayout:                  templateFormatterConfig.TimeLayout(),
 		trimSeverityText:            templateFormatterConfig.TrimSeverityText,
+		isSequenceActive:            templateFormatterConfig.Common.IsSequenceActive,
 	}
 
 	return &result, nil
@@ -78,6 +77,9 @@ func (t TemplateFormatter) createSliceFromLogValues(logValues *common.LogValues)
 	args := make([]any, 0, capacity)
 
 	args = append(args, t.formatTime(logValues))
+	if t.isSequenceActive {
+		args = append(args, logValues.Sequence)
+	}
 	args = append(args, t.getSeverityText(logValues.Severity))
 	if logValues.CorrelationId != nil {
 		args = append(args, *logValues.CorrelationId)
@@ -118,20 +120,23 @@ func (t TemplateFormatter) determineCustomTemplate(logValues *common.LogValues) 
 	var result string
 	if logValues.IsCallerSet {
 		result = t.callerCustomTemplate
-		if result == DEFAULT_CALLER_TEMPLATE {
-			for i := 0; i < len(*logValues.CustomValues); i++ {
-				result += " [%s]: %v"
-			}
-		}
 	} else {
 		result = t.customTemplate
-		if result == DEFAULT_TEMPLATE {
-			for i := 0; i < len(*logValues.CustomValues); i++ {
-				result += " [%s]: %v"
-			}
+	}
+	if t.areCustomKeyValueArgumentsToAppend(logValues) {
+		for i := 0; i < len(*logValues.CustomValues); i++ {
+			result += " [%s]: %v"
 		}
 	}
 	return &result
+}
+
+// Checks whether to add custom key-value pairs at custom templates format or not. 
+func (t TemplateFormatter) areCustomKeyValueArgumentsToAppend(logValues *common.LogValues) bool {
+	withCaller := logValues.IsCallerSet && ((!t.isSequenceActive && t.callerCustomTemplate == config.DEFAULT_CALLER_CUSTOM_TEMPLATE) || (t.isSequenceActive && t.callerCustomTemplate == config.DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE))
+	withoutCaller := !logValues.IsCallerSet && ((!t.isSequenceActive && t.customTemplate == config.DEFAULT_CUSTOM_TEMPLATE) || (t.isSequenceActive && t.customTemplate == config.DEFAULT_SEQUENCE_CUSTOM_TEMPLATE))
+
+	return withCaller || withoutCaller
 }
 
 func (t *TemplateFormatter) formatTime(logValues *common.LogValues) string {

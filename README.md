@@ -84,28 +84,32 @@ There are three types of formatter which provides the texts to log for the appen
 * `DELIMITER`: The record information will be appended and delimited with a given sign. They can be set `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>` has to be replaced by the following values:
   1. `DELIMITER` the delimiting signs. The default value of the delimiter is ` - `.
   2. `TIME_LAYOUT` time layout. Default value of `time.RFC3339`
+  3. `SEQUENCE_ACTIVE` indicator whether to log the sequence number or not. Default `true`
 * `TEMPLATE`: The records will be derived from three templates and time layout. They can be set `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>` has to be replaced by the following values:
-  1. `TEMPLATE` template for writing time, severity and the message. Default `[%s] %s: %s`
-  2. `TEMPLATE_CORRELATION` template for writing time, severity, correlationID and the message. Default `[%s] %s %s: %s`
-  3. `TEMPLATE_CUSTOM` template for writing time, severity, message and custom value map. Default `[%s] %s: %s`
+  1. `TEMPLATE` template for writing time, severity and the message. Default `[%s] %d %s: %s` (or `[%s] %s: %s` if sequence inactive)
+  2. `TEMPLATE_CORRELATION` template for writing time, severity, correlationID and the message. Default `[%s] %d %s %s: %s` (or `[%s] %s %s: %s` if sequence inactive)
+  3. `TEMPLATE_CUSTOM` template for writing time, severity, message and custom value map. Default `[%s] %d %s: %s` (or `[%s] %s: %s` if sequence inactive)
   4. `TIME_LAYOUT` time layout. Default value of `time.RFC3339`
-  5. `TEMPLATE_TRIM_SEVERITY` indicator whether to trim severity text or to add space at warn and info to algin following elements. Default `false`
-  6. `TEMPLATE_CALLER` like 1. with caller function, file and line placed in front of message. Default `[%s] %s %s(%s.%d): %s`
-  7. `TEMPLATE_CALLER_CORRELATION` like 2. with caller function, file and line placed in front of message. Default `[%s] %s %s %s(%s.%d): %s`
-  8. `TEMPLATE_CALLER_CUSTOM` like 3. with caller function, file and line placed in front of message. Default `[%s] %s %s(%s.%d): %s`
+  5. `SEQUENCE_ACTIVE` indicator whether to log the sequence number or not. Default `true`
+  6. `TEMPLATE_TRIM_SEVERITY` indicator whether to trim severity text or to add space at warn and info to algin following elements. Default `false`
+  7. `TEMPLATE_CALLER` like 1. with caller function, file and line placed in front of message. Default `[%s] %d %s %s(%s.%d): %s` (or `[%s] %s %s(%s.%d): %s` if sequence inactive)
+  8. `TEMPLATE_CALLER_CORRELATION` like 2. with caller function, file and line placed in front of message. Default `[%s] %d %s %s %s(%s.%d): %s` (or `[%s] %s %s %s(%s.%d): %s` if sequence inactive)
+  9. `TEMPLATE_CALLER_CUSTOM` like 3. with caller function, file and line placed in front of message. Default `[%s] %d %s %s(%s.%d): %s` (or `[%s] %s %s(%s.%d): %s` if sequence inactive)
 
-  It is possible to reorder parameter by argument indices. The *custom value map* at *3* will be appended as key-value-pairs sorted by key (e.g. a custom map with three entries of string, number and boolean format at indices from 4 to 9: `severity: %[2]s message: %[3]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %[9]t time: %[1]s`)
+  It is possible to reorder parameter by argument indices. The *custom value map* at *3* will be appended as key-value-pairs sorted by key (e.g. a custom map with three entries of string, number and boolean format at indices from 5 to 10: `severity: %[3]s message: %[4]s %[5]s: %[6]s %[7]s: %[8]d %[9]s: %[10]t time: %[1]s sequence: %[2]d`)
 * `JSON`: The records will be logged as *JSON*. It is possible to define key names, the time layout and if the custom value map should be a sub element or not. The keys of the custom value map will be used 1:1. The properties can be set via `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>` has to be replaced by the following values:
   1. `JSON_TIME_KEY` key of time. Default `time`
-  2. `JSON_SEVERITY_KEY` key of severity. Default: `severity`
-  3. `JSON_CORRELATION_KEY` key of correlationID. Default: `correlation`
-  4. `JSON_MESSAGE_KEY` key of message. Default:  `message`
-  5. `JSON_CUSTOM_VALUES_KEY` key of custom values if used as sub elements. Default: `custom`
-  6. `JSON_CUSTOM_VALUES_SUB` indicator to add custom value map as sub element: Default: `false`
-  7. `TIME_LAYOUT` time layout. Default value of `time.RFC3339`
-  8. `JSON_CALLER_FUNCTION_KEY` key of the caller function. Default: `caller`
-  9. `JSON_CALLER_FILE_KEY` key of the caller file. Default: `file`
-  10. `JSON_CALLER_LINE_KEY` key of the caller file line. Default: `line`
+  2. `JSON_SEQUENCE_KEY` key of sequence. Default `sequence`
+  3. `JSON_SEVERITY_KEY` key of severity. Default: `severity`
+  4. `JSON_CORRELATION_KEY` key of correlationID. Default: `correlation`
+  5. `JSON_MESSAGE_KEY` key of message. Default:  `message`
+  6. `JSON_CUSTOM_VALUES_KEY` key of custom values if used as sub elements. Default: `custom`
+  7. `JSON_CUSTOM_VALUES_SUB` indicator to add custom value map as sub element: Default: `false`
+  8. `TIME_LAYOUT` time layout. Default value of `time.RFC3339`
+  9. `SEQUENCE_ACTIVE` indicator whether to log the sequence number or not. Default `true`
+  10. `JSON_CALLER_FUNCTION_KEY` key of the caller function. Default: `caller`
+  11. `JSON_CALLER_FILE_KEY` key of the caller file. Default: `file`
+  12. `JSON_CALLER_LINE_KEY` key of the caller file line. Default: `line`
 
 The default formatter is the delimiter one.
 

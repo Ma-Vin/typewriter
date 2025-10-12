@@ -7,18 +7,19 @@ import (
 )
 
 func TestEqualsDelimiterFormatterConfig(t *testing.T) {
-	commonConfig := CommonFormatterConfig{FormatterType: "FormatterType", TimeLayout: "TimeLayout"}
+	commonConfig := createCommonFormatterConfigFormatterTest()
 	var config FormatterConfig = DelimiterFormatterConfig{Common: &commonConfig, Delimiter: "Delimiter"}
 
 	testutil.AssertTrue(config.Equals(&config), t, "delimiter same instance")
 }
 
 func TestNotEqualsDelimiterFormatterConfig(t *testing.T) {
-	commonConfig := CommonFormatterConfig{FormatterType: "FormatterType", TimeLayout: "TimeLayout"}
+	commonConfig := createCommonFormatterConfigFormatterTest()
 	config := DelimiterFormatterConfig{Common: &commonConfig, Delimiter: "Delimiter"}
 
 	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Common.FormatterType = "other" }, "delimiter FormatterType diff", t)
 	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Common.TimeLayout = "other" }, "delimiter TimeLayout diff", t)
+	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Common.IsSequenceActive = false }, "delimiter IsSequenceActive diff", t)
 	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Delimiter = "Other" }, "delimiter Delimiter diff", t)
 }
 
@@ -32,7 +33,7 @@ func checkNotEqualsDelimiterFormatterConfig(config *DelimiterFormatterConfig, mo
 }
 
 func TestEqualsTemplateFormatterConfig(t *testing.T) {
-	commonConfig := CommonFormatterConfig{FormatterType: "FormatterType", TimeLayout: "TimeLayout"}
+	commonConfig := createCommonFormatterConfigFormatterTest()
 	var config FormatterConfig = TemplateFormatterConfig{
 		Common:                      &commonConfig,
 		Template:                    "Template",
@@ -48,7 +49,7 @@ func TestEqualsTemplateFormatterConfig(t *testing.T) {
 }
 
 func TestNotEqualsTemplateFormatterConfig(t *testing.T) {
-	commonConfig := CommonFormatterConfig{FormatterType: "FormatterType", TimeLayout: "TimeLayout"}
+	commonConfig := createCommonFormatterConfigFormatterTest()
 	config := TemplateFormatterConfig{
 		Common:                      &commonConfig,
 		Template:                    "Template",
@@ -62,6 +63,7 @@ func TestNotEqualsTemplateFormatterConfig(t *testing.T) {
 
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.FormatterType = "other" }, "template FormatterType diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.TimeLayout = "other" }, "template TimeLayout diff", t)
+	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.IsSequenceActive = false }, "template IsSequenceActive diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Template = "other" }, "template Template diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.CorrelationIdTemplate = "other" }, "template CorrelationIdTemplate diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.CustomTemplate = "other" }, "template CustomTemplate diff", t)
@@ -81,7 +83,7 @@ func checkNotEqualsTemplateFormatterConfig(config *TemplateFormatterConfig, modi
 }
 
 func TestEqualsJsonFormatterConfig(t *testing.T) {
-	commonConfig := CommonFormatterConfig{FormatterType: "FormatterType", TimeLayout: "TimeLayout"}
+	commonConfig := createCommonFormatterConfigFormatterTest()
 	var config FormatterConfig = JsonFormatterConfig{
 		Common:                   &commonConfig,
 		TimeKey:                  "TimeKey",
@@ -99,7 +101,7 @@ func TestEqualsJsonFormatterConfig(t *testing.T) {
 }
 
 func TestNotEqualsJsonFormatterConfig(t *testing.T) {
-	commonConfig := CommonFormatterConfig{FormatterType: "FormatterType", TimeLayout: "TimeLayout"}
+	commonConfig := createCommonFormatterConfigFormatterTest()
 	config := JsonFormatterConfig{
 		Common:                   &commonConfig,
 		TimeKey:                  "TimeKey",
@@ -115,6 +117,7 @@ func TestNotEqualsJsonFormatterConfig(t *testing.T) {
 
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.Common.FormatterType = "other" }, "json FormatterType diff", t)
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.Common.TimeLayout = "other" }, "json TimeLayout diff", t)
+	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.Common.IsSequenceActive = false }, "json IsSequenceActive diff", t)
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.TimeKey = "other" }, "json TimeKey diff", t)
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.SeverityKey = "other" }, "json SeverityKey diff", t)
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.MessageKey = "other" }, "json MessageKey diff", t)
@@ -133,4 +136,12 @@ func checkNotEqualsJsonFormatterConfig(config *JsonFormatterConfig, modifier fun
 
 	var castOtherConfig FormatterConfig = otherConfig
 	testutil.AssertFalse((*config).Equals(&castOtherConfig), t, message)
+}
+
+func createCommonFormatterConfigFormatterTest() CommonFormatterConfig {
+	return CommonFormatterConfig{
+		FormatterType:    "FormatterType",
+		TimeLayout:       "TimeLayout",
+		IsSequenceActive: true,
+	}
 }

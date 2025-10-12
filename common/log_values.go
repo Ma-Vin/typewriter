@@ -1,15 +1,20 @@
 package common
 
 import (
+	"sync"
 	"time"
 )
 
 const NOT_AVAILABLE_VALUE = "n/a"
 
+var sequenceCounter uint64 = 0
+var counterMutex = sync.Mutex{}
+
 // Value container which holds the values to log. External given values CorrelationId and CustomValues are provided as pointers
 // (Message might be concat by [fmt.Sprint] / [fmt.Sprintf] from several values, so Message is not given external)
 type LogValues struct {
 	Time           time.Time
+	Sequence       uint64
 	Severity       int
 	CorrelationId  *string
 	Message        string
@@ -26,6 +31,7 @@ var logValuesMockTime *time.Time = nil
 func CreateLogValues(severity int, message string) LogValues {
 	return LogValues{
 		Time:           GetNow(),
+		Sequence:       determineNextSequenceElement(),
 		Severity:       severity,
 		CorrelationId:  nil,
 		Message:        message,
@@ -49,6 +55,19 @@ func CreateLogValuesCustom(severity int, message string, customValues *map[strin
 	rec := CreateLogValues(severity, message)
 	rec.CustomValues = customValues
 	return rec
+}
+
+func determineNextSequenceElement() uint64 {
+	counterMutex.Lock()
+	defer counterMutex.Unlock()
+	sequenceCounter++
+	return sequenceCounter
+}
+
+func InitSequenceCounter() {
+	counterMutex.Lock()
+	defer counterMutex.Unlock()
+	sequenceCounter = 0
 }
 
 // returns the current time. Or a mock time if set.

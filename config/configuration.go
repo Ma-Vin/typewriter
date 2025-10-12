@@ -41,6 +41,7 @@ const (
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
 
 	TIME_LAYOUT_PARAMETER                 = "_TIME_LAYOUT"
+	SEQUENCE_ACTIVE_PARAMETER             = "_SEQUENCE_ACTIVE"
 	DELIMITER_PARAMETER                   = "_DELIMITER"
 	JSON_CALLER_FUNCTION_KEY_PARAMETER    = "_JSON_CALLER_FUNCTION_KEY"
 	JSON_CALLER_FILE_KEY_PARAMETER        = "_JSON_CALLER_FILE_KEY"
@@ -51,6 +52,7 @@ const (
 	JSON_MESSAGE_KEY_PARAMETER            = "_JSON_MESSAGE_KEY"
 	JSON_SEVERITY_KEY_PARAMETER           = "_JSON_SEVERITY_KEY"
 	JSON_TIME_KEY_PARAMETER               = "_JSON_TIME_KEY"
+	JSON_SEQUENCE_KEY_PARAMETER           = "_JSON_SEQUENCE_KEY"
 	TEMPLATE_PARAMETER                    = "_TEMPLATE"
 	TEMPLATE_CORRELATION_PARAMETER        = "_TEMPLATE_CORRELATION"
 	TEMPLATE_CUSTOM_PARAMETER             = "_TEMPLATE_CUSTOM"
@@ -82,25 +84,33 @@ const (
 
 	LOGGER_GENERAL = "GENERAL"
 
-	DEFAULT_DELIMITER                   = " - "
-	DEFAULT_TEMPLATE                    = "[%s] %s: %s"
-	DEFAULT_CORRELATION_TEMPLATE        = "[%s] %s %s: %s"
-	DEFAULT_CUSTOM_TEMPLATE             = DEFAULT_TEMPLATE
-	DEFAULT_CALLER_TEMPLATE             = "[%s] %s %s(%s.%d): %s"
-	DEFAULT_CALLER_CORRELATION_TEMPLATE = "[%s] %s %s %s(%s.%d): %s"
-	DEFAULT_CALLER_CUSTOM_TEMPLATE      = DEFAULT_CALLER_TEMPLATE
-	DEFAULT_TRIM_SEVERITY_TEXT          = "false"
-	DEFAULT_TIME_KEY                    = "time"
-	DEFAULT_SEVERITY_KEY                = "severity"
-	DEFAULT_MESSAGE_KEY                 = "message"
-	DEFAULT_CORRELATION_KEY             = "correlation"
-	DEFAULT_CUSTOM_VALUES_KEY           = "custom"
-	DEFAULT_CUSTOM_AS_SUB_ELEMENT       = "false"
-	DEFAULT_CALLER_FUNCTION_KEY         = "caller"
-	DEFAULT_CALLER_FILE_KEY             = "file"
-	DEFAULT_CALLER_FILE_LINE_KEY        = "line"
-	DEFAULT_TIME_LAYOUT                 = time.RFC3339
-	DEFAULT_CONTEXT_CORRELATION_ID_KEY  = "correlationId"
+	DEFAULT_DELIMITER                            = " - "
+	DEFAULT_TEMPLATE                             = "[%s] %s: %s"
+	DEFAULT_CORRELATION_TEMPLATE                 = "[%s] %s %s: %s"
+	DEFAULT_CUSTOM_TEMPLATE                      = DEFAULT_TEMPLATE
+	DEFAULT_CALLER_TEMPLATE                      = "[%s] %s %s(%s.%d): %s"
+	DEFAULT_CALLER_CORRELATION_TEMPLATE          = "[%s] %s %s %s(%s.%d): %s"
+	DEFAULT_CALLER_CUSTOM_TEMPLATE               = DEFAULT_CALLER_TEMPLATE
+	DEFAULT_SEQUENCE_TEMPLATE                    = "[%s] %d %s: %s"
+	DEFAULT_SEQUENCE_CORRELATION_TEMPLATE        = "[%s] %d %s %s: %s"
+	DEFAULT_SEQUENCE_CUSTOM_TEMPLATE             = DEFAULT_SEQUENCE_TEMPLATE
+	DEFAULT_SEQUENCE_CALLER_TEMPLATE             = "[%s] %d %s %s(%s.%d): %s"
+	DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE = "[%s] %d %s %s %s(%s.%d): %s"
+	DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE      = DEFAULT_SEQUENCE_CALLER_TEMPLATE
+	DEFAULT_TRIM_SEVERITY_TEXT                   = "false"
+	DEFAULT_SEQUENCE_ACTIVE_TEXT                 = "true"
+	DEFAULT_TIME_KEY                             = "time"
+	DEFAULT_SEQUENCE_KEY                         = "sequence"
+	DEFAULT_SEVERITY_KEY                         = "severity"
+	DEFAULT_MESSAGE_KEY                          = "message"
+	DEFAULT_CORRELATION_KEY                      = "correlation"
+	DEFAULT_CUSTOM_VALUES_KEY                    = "custom"
+	DEFAULT_CUSTOM_AS_SUB_ELEMENT                = "false"
+	DEFAULT_CALLER_FUNCTION_KEY                  = "caller"
+	DEFAULT_CALLER_FILE_KEY                      = "file"
+	DEFAULT_CALLER_FILE_LINE_KEY                 = "line"
+	DEFAULT_TIME_LAYOUT                          = time.RFC3339
+	DEFAULT_CONTEXT_CORRELATION_ID_KEY           = "correlationId"
 )
 
 var configInitialized = false
@@ -537,6 +547,7 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 		IsDefault:        len(packageParameter) == 0,
 		PackageParameter: packageParameter,
 		TimeLayout:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT),
+		IsSequenceActive: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_SEQUENCE_ACTIVE_TEXT)) == "true",
 	}
 
 	if creator, exist := registeredFormatterConfigs[commonFormatterConfig.FormatterType]; exist {
@@ -580,13 +591,13 @@ func createTemplateFormatterConfig(relevantKeyValues *map[string]string, commonF
 
 	var result FormatterConfig = TemplateFormatterConfig{
 		Common:                      commonFormatterConfig,
-		Template:                    getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE),
-		CorrelationIdTemplate:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE),
-		CustomTemplate:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE),
+		Template:                    getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE, DEFAULT_SEQUENCE_TEMPLATE),
+		CorrelationIdTemplate:       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CORRELATION_TEMPLATE),
+		CustomTemplate:              getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CUSTOM_TEMPLATE),
 		TrimSeverityText:            strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY_TEXT)) == "true",
-		CallerTemplate:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE),
-		CallerCorrelationIdTemplate: getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE),
-		CallerCustomTemplate:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE),
+		CallerTemplate:              getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE, DEFAULT_SEQUENCE_CALLER_TEMPLATE),
+		CallerCorrelationIdTemplate: getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE),
+		CallerCustomTemplate:        getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE),
 	}
 
 	return &result, nil
@@ -604,6 +615,7 @@ func createJsonFormatterConfig(relevantKeyValues *map[string]string, commonForma
 	var result FormatterConfig = JsonFormatterConfig{
 		Common:                   commonFormatterConfig,
 		TimeKey:                  getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_TIME_KEY_PARAMETER, DEFAULT_TIME_KEY),
+		SequenceKey:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_SEQUENCE_KEY_PARAMETER, DEFAULT_SEQUENCE_KEY),
 		SeverityKey:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_SEVERITY_KEY_PARAMETER, DEFAULT_SEVERITY_KEY),
 		CorrelationKey:           getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CORRELATION_KEY_PARAMETER, DEFAULT_CORRELATION_KEY),
 		MessageKey:               getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_MESSAGE_KEY_PARAMETER, DEFAULT_MESSAGE_KEY),
@@ -748,6 +760,15 @@ func getValueFromMapOrDefault(source *map[string]string, key string, defaultValu
 	return defaultValue
 }
 
+// the same like getValueFromMapOrDefault but with different default values for active sequence indicator
+func getValueFromMapOrDefaultForTemplate(isSequenceActive bool, source *map[string]string, key string, defaultValue string, defaultSequenceValue string) string {
+	if isSequenceActive {
+		return getValueFromMapOrDefault(source, key, defaultSequenceValue)
+	} else {
+		return getValueFromMapOrDefault(source, key, defaultValue)
+	}
+}
+
 func printHint(propertyValue string, propertyName string) {
 	fmt.Printf("unknown \"%s\" value at property %s", propertyValue, propertyName)
 	fmt.Println()
@@ -778,7 +799,15 @@ func completeDefaults(relevantKeyValues *map[string]string) {
 		}
 	}
 	if !found {
-		config.Formatter = append(config.Formatter, DelimiterFormatterConfig{Common: &CommonFormatterConfig{FormatterType: FORMATTER_DELIMITER, IsDefault: true, PackageParameter: "", TimeLayout: DEFAULT_TIME_LAYOUT}, Delimiter: DEFAULT_DELIMITER})
+		config.Formatter = append(config.Formatter, DelimiterFormatterConfig{
+			Common: &CommonFormatterConfig{
+				FormatterType: FORMATTER_DELIMITER,
+				IsDefault:     true, PackageParameter: "",
+				TimeLayout:       DEFAULT_TIME_LAYOUT,
+				IsSequenceActive: true,
+			},
+			Delimiter: DEFAULT_DELIMITER,
+		})
 	}
 
 	found = false

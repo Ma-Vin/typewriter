@@ -12,6 +12,7 @@ import (
 // Formats the log entries as JSON
 type JsonFormatter struct {
 	timeKey                  string
+	sequenceKey              string
 	severityKey              string
 	messageKey               string
 	correlationKey           string
@@ -21,6 +22,7 @@ type JsonFormatter struct {
 	callerFileKey            string
 	callerFileLineKey        string
 	customValuesAsSubElement bool
+	isSequenceActive         bool
 }
 
 // Creates a new formatter from a given config
@@ -32,6 +34,7 @@ func CreateJsonFormatterFromConfig(formatterConfig *config.FormatterConfig) (*Fo
 
 	var result Formatter = JsonFormatter{
 		timeKey:                  jsonFormatterConfig.TimeKey,
+		sequenceKey:              jsonFormatterConfig.SequenceKey,
 		severityKey:              jsonFormatterConfig.SeverityKey,
 		messageKey:               jsonFormatterConfig.MessageKey,
 		correlationKey:           jsonFormatterConfig.CorrelationKey,
@@ -41,6 +44,7 @@ func CreateJsonFormatterFromConfig(formatterConfig *config.FormatterConfig) (*Fo
 		callerFileKey:            jsonFormatterConfig.CallerFileKey,
 		callerFileLineKey:        jsonFormatterConfig.CallerFileLineKey,
 		customValuesAsSubElement: jsonFormatterConfig.CustomValuesAsSubElement,
+		isSequenceActive:         jsonFormatterConfig.Common.IsSequenceActive,
 	}
 
 	return &result, nil
@@ -51,6 +55,9 @@ func (j JsonFormatter) Format(logValues *common.LogValues) string {
 	jsonEntries := make(map[string]any, j.getJsonEntriesMapCapacity(logValues))
 
 	jsonEntries[j.timeKey] = logValues.Time.Format(j.timeLayout)
+	if j.isSequenceActive {
+		jsonEntries[j.sequenceKey] = logValues.Sequence
+	}
 	jsonEntries[j.severityKey] = severityTrimTextMap[logValues.Severity]
 	jsonEntries[j.messageKey] = logValues.Message
 

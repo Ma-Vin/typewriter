@@ -91,6 +91,7 @@ func TestFileAppenderSizeRenameLongRun(t *testing.T) {
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_APPENDER_SIZE_RENAMING_IT", strconv.Itoa(renamingKiloByteSize)+"kb")
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_IT", "JSON")
 	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_IT_TIME_LAYOUT", "2006-01-02T15:04:05")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_IT_SEQUENCE_ACTIVE", "false")
 
 	c := make(chan []int, goRoutineCount)
 
@@ -136,7 +137,7 @@ func TestMultiAppender(t *testing.T) {
 
 	stat, err := os.Stat(logFilePath)
 	testutil.AssertNil(err, t, "err of os.Stat(logFilePath)")
-	testutil.AssertEquals(int64(500), stat.Size(), t, "stat.Size()")
+	testutil.AssertEquals(int64(541), stat.Size(), t, "stat.Size()")
 }
 
 func waitForStartTime() {

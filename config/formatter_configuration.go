@@ -7,11 +7,12 @@ type CommonFormatterConfig struct {
 	IsDefault        bool
 	PackageParameter string
 	TimeLayout       string
+	IsSequenceActive bool
 }
 
 // Checks whether an other common config equals with this one with respect to type and time layout
 func (c *CommonFormatterConfig) Equals(other *CommonFormatterConfig) bool {
-	return c.FormatterType == other.FormatterType && c.TimeLayout == other.TimeLayout
+	return c.FormatterType == other.FormatterType && c.TimeLayout == other.TimeLayout && c.IsSequenceActive == other.IsSequenceActive
 }
 
 // Checks whether the current common config is less than a given other one
@@ -136,6 +137,7 @@ func (c TemplateFormatterConfig) CreateFullCopy() FormatterConfig {
 type JsonFormatterConfig struct {
 	Common                   *CommonFormatterConfig
 	TimeKey                  string
+	SequenceKey              string
 	SeverityKey              string
 	MessageKey               string
 	CorrelationKey           string
@@ -173,6 +175,7 @@ func (c JsonFormatterConfig) GetCommon() *CommonFormatterConfig {
 func (c JsonFormatterConfig) Equals(other *FormatterConfig) bool {
 	return c.Common.Equals((*other).GetCommon()) &&
 		c.TimeKey == (*other).(JsonFormatterConfig).TimeKey &&
+		c.SequenceKey == (*other).(JsonFormatterConfig).SequenceKey &&
 		c.SeverityKey == (*other).(JsonFormatterConfig).SeverityKey &&
 		c.MessageKey == (*other).(JsonFormatterConfig).MessageKey &&
 		c.CorrelationKey == (*other).(JsonFormatterConfig).CorrelationKey &&

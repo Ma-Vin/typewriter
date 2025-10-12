@@ -3,6 +3,7 @@ package format
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/ma-vin/typewriter/common"
@@ -11,8 +12,9 @@ import (
 
 // Formatter which append given parameter with a delimiter. Since name the of the parameter will not be contained, the keys of customValues at FormatCustom neither.
 type DelimiterFormatter struct {
-	delimiter  string
-	timeLayout string
+	delimiter        string
+	timeLayout       string
+	isSequenceActive bool
 }
 
 // Creates a new formatter from a given config
@@ -22,7 +24,7 @@ func CreateDelimiterFormatterFromConfig(formatterConfig *config.FormatterConfig)
 		return nil, fmt.Errorf("failed to convert interface to DelimiterFormatterConfig for formatter %s", (*formatterConfig).FormatterType())
 	}
 
-	var result Formatter = DelimiterFormatter{delimiter: delimiterFormatterConfig.Delimiter, timeLayout: delimiterFormatterConfig.TimeLayout()}
+	var result Formatter = DelimiterFormatter{delimiter: delimiterFormatterConfig.Delimiter, timeLayout: delimiterFormatterConfig.TimeLayout(), isSequenceActive: delimiterFormatterConfig.Common.IsSequenceActive}
 	return &result, nil
 }
 
@@ -31,6 +33,10 @@ func (d DelimiterFormatter) Format(logValues *common.LogValues) string {
 	var sb strings.Builder
 
 	sb.WriteString(logValues.Time.Format(d.timeLayout))
+	if d.isSequenceActive {
+		sb.WriteString(d.delimiter)
+		sb.WriteString(strconv.FormatUint(logValues.Sequence, 10))
+	}
 	sb.WriteString(d.delimiter)
 	sb.WriteString(severityTextMap[logValues.Severity])
 

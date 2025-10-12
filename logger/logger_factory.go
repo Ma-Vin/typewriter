@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/ma-vin/typewriter/appender"
+	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/config"
 	"github.com/ma-vin/typewriter/format"
 )
@@ -62,6 +63,7 @@ func ResetRegisteredAppenderAndFormatters() {
 	loggerCreationMu.Lock()
 	defer loggerCreationMu.Unlock()
 
+	common.InitSequenceCounter()
 	initializeRegisteredAppenders()
 	initializeRegisteredFormatters()
 

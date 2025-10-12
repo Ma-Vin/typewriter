@@ -10,14 +10,15 @@ import (
 	"github.com/ma-vin/typewriter/config"
 )
 
-func createDelimiterFormatterForTest() Formatter {
-	commonConfig := config.CommonFormatterConfig{TimeLayout: time.RFC3339}
+func createDelimiterFormatterForTest(withSequence bool) Formatter {
+	common.InitSequenceCounter()
+	commonConfig := config.CommonFormatterConfig{TimeLayout: time.RFC3339, IsSequenceActive: withSequence}
 	var config config.FormatterConfig = config.DelimiterFormatterConfig{Common: &commonConfig, Delimiter: " - "}
 	result, _ := CreateDelimiterFormatterFromConfig(&config)
 	return *result
 }
 
-var delimiterFormatter Formatter = createDelimiterFormatterForTest()
+var delimiterFormatter Formatter = createDelimiterFormatterForTest(false)
 
 var delimiterFormatTestTime = time.Date(2024, time.October, 1, 13, 20, 0, 0, time.UTC)
 var delimiterFormatTestTimeText = delimiterFormatTestTime.Format(time.RFC3339)
@@ -107,4 +108,16 @@ func TestDelimiterFormatCaller(t *testing.T) {
 	logValuesToFormat.IsCallerSet = true
 
 	testutil.AssertEquals(delimiterFormatTestTimeText+" - INFO  - someFunction at someFile (Line 42) - Testmessage", delimiterFormatter.Format(&logValuesToFormat), t, "Format caller")
+}
+
+func TestDelimiterFormatWithSequence(t *testing.T) {
+	common.SetLogValuesMockTime(&delimiterFormatTestTime)
+
+	delimiterFormatterWithSequence := createDelimiterFormatterForTest(true)
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
+		expectedMessage := fmt.Sprintf(delimiterFormatTestTimeText+" - %d - %s - Testmessage", i, severityTextMap[i])
+		testutil.AssertEquals(expectedMessage, delimiterFormatterWithSequence.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
 }
