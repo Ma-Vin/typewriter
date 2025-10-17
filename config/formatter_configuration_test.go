@@ -51,25 +51,37 @@ func TestEqualsTemplateFormatterConfig(t *testing.T) {
 func TestNotEqualsTemplateFormatterConfig(t *testing.T) {
 	commonConfig := createCommonFormatterConfigFormatterTest()
 	config := TemplateFormatterConfig{
-		Common:                      &commonConfig,
-		Template:                    "Template",
-		CorrelationIdTemplate:       "CorrelationIdTemplate",
-		CustomTemplate:              "CustomTemplate",
-		CallerTemplate:              "CallerTemplate",
-		CallerCorrelationIdTemplate: "CallerCorrelationIdTemplate",
-		CallerCustomTemplate:        "CallerCustomTemplate",
-		TrimSeverityText:            true,
+		Common:                               &commonConfig,
+		Template:                             "Template",
+		IsDefaultTemplate:                    true,
+		CorrelationIdTemplate:                "CorrelationIdTemplate",
+		IsDefaultCorrelationIdTemplate:       true,
+		CustomTemplate:                       "CustomTemplate",
+		IsDefaultCustomTemplate:              true,
+		CallerTemplate:                       "CallerTemplate",
+		IsDefaultCallerTemplate:              true,
+		CallerCorrelationIdTemplate:          "CallerCorrelationIdTemplate",
+		IsDefaultCallerCorrelationIdTemplate: true,
+		CallerCustomTemplate:                 "CallerCustomTemplate",
+		IsDefaultCallerCustomTemplate:        true,
+		TrimSeverityText:                     true,
 	}
 
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.FormatterType = "other" }, "template FormatterType diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.TimeLayout = "other" }, "template TimeLayout diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.IsSequenceActive = false }, "template IsSequenceActive diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Template = "other" }, "template Template diff", t)
+	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.IsDefaultTemplate = false }, "template Template diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.CorrelationIdTemplate = "other" }, "template CorrelationIdTemplate diff", t)
+	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.IsDefaultCorrelationIdTemplate = false }, "template CorrelationIdTemplate diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.CustomTemplate = "other" }, "template CustomTemplate diff", t)
+	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.IsDefaultCustomTemplate = false }, "template CustomTemplate diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.CallerTemplate = "other" }, "template CallerTemplate diff", t)
+	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.IsDefaultCallerTemplate = false }, "template CallerTemplate diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.CallerCorrelationIdTemplate = "other" }, "template CallerCorrelationIdTemplate diff", t)
+	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.IsDefaultCallerCorrelationIdTemplate = false }, "template CallerCorrelationIdTemplate diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.CallerCustomTemplate = "other" }, "template CallerCustomTemplate diff", t)
+	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.IsDefaultCallerCustomTemplate = false }, "template CallerCustomTemplate diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.TrimSeverityText = false }, "template TrimSeverityText diff", t)
 }
 

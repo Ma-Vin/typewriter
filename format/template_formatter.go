@@ -21,15 +21,21 @@ import (
 //
 // Because of explicit argument indices can be used at templates
 type TemplateFormatter struct {
-	template                    string
-	callerTemplate              string
-	correlationIdTemplate       string
-	callerCorrelationIdTemplate string
-	customTemplate              string
-	callerCustomTemplate        string
-	timeLayout                  string
-	isSequenceActive            bool
-	trimSeverityText            bool
+	template                             string
+	isDefaultTemplate                    bool
+	callerTemplate                       string
+	isDefaultCallerTemplate              bool
+	correlationIdTemplate                string
+	isDefaultCorrelationIdTemplate       bool
+	callerCorrelationIdTemplate          string
+	isDefaultCallerCorrelationIdTemplate bool
+	customTemplate                       string
+	isDefaultCustomTemplate              bool
+	callerCustomTemplate                 string
+	isDefaultCallerCustomTemplate        bool
+	timeLayout                           string
+	isSequenceActive                     bool
+	trimSeverityText                     bool
 }
 
 // Creates a new formatter from a given config
@@ -40,15 +46,21 @@ func CreateTemplateFormatterFromConfig(formatterConfig *config.FormatterConfig) 
 	}
 
 	var result Formatter = TemplateFormatter{
-		template:                    templateFormatterConfig.Template,
-		callerTemplate:              templateFormatterConfig.CallerTemplate,
-		correlationIdTemplate:       templateFormatterConfig.CorrelationIdTemplate,
-		callerCorrelationIdTemplate: templateFormatterConfig.CallerCorrelationIdTemplate,
-		customTemplate:              templateFormatterConfig.CustomTemplate,
-		callerCustomTemplate:        templateFormatterConfig.CallerCustomTemplate,
-		timeLayout:                  templateFormatterConfig.TimeLayout(),
-		trimSeverityText:            templateFormatterConfig.TrimSeverityText,
-		isSequenceActive:            templateFormatterConfig.Common.IsSequenceActive,
+		template:                             templateFormatterConfig.Template,
+		isDefaultTemplate:                    templateFormatterConfig.IsDefaultTemplate,
+		callerTemplate:                       templateFormatterConfig.CallerTemplate,
+		isDefaultCallerTemplate:              templateFormatterConfig.IsDefaultCallerTemplate,
+		correlationIdTemplate:                templateFormatterConfig.CorrelationIdTemplate,
+		isDefaultCorrelationIdTemplate:       templateFormatterConfig.IsDefaultCorrelationIdTemplate,
+		callerCorrelationIdTemplate:          templateFormatterConfig.CallerCorrelationIdTemplate,
+		isDefaultCallerCorrelationIdTemplate: templateFormatterConfig.IsDefaultCallerCorrelationIdTemplate,
+		customTemplate:                       templateFormatterConfig.CustomTemplate,
+		isDefaultCustomTemplate:              templateFormatterConfig.IsDefaultCustomTemplate,
+		callerCustomTemplate:                 templateFormatterConfig.CallerCustomTemplate,
+		isDefaultCallerCustomTemplate:        templateFormatterConfig.IsDefaultCallerCustomTemplate,
+		timeLayout:                           templateFormatterConfig.TimeLayout(),
+		trimSeverityText:                     templateFormatterConfig.TrimSeverityText,
+		isSequenceActive:                     templateFormatterConfig.Common.IsSequenceActive,
 	}
 
 	return &result, nil
@@ -123,7 +135,7 @@ func (t TemplateFormatter) determineCustomTemplate(logValues *common.LogValues) 
 	} else {
 		result = t.customTemplate
 	}
-	if t.areCustomKeyValueArgumentsToAppend(logValues) {
+	if t.areCustomKeyValueArgumentsToAppendAtTemplate(logValues) {
 		for i := 0; i < len(*logValues.CustomValues); i++ {
 			result += " [%s]: %v"
 		}
@@ -131,10 +143,10 @@ func (t TemplateFormatter) determineCustomTemplate(logValues *common.LogValues) 
 	return &result
 }
 
-// Checks whether to add custom key-value pairs at custom templates format or not. 
-func (t TemplateFormatter) areCustomKeyValueArgumentsToAppend(logValues *common.LogValues) bool {
-	withCaller := logValues.IsCallerSet && ((!t.isSequenceActive && t.callerCustomTemplate == config.DEFAULT_CALLER_CUSTOM_TEMPLATE) || (t.isSequenceActive && t.callerCustomTemplate == config.DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE))
-	withoutCaller := !logValues.IsCallerSet && ((!t.isSequenceActive && t.customTemplate == config.DEFAULT_CUSTOM_TEMPLATE) || (t.isSequenceActive && t.customTemplate == config.DEFAULT_SEQUENCE_CUSTOM_TEMPLATE))
+// Checks whether to add custom key-value pairs at custom templates format or not.
+func (t TemplateFormatter) areCustomKeyValueArgumentsToAppendAtTemplate(logValues *common.LogValues) bool {
+	withCaller := logValues.IsCallerSet && ((!t.isSequenceActive && t.isDefaultCallerCustomTemplate) || (t.isSequenceActive && t.isDefaultCallerCustomTemplate))
+	withoutCaller := !logValues.IsCallerSet && ((!t.isSequenceActive && t.isDefaultCustomTemplate) || (t.isSequenceActive && t.isDefaultCustomTemplate))
 
 	return withCaller || withoutCaller
 }

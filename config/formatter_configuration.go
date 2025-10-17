@@ -82,14 +82,20 @@ func (c DelimiterFormatterConfig) CreateFullCopy() FormatterConfig {
 
 // Configuration representation of a template formatter
 type TemplateFormatterConfig struct {
-	Common                      *CommonFormatterConfig
-	Template                    string
-	CorrelationIdTemplate       string
-	CustomTemplate              string
-	CallerTemplate              string
-	CallerCorrelationIdTemplate string
-	CallerCustomTemplate        string
-	TrimSeverityText            bool
+	Common                               *CommonFormatterConfig
+	Template                             string
+	IsDefaultTemplate                    bool
+	CallerTemplate                       string
+	IsDefaultCallerTemplate              bool
+	CorrelationIdTemplate                string
+	IsDefaultCorrelationIdTemplate       bool
+	CallerCorrelationIdTemplate          string
+	IsDefaultCallerCorrelationIdTemplate bool
+	CustomTemplate                       string
+	IsDefaultCustomTemplate              bool
+	CallerCustomTemplate                 string
+	IsDefaultCallerCustomTemplate        bool
+	TrimSeverityText                     bool
 }
 
 func (c TemplateFormatterConfig) Id() string {
@@ -119,11 +125,17 @@ func (c TemplateFormatterConfig) GetCommon() *CommonFormatterConfig {
 func (c TemplateFormatterConfig) Equals(other *FormatterConfig) bool {
 	return c.Common.Equals((*other).GetCommon()) &&
 		c.Template == (*other).(TemplateFormatterConfig).Template &&
+		c.IsDefaultTemplate == (*other).(TemplateFormatterConfig).IsDefaultTemplate &&
 		c.CorrelationIdTemplate == (*other).(TemplateFormatterConfig).CorrelationIdTemplate &&
+		c.IsDefaultCorrelationIdTemplate == (*other).(TemplateFormatterConfig).IsDefaultCorrelationIdTemplate &&
 		c.CustomTemplate == (*other).(TemplateFormatterConfig).CustomTemplate &&
+		c.IsDefaultCustomTemplate == (*other).(TemplateFormatterConfig).IsDefaultCustomTemplate &&
 		c.CallerTemplate == (*other).(TemplateFormatterConfig).CallerTemplate &&
+		c.IsDefaultCallerTemplate == (*other).(TemplateFormatterConfig).IsDefaultCallerTemplate &&
 		c.CallerCorrelationIdTemplate == (*other).(TemplateFormatterConfig).CallerCorrelationIdTemplate &&
+		c.IsDefaultCallerCorrelationIdTemplate == (*other).(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate &&
 		c.CallerCustomTemplate == (*other).(TemplateFormatterConfig).CallerCustomTemplate &&
+		c.IsDefaultCallerCustomTemplate == (*other).(TemplateFormatterConfig).IsDefaultCallerCustomTemplate &&
 		c.TrimSeverityText == (*other).(TemplateFormatterConfig).TrimSeverityText
 }
 

@@ -590,17 +590,29 @@ func createTemplateFormatterConfig(relevantKeyValues *map[string]string, commonF
 	}
 
 	var result FormatterConfig = TemplateFormatterConfig{
-		Common:                      commonFormatterConfig,
-		Template:                    getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE, DEFAULT_SEQUENCE_TEMPLATE),
-		CorrelationIdTemplate:       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CORRELATION_TEMPLATE),
-		CustomTemplate:              getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CUSTOM_TEMPLATE),
-		TrimSeverityText:            strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY_TEXT)) == "true",
-		CallerTemplate:              getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE, DEFAULT_SEQUENCE_CALLER_TEMPLATE),
-		CallerCorrelationIdTemplate: getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE),
-		CallerCustomTemplate:        getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE),
+		Common:                               commonFormatterConfig,
+		Template:                             getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE, DEFAULT_SEQUENCE_TEMPLATE),
+		IsDefaultTemplate:                    !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER),
+		CorrelationIdTemplate:                getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CORRELATION_TEMPLATE),
+		IsDefaultCorrelationIdTemplate:       !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER),
+		CustomTemplate:                       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CUSTOM_TEMPLATE),
+		IsDefaultCustomTemplate:              !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER),
+		TrimSeverityText:                     strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY_TEXT)) == "true",
+		CallerTemplate:                       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE, DEFAULT_SEQUENCE_CALLER_TEMPLATE),
+		IsDefaultCallerTemplate:              !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER),
+		CallerCorrelationIdTemplate:          getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE),
+		IsDefaultCallerCorrelationIdTemplate: !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER),
+		CallerCustomTemplate:                 getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE),
+		IsDefaultCallerCustomTemplate:        !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER),
 	}
 
 	return &result, nil
+}
+
+// Checks existence of a key at a given map
+func existsKeyAtMap(source *map[string]string, key string) bool {
+	_, found := (*source)[key]
+	return found
 }
 
 // Creates a json formatter configuration

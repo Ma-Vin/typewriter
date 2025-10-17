@@ -255,12 +255,18 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
 		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 		testutil.AssertEquals("time: %s severity: %s message: %s", result.Formatter[0].(TemplateFormatterConfig).Template, t, "result.formatter[0].template")
+		testutil.AssertFalse(result.Formatter[0].(TemplateFormatterConfig).IsDefaultTemplate, t, "result.formatter[0].IsDefaultTemplate")
 		testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[0].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
+		testutil.AssertFalse(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCorrelationIdTemplate")
 		testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.Formatter[0].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[0].customTemplate")
+		testutil.AssertFalse(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCustomTemplate, t, "result.formatter[0].IsDefaultCustomTemplate")
 		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 		testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s", result.Formatter[0].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[0].CallerTemplate")
+		testutil.AssertFalse(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerTemplate, t, "result.formatter[0].IsDefaultCallerTemplate")
 		testutil.AssertEquals("time: %s severity: %s correlation: %s caller:%s file:%s line:%d message: %s", result.Formatter[0].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
+		testutil.AssertFalse(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCallerCorrelationIdTemplate")
 		testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
+		testutil.AssertFalse(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[0].IsDefaultCallerCustomTemplate")
 	}
 }
 
@@ -293,12 +299,18 @@ func TestGetConfigDefaultTemplateInactiveSequenceWithoutParameter(t *testing.T) 
 		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
 		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 		testutil.AssertEquals("[%s] %s: %s", result.Formatter[0].(TemplateFormatterConfig).Template, t, "result.formatter[0].template")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultTemplate, t, "result.formatter[0].IsDefaultTemplate")
 		testutil.AssertEquals("[%s] %s %s: %s", result.Formatter[0].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCorrelationIdTemplate")
 		testutil.AssertEquals("[%s] %s: %s", result.Formatter[0].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[0].customTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCustomTemplate, t, "result.formatter[0].IsDefaultCustomTemplate")
 		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[0].CallerTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerTemplate, t, "result.formatter[0].IsDefaultCallerTemplate")
 		testutil.AssertEquals("[%s] %s %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCallerCorrelationIdTemplate")
 		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[0].IsDefaultCallerCustomTemplate")
 	}
 }
 
@@ -330,12 +342,18 @@ func TestGetConfigDefaultTemplateActiveSequenceWithoutParameter(t *testing.T) {
 		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
 		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 		testutil.AssertEquals("[%s] %d %s: %s", result.Formatter[0].(TemplateFormatterConfig).Template, t, "result.formatter[0].template")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultTemplate, t, "result.formatter[0].IsDefaultTemplate")
 		testutil.AssertEquals("[%s] %d %s %s: %s", result.Formatter[0].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[0].correlationIdTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCorrelationIdTemplate")
 		testutil.AssertEquals("[%s] %d %s: %s", result.Formatter[0].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[0].customTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCustomTemplate, t, "result.formatter[0].IsDefaultCustomTemplate")
 		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
 		testutil.AssertEquals("[%s] %d %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[0].CallerTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerTemplate, t, "result.formatter[0].IsDefaultCallerTemplate")
 		testutil.AssertEquals("[%s] %d %s %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[0].CallerCorrelationIdTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCallerCorrelationIdTemplate")
 		testutil.AssertEquals("[%s] %d %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
+		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[0].IsDefaultCallerCustomTemplate")
 	}
 }
 
@@ -725,9 +743,18 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
 		testutil.AssertEquals("time: %s severity: %s message: %s", result.Formatter[1].(TemplateFormatterConfig).Template, t, "result.formatter[1].template")
+		testutil.AssertFalse(result.Formatter[1].(TemplateFormatterConfig).IsDefaultTemplate, t, "result.formatter[1].IsDefaultTemplate")
 		testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[1].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[1].correlationIdTemplate")
+		testutil.AssertFalse(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCorrelationIdTemplate")
 		testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.Formatter[1].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[1].customTemplate")
+		testutil.AssertFalse(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCustomTemplate, t, "result.formatter[1].IsDefaultCustomTemplate")
 		testutil.AssertEquals(time.RFC1123Z, result.Formatter[1].TimeLayout(), t, "result.formatter[1].timeLayout")
+		testutil.AssertEquals("[%s] %d %s %s(%s.%d): %s", result.Formatter[1].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[1].CallerTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerTemplate, t, "result.formatter[1].IsDefaultCallerTemplate")
+		testutil.AssertEquals("[%s] %d %s %s %s(%s.%d): %s", result.Formatter[1].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[1].CallerCorrelationIdTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[1].IsDefaultCallerCorrelationIdTemplate")
+		testutil.AssertEquals("[%s] %d %s %s(%s.%d): %s", result.Formatter[1].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[1].CallerCustomTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[1].IsDefaultCallerCustomTemplate")
 	}
 }
 

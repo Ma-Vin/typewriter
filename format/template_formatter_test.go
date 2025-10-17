@@ -17,14 +17,20 @@ func createTemplateFormatterForTest(template string, correlationIdTemplate strin
 
 	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout, IsSequenceActive: isSequenceActive}
 	var config config.FormatterConfig = config.TemplateFormatterConfig{
-		Common:                      &commonConfig,
-		Template:                    template,
-		CallerTemplate:              callerTemplate,
-		CorrelationIdTemplate:       correlationIdTemplate,
-		CallerCorrelationIdTemplate: callerCorrelationIdTemplate,
-		CustomTemplate:              customTemplate,
-		CallerCustomTemplate:        callerCustomTemplate,
-		TrimSeverityText:            trimSeverityText,
+		Common:                               &commonConfig,
+		Template:                             template,
+		IsDefaultTemplate:                    (!isSequenceActive && template == config.DEFAULT_TEMPLATE) || (isSequenceActive && template == config.DEFAULT_SEQUENCE_TEMPLATE),
+		CallerTemplate:                       callerTemplate,
+		IsDefaultCallerTemplate:              (!isSequenceActive && callerTemplate == config.DEFAULT_CALLER_TEMPLATE) || (isSequenceActive && callerTemplate == config.DEFAULT_SEQUENCE_CALLER_TEMPLATE),
+		CorrelationIdTemplate:                correlationIdTemplate,
+		IsDefaultCorrelationIdTemplate:       (!isSequenceActive && correlationIdTemplate == config.DEFAULT_CORRELATION_TEMPLATE) || (isSequenceActive && correlationIdTemplate == config.DEFAULT_SEQUENCE_CORRELATION_TEMPLATE),
+		CallerCorrelationIdTemplate:          callerCorrelationIdTemplate,
+		IsDefaultCallerCorrelationIdTemplate: (!isSequenceActive && callerCorrelationIdTemplate == config.DEFAULT_CALLER_CORRELATION_TEMPLATE) || (isSequenceActive && callerCorrelationIdTemplate == config.DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE),
+		CustomTemplate:                       customTemplate,
+		IsDefaultCustomTemplate:              (!isSequenceActive && customTemplate == config.DEFAULT_CUSTOM_TEMPLATE) || (isSequenceActive && customTemplate == config.DEFAULT_SEQUENCE_CUSTOM_TEMPLATE),
+		CallerCustomTemplate:                 callerCustomTemplate,
+		IsDefaultCallerCustomTemplate:        (!isSequenceActive && callerCustomTemplate == config.DEFAULT_CALLER_CUSTOM_TEMPLATE) || (isSequenceActive && callerCustomTemplate == config.DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE),
+		TrimSeverityText:                     trimSeverityText,
 	}
 	result, _ := CreateTemplateFormatterFromConfig(&config)
 	return *result
