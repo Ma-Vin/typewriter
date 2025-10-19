@@ -117,6 +117,14 @@ The default formatter is the delimiter one.
 
 The logging of the caller function, file and line can be activated by setting `true` at `TYPEWRITER_LOG_CALLER`. The default is `false`.
 
+#### Log environment values
+
+To log pairs of environment names and their values, the configuration property `TYPEWRITER_LOG_FORMATTER_PARAMETER_ENV_NAMES` (or its package variant) can be set with a comma separated list of environment names.
+
+* At delimiter-formatter the values will be passed in front of message
+* These key value pairs will be passed to the template-formatter placed between message and the optional custom values. Default templates will be extended by `" [%s]: %v"` for each pair.
+* At json-formatter the key-values will be added 1:1
+
 #### Context
 
 The key, which is used to get the correlation id from `context.Context.Value(key)`, can be defined by setting `TYPEWRITER_CONTEXT_CORRELATION_ID_KEY`.

@@ -21,6 +21,7 @@ import (
 //
 // Because of explicit argument indices can be used at templates
 type TemplateFormatter struct {
+	commonProperties                     *CommonFormatterProperties
 	template                             string
 	isDefaultTemplate                    bool
 	callerTemplate                       string
@@ -36,6 +37,7 @@ type TemplateFormatter struct {
 	timeLayout                           string
 	isSequenceActive                     bool
 	trimSeverityText                     bool
+	envNameAndValuesToLog                []any
 }
 
 // Creates a new formatter from a given config
@@ -45,7 +47,8 @@ func CreateTemplateFormatterFromConfig(formatterConfig *config.FormatterConfig) 
 		return nil, fmt.Errorf("failed to convert interface to TemplateFormatterConfig for formatter %s", (*formatterConfig).FormatterType())
 	}
 
-	var result Formatter = TemplateFormatter{
+	result := TemplateFormatter{
+		commonProperties:                     CreateCommonFormatterProperties(templateFormatterConfig.Common),
 		template:                             templateFormatterConfig.Template,
 		isDefaultTemplate:                    templateFormatterConfig.IsDefaultTemplate,
 		callerTemplate:                       templateFormatterConfig.CallerTemplate,
@@ -61,9 +64,31 @@ func CreateTemplateFormatterFromConfig(formatterConfig *config.FormatterConfig) 
 		timeLayout:                           templateFormatterConfig.TimeLayout(),
 		trimSeverityText:                     templateFormatterConfig.TrimSeverityText,
 		isSequenceActive:                     templateFormatterConfig.Common.IsSequenceActive,
+		envNameAndValuesToLog:                make([]any, 0, 2*len(templateFormatterConfig.Common.EnvNamesToLog)),
 	}
 
-	return &result, nil
+	for i, s := range result.commonProperties.envNamesToLog {
+		result.envNameAndValuesToLog = append(result.envNameAndValuesToLog, s, result.commonProperties.envValuesToLog[i])
+	}
+
+	appendEnvNameValue(&result.template, &result.commonProperties.envNamesToLog, result.isDefaultTemplate)
+	appendEnvNameValue(&result.callerTemplate, &result.commonProperties.envNamesToLog, result.isDefaultCallerTemplate)
+	appendEnvNameValue(&result.correlationIdTemplate, &result.commonProperties.envNamesToLog, result.isDefaultCorrelationIdTemplate)
+	appendEnvNameValue(&result.callerCorrelationIdTemplate, &result.commonProperties.envNamesToLog, result.isDefaultCallerCorrelationIdTemplate)
+	appendEnvNameValue(&result.customTemplate, &result.commonProperties.envNamesToLog, result.isDefaultCustomTemplate)
+	appendEnvNameValue(&result.callerCustomTemplate, &result.commonProperties.envNamesToLog, result.isDefaultCallerCustomTemplate)
+
+	var resultFormatter Formatter = result
+	return &resultFormatter, nil
+}
+
+func appendEnvNameValue(template *string, envNamesToLog *[]string, isDefault bool) {
+	if !isDefault {
+		return
+	}
+	for i := 0; i < len(*envNamesToLog); i++ {
+		*template += " [%s]: %v"
+	}
 }
 
 // Formats the given parameter to a string to log
@@ -102,6 +127,9 @@ func (t TemplateFormatter) createSliceFromLogValues(logValues *common.LogValues)
 		args = append(args, logValues.CallerFileLine)
 	}
 	args = append(args, logValues.Message)
+	if len(t.envNameAndValuesToLog) > 0 {
+		args = append(args, t.envNameAndValuesToLog...)
+	}
 	if logValues.CustomValues != nil {
 		args = appendCustomValues(args, logValues.CustomValues)
 	}
@@ -145,8 +173,8 @@ func (t TemplateFormatter) determineCustomTemplate(logValues *common.LogValues) 
 
 // Checks whether to add custom key-value pairs at custom templates format or not.
 func (t TemplateFormatter) areCustomKeyValueArgumentsToAppendAtTemplate(logValues *common.LogValues) bool {
-	withCaller := logValues.IsCallerSet && ((!t.isSequenceActive && t.isDefaultCallerCustomTemplate) || (t.isSequenceActive && t.isDefaultCallerCustomTemplate))
-	withoutCaller := !logValues.IsCallerSet && ((!t.isSequenceActive && t.isDefaultCustomTemplate) || (t.isSequenceActive && t.isDefaultCustomTemplate))
+	withCaller := logValues.IsCallerSet && t.isDefaultCallerCustomTemplate
+	withoutCaller := !logValues.IsCallerSet && t.isDefaultCustomTemplate
 
 	return withCaller || withoutCaller
 }

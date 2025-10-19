@@ -42,6 +42,7 @@ const (
 
 	TIME_LAYOUT_PARAMETER                 = "_TIME_LAYOUT"
 	SEQUENCE_ACTIVE_PARAMETER             = "_SEQUENCE_ACTIVE"
+	STATIC_ENV_NAMES                      = "_ENV_NAMES"
 	DELIMITER_PARAMETER                   = "_DELIMITER"
 	JSON_CALLER_FUNCTION_KEY_PARAMETER    = "_JSON_CALLER_FUNCTION_KEY"
 	JSON_CALLER_FILE_KEY_PARAMETER        = "_JSON_CALLER_FILE_KEY"
@@ -548,6 +549,7 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 		PackageParameter: packageParameter,
 		TimeLayout:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT),
 		IsSequenceActive: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_SEQUENCE_ACTIVE_TEXT)) == "true",
+		EnvNamesToLog:    determineStaticEnvNames(relevantKeyValues, formatterParameterKey+STATIC_ENV_NAMES),
 	}
 
 	if creator, exist := registeredFormatterConfigs[commonFormatterConfig.FormatterType]; exist {
@@ -561,6 +563,18 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 
 	printHint(commonFormatterConfig.FormatterType, formatterKey)
 	return nil
+}
+
+func determineStaticEnvNames(relevantKeyValues *map[string]string, envName string) []string {
+	staticEnvNames, found := (*relevantKeyValues)[envName]
+	if !found || staticEnvNames == "" {
+		return make([]string, 0)
+	}
+	result := strings.Split(staticEnvNames, ",")
+	for i, s := range result {
+		result[i] = strings.TrimSpace(s)
+	}
+	return result
 }
 
 // Creates a delimiter formatter configuration

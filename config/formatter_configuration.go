@@ -1,5 +1,7 @@
 package config
 
+import "slices"
+
 // common properties of all formatter configurations
 type CommonFormatterConfig struct {
 	Id               string
@@ -8,11 +10,13 @@ type CommonFormatterConfig struct {
 	PackageParameter string
 	TimeLayout       string
 	IsSequenceActive bool
+	EnvNamesToLog    []string
 }
 
 // Checks whether an other common config equals with this one with respect to type and time layout
 func (c *CommonFormatterConfig) Equals(other *CommonFormatterConfig) bool {
-	return c.FormatterType == other.FormatterType && c.TimeLayout == other.TimeLayout && c.IsSequenceActive == other.IsSequenceActive
+	return c.FormatterType == other.FormatterType && c.TimeLayout == other.TimeLayout &&
+		c.IsSequenceActive == other.IsSequenceActive && slices.Compare(c.EnvNamesToLog, other.EnvNamesToLog) == 0
 }
 
 // Checks whether the current common config is less than a given other one

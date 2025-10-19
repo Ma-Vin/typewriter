@@ -192,6 +192,7 @@ func TestGetConfigDefaultDelimiter(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_DELIMITER)
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+DELIMITER_PARAMETER, ":")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -216,6 +217,9 @@ func TestGetConfigDefaultDelimiter(t *testing.T) {
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 		testutil.AssertEquals(":", result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
+		testutil.AssertEquals(2, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
+		testutil.AssertEquals("param1", result.Formatter[0].GetCommon().EnvNamesToLog[0], t, "result.Formatter[0].GetCommon().EnvNamesToLog[0]")
+		testutil.AssertEquals("param2", result.Formatter[0].GetCommon().EnvNamesToLog[1], t, "result.Formatter[0].GetCommon().EnvNamesToLog[1]")
 	}
 }
 
@@ -232,6 +236,7 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CALLER_PARAMETER, "time: %s severity: %s caller:%s file:%s line:%d message: %s")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CALLER_CORRELATION_PARAMETER, "time: %s severity: %s correlation: %s caller:%s file:%s line:%d message: %s")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CALLER_CUSTOM_PARAMETER, "time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -267,6 +272,9 @@ func TestGetConfigDefaultTemplate(t *testing.T) {
 		testutil.AssertFalse(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCallerCorrelationIdTemplate")
 		testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
 		testutil.AssertFalse(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[0].IsDefaultCallerCustomTemplate")
+		testutil.AssertEquals(2, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
+		testutil.AssertEquals("param1", result.Formatter[0].GetCommon().EnvNamesToLog[0], t, "result.Formatter[0].GetCommon().EnvNamesToLog[0]")
+		testutil.AssertEquals("param2", result.Formatter[0].GetCommon().EnvNamesToLog[1], t, "result.Formatter[0].GetCommon().EnvNamesToLog[1]")
 	}
 }
 
@@ -311,6 +319,7 @@ func TestGetConfigDefaultTemplateInactiveSequenceWithoutParameter(t *testing.T) 
 		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCallerCorrelationIdTemplate")
 		testutil.AssertEquals("[%s] %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
 		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[0].IsDefaultCallerCustomTemplate")
+		testutil.AssertEquals(0, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
 	}
 }
 
@@ -354,6 +363,7 @@ func TestGetConfigDefaultTemplateActiveSequenceWithoutParameter(t *testing.T) {
 		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[0].IsDefaultCallerCorrelationIdTemplate")
 		testutil.AssertEquals("[%s] %d %s %s(%s.%d): %s", result.Formatter[0].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[0].CallerCustomTemplate")
 		testutil.AssertTrue(result.Formatter[0].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[0].IsDefaultCallerCustomTemplate")
+		testutil.AssertEquals(0, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
 	}
 }
 
@@ -373,6 +383,7 @@ func TestGetConfigDefaultJson(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_FUNCTION_KEY_PARAMETER, "callerFunction")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_FILE_KEY_PARAMETER, "callerFile")
 		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_LINE_KEY_PARAMETER, "callerFileLine")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -405,6 +416,9 @@ func TestGetConfigDefaultJson(t *testing.T) {
 		testutil.AssertEquals("callerFile", result.Formatter[0].(JsonFormatterConfig).CallerFileKey, t, "result.formatter[0].CallerFileKey")
 		testutil.AssertEquals("callerFileLine", result.Formatter[0].(JsonFormatterConfig).CallerFileLineKey, t, "result.formatter[0].CallerFileLineKey")
 		testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
+		testutil.AssertEquals(2, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
+		testutil.AssertEquals("param1", result.Formatter[0].GetCommon().EnvNamesToLog[0], t, "result.Formatter[0].GetCommon().EnvNamesToLog[0]")
+		testutil.AssertEquals("param2", result.Formatter[0].GetCommon().EnvNamesToLog[1], t, "result.Formatter[0].GetCommon().EnvNamesToLog[1]")
 	}
 }
 
@@ -446,6 +460,7 @@ func TestGetConfigDefaultJsonWithoutParameter(t *testing.T) {
 		testutil.AssertEquals("file", result.Formatter[0].(JsonFormatterConfig).CallerFileKey, t, "result.formatter[0].CallerFileKey")
 		testutil.AssertEquals("line", result.Formatter[0].(JsonFormatterConfig).CallerFileLineKey, t, "result.formatter[0].CallerFileLineKey")
 		testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
+		testutil.AssertEquals(0, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
 	}
 }
 
@@ -599,6 +614,7 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_STDOUT)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+DELIMITER_PARAMETER, "_")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+STATIC_ENV_NAMES, "param1,param2")
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -632,10 +648,14 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertEquals(0, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
 		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
 		testutil.AssertEquals("_", result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertEquals(2, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
+		testutil.AssertEquals("param1", result.Formatter[1].GetCommon().EnvNamesToLog[0], t, "result.Formatter[1].GetCommon().EnvNamesToLog[0]")
+		testutil.AssertEquals("param2", result.Formatter[1].GetCommon().EnvNamesToLog[1], t, "result.Formatter[1].GetCommon().EnvNamesToLog[1]")
 	}
 }
 
@@ -706,6 +726,7 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+TEMPLATE_CORRELATION_PARAMETER, "time: %s severity: %s correlation: %s message: %s")
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+TEMPLATE_CUSTOM_PARAMETER, "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+STATIC_ENV_NAMES, "param1,param2")
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -739,6 +760,7 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertEquals(0, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
 		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
@@ -755,6 +777,9 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[1].IsDefaultCallerCorrelationIdTemplate")
 		testutil.AssertEquals("[%s] %d %s %s(%s.%d): %s", result.Formatter[1].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[1].CallerCustomTemplate")
 		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[1].IsDefaultCallerCustomTemplate")
+		testutil.AssertEquals(2, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
+		testutil.AssertEquals("param1", result.Formatter[1].GetCommon().EnvNamesToLog[0], t, "result.Formatter[1].GetCommon().EnvNamesToLog[0]")
+		testutil.AssertEquals("param2", result.Formatter[1].GetCommon().EnvNamesToLog[1], t, "result.Formatter[1].GetCommon().EnvNamesToLog[1]")
 	}
 }
 
@@ -775,6 +800,7 @@ func TestGetConfigPackageJson(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+JSON_CUSTOM_VALUES_KEY_PARAMETER, "customValues")
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+JSON_CUSTOM_VALUES_SUB_PARAMETER, "true")
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+STATIC_ENV_NAMES, "param1,param2")
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -808,6 +834,7 @@ func TestGetConfigPackageJson(t *testing.T) {
 		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+		testutil.AssertEquals(0, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
 		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
@@ -818,6 +845,9 @@ func TestGetConfigPackageJson(t *testing.T) {
 		testutil.AssertEquals("customValues", result.Formatter[1].(JsonFormatterConfig).CustomValuesKey, t, "result.formatter[1].customValuesKey")
 		testutil.AssertTrue(result.Formatter[1].(JsonFormatterConfig).CustomValuesAsSubElement, t, "result.formatter[1].customValuesAsSubElement")
 		testutil.AssertEquals(time.RFC1123Z, result.Formatter[1].TimeLayout(), t, "result.formatter[1].timeLayout")
+		testutil.AssertEquals(2, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
+		testutil.AssertEquals("param1", result.Formatter[1].GetCommon().EnvNamesToLog[0], t, "result.Formatter[1].GetCommon().EnvNamesToLog[0]")
+		testutil.AssertEquals("param2", result.Formatter[1].GetCommon().EnvNamesToLog[1], t, "result.Formatter[1].GetCommon().EnvNamesToLog[1]")
 	}
 }
 

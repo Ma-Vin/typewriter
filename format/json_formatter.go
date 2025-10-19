@@ -11,6 +11,7 @@ import (
 
 // Formats the log entries as JSON
 type JsonFormatter struct {
+	commonProperties         *CommonFormatterProperties
 	timeKey                  string
 	sequenceKey              string
 	severityKey              string
@@ -33,6 +34,7 @@ func CreateJsonFormatterFromConfig(formatterConfig *config.FormatterConfig) (*Fo
 	}
 
 	var result Formatter = JsonFormatter{
+		commonProperties:         CreateCommonFormatterProperties(jsonFormatterConfig.Common),
 		timeKey:                  jsonFormatterConfig.TimeKey,
 		sequenceKey:              jsonFormatterConfig.SequenceKey,
 		severityKey:              jsonFormatterConfig.SeverityKey,
@@ -63,6 +65,10 @@ func (j JsonFormatter) Format(logValues *common.LogValues) string {
 
 	if logValues.CorrelationId != nil {
 		jsonEntries[j.correlationKey] = *logValues.CorrelationId
+	}
+
+	for i, s := range j.commonProperties.envNamesToLog {
+		jsonEntries[s] = j.commonProperties.envValuesToLog[i]
 	}
 
 	if logValues.CustomValues != nil {

@@ -2,6 +2,7 @@ package format
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -13,9 +14,9 @@ import (
 // Creates a new formatter with given templates and time layout
 func createTemplateFormatterForTest(template string, correlationIdTemplate string, customTemplate string,
 	callerTemplate string, callerCorrelationIdTemplate string, callerCustomTemplate string,
-	timeLayout string, trimSeverityText bool, isSequenceActive bool) Formatter {
+	timeLayout string, trimSeverityText bool, isSequenceActive bool, envNamesToLog []string) Formatter {
 
-	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout, IsSequenceActive: isSequenceActive}
+	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout, IsSequenceActive: isSequenceActive, EnvNamesToLog: envNamesToLog}
 	var config config.FormatterConfig = config.TemplateFormatterConfig{
 		Common:                               &commonConfig,
 		Template:                             template,
@@ -36,6 +37,20 @@ func createTemplateFormatterForTest(template string, correlationIdTemplate strin
 	return *result
 }
 
+func createTemplateFormatterWithEnvValuesForTest(template string, correlationIdTemplate string, customTemplate string,
+	callerTemplate string, callerCorrelationIdTemplate string, callerCustomTemplate string,
+	timeLayout string, trimSeverityText bool, isSequenceActive bool) Formatter {
+
+	os.Clearenv()
+	os.Setenv("test1", "abc")
+	os.Setenv("TEST2", "1")
+	os.Setenv("Test3", "2.1")
+	os.Setenv("test4", "true")
+
+	return createTemplateFormatterForTest(template, correlationIdTemplate, customTemplate, callerTemplate, callerCorrelationIdTemplate,
+		callerCustomTemplate, timeLayout, trimSeverityText, isSequenceActive, []string{"test1", "TEST2", "Test3", "test4"})
+}
+
 var templateFormatter Formatter = createTemplateFormatterForTest(
 	"time: %s severity: %s message: %s",
 	"time: %s severity: %s correlation: %s message: %s",
@@ -45,7 +60,8 @@ var templateFormatter Formatter = createTemplateFormatterForTest(
 	"time: %s severity: %s caller: %s file: %s line: %d message: %s %s: %s %s: %d %s: %t",
 	time.RFC1123Z,
 	false,
-	false)
+	false,
+	[]string{})
 
 var templateSequenceFormatter Formatter = createTemplateFormatterForTest(
 	"time: %s sequence: %d severity: %s message: %s",
@@ -56,7 +72,8 @@ var templateSequenceFormatter Formatter = createTemplateFormatterForTest(
 	"time: %s sequence: %d severity: %s caller: %s file: %s line: %d message: %s %s: %s %s: %d %s: %t",
 	time.RFC1123Z,
 	false,
-	true)
+	true,
+	[]string{})
 
 var templateFormatterOrder Formatter = createTemplateFormatterForTest(
 	"severity: %[2]s message: %[3]s time: %[1]s",
@@ -67,7 +84,8 @@ var templateFormatterOrder Formatter = createTemplateFormatterForTest(
 	"caller: %[3]s file: %[4]s line: %[5]d severity: %[2]s message: %[6]s %[7]s: %[8]s %[9]s: %[10]d %[11]s: %[12]t time: %[1]s",
 	time.RFC1123Z,
 	false,
-	false)
+	false,
+	[]string{})
 
 var templateSequenceFormatterOrder Formatter = createTemplateFormatterForTest(
 	"severity: %[3]s message: %[4]s time: %[1]s sequence: %[2]d",
@@ -78,7 +96,30 @@ var templateSequenceFormatterOrder Formatter = createTemplateFormatterForTest(
 	"caller: %[4]s file: %[5]s line: %[6]d severity: %[3]s message: %[7]s %[8]s: %[9]s %[10]s: %[11]d %[12]s: %[13]t time: %[1]s sequence: %[2]d",
 	time.RFC1123Z,
 	false,
-	true)
+	true,
+	[]string{})
+
+var templateFormatterDefaultEnvValues Formatter = createTemplateFormatterWithEnvValuesForTest(
+	config.DEFAULT_TEMPLATE,
+	config.DEFAULT_CORRELATION_TEMPLATE,
+	config.DEFAULT_CUSTOM_TEMPLATE,
+	config.DEFAULT_CALLER_TEMPLATE,
+	config.DEFAULT_CALLER_CORRELATION_TEMPLATE,
+	config.DEFAULT_CALLER_CUSTOM_TEMPLATE,
+	time.RFC1123Z,
+	false,
+	false)
+
+var templateFormatterEnvValuesOrder Formatter = createTemplateFormatterWithEnvValuesForTest(
+	"time: %[1]s severity: %[2]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %.2[9]f %[10]s: %[11]t message: %[3]s",
+	"time: %[1]s severity: %[2]s correlation: %[3]s %[5]s: %[6]s %[7]s: %[8]d %[9]s: %.2[10]f %[11]s: %[12]t message: %[4]s",
+	"time: %[1]s severity: %[2]s %[4]s: %[5]s %[6]s: %[7]d %[8]s: %.2[9]f %[10]s: %[11]t %[12]s: %[13]s %[14]s: %[15]d %[16]s: %[17]t message: %[3]s",
+	"time: %[1]s severity: %[2]s caller: %[3]s file: %[4]s line: %[5]d %[7]s: %[8]s %[9]s: %[10]d %[11]s: %.2[12]f %[13]s: %[14]t message: %[6]s",
+	"time: %[1]s severity: %[2]s correlation: %[3]s caller: %[4]s file: %[5]s line: %[6]d %[8]s: %[9]s %[10]s: %[11]d %[12]s: %.2[13]f %[14]s: %[15]t message: %[7]s",
+	"time: %[1]s severity: %[2]s caller: %[3]s file: %[4]s line: %[5]d %[7]s: %[8]s %[9]s: %[10]d %[11]s: %.2[12]f %[13]s: %[14]t %[15]s: %[16]s %[17]s: %[18]d %[19]s: %[20]t message: %[6]s",
+	time.RFC1123Z,
+	false,
+	false)
 
 var templateFormatTestTime = time.Date(2024, time.November, 1, 20, 15, 0, 0, time.UTC)
 var templateFormatTestTimeText = templateFormatTestTime.Format(time.RFC1123Z)
@@ -136,6 +177,28 @@ func TestTemplateFormatSequenceOrder(t *testing.T) {
 		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
 		expectedMessage := fmt.Sprintf("severity: %s message: Testmessage time: %s sequence: %d", severityTextMap[i], templateFormatTestTimeText, i)
 		testutil.AssertEquals(expectedMessage, templateSequenceFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestTemplateFormatEnvValues(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
+		expectedMessage := fmt.Sprintf("[%s] %s: Testmessage [test1]: abc [TEST2]: 1 [Test3]: 2.1 [test4]: true", templateFormatTestTimeText, severityTextMap[i])
+		testutil.AssertEquals(expectedMessage, templateFormatterDefaultEnvValues.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestTemplateFormatEnvValuesOrder(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
+		expectedMessage := fmt.Sprintf("time: %s severity: %s test1: abc TEST2: 1 Test3: 2.10 test4: true message: Testmessage", templateFormatTestTimeText, severityTextMap[i])
+		testutil.AssertEquals(expectedMessage, templateFormatterEnvValuesOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
 	}
 }
 
@@ -199,6 +262,30 @@ func TestTemplateFormatSequenceCorrelationOrder(t *testing.T) {
 	}
 }
 
+func TestTemplateFormatCorrelationEnvValues(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+	correlation := "someCorrelationId"
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(i, &correlation, "Testmessage")
+		expectedMessage := fmt.Sprintf("[%s] %s %s: Testmessage [test1]: abc [TEST2]: 1 [Test3]: 2.1 [test4]: true", templateFormatTestTimeText, severityTextMap[i], correlation)
+		testutil.AssertEquals(expectedMessage, templateFormatterDefaultEnvValues.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestTemplateFormatCorrelationEnvValuesOrder(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+	correlation := "someCorrelationId"
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(i, &correlation, "Testmessage")
+		expectedMessage := fmt.Sprintf("time: %s severity: %s correlation: %s test1: abc TEST2: 1 Test3: 2.10 test4: true message: Testmessage", templateFormatTestTimeText, severityTextMap[i], correlation)
+		testutil.AssertEquals(expectedMessage, templateFormatterEnvValuesOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
 func TestTemplateFormatCustom(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
 
@@ -234,7 +321,8 @@ func TestTemplateFormatCustomDefaultFormat(t *testing.T) {
 		config.DEFAULT_CALLER_CUSTOM_TEMPLATE,
 		time.RFC1123Z,
 		false,
-		false)
+		false,
+		[]string{})
 
 	customProperties := map[string]any{
 		"first":  "abc",
@@ -286,7 +374,8 @@ func TestTemplateFormatSequenceCustomDefaultFormat(t *testing.T) {
 		config.DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE,
 		time.RFC1123Z,
 		false,
-		true)
+		true,
+		[]string{})
 
 	customProperties := map[string]any{
 		"first":  "abc",
@@ -324,6 +413,38 @@ func TestTemplateFormatCustomOrder(t *testing.T) {
 	}
 }
 
+func TestTemplateFormatCustomEnvValues(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+	customProperties := map[string]any{
+		"first":  "abc",
+		"third":  true,
+		"second": 1,
+	}
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValuesCustom(i, "Testmessage", &customProperties)
+		expectedMessage := fmt.Sprintf("[%s] %s: Testmessage [test1]: abc [TEST2]: 1 [Test3]: 2.1 [test4]: true [first]: abc [second]: 1 [third]: true", templateFormatTestTimeText, severityTextMap[i])
+		testutil.AssertEquals(expectedMessage, templateFormatterDefaultEnvValues.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestTemplateFormatCustomEnvValuesOrder(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+	customProperties := map[string]any{
+		"first":  "abc",
+		"third":  true,
+		"second": 1,
+	}
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValuesCustom(i, "Testmessage", &customProperties)
+		expectedMessage := fmt.Sprintf("time: %s severity: %s test1: abc TEST2: 1 Test3: 2.10 test4: true first: abc second: 1 third: true message: Testmessage", templateFormatTestTimeText, severityTextMap[i])
+		testutil.AssertEquals(expectedMessage, templateFormatterEnvValuesOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
 func TestTemplateFormatTrimSeverity(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
 
@@ -336,7 +457,8 @@ func TestTemplateFormatTrimSeverity(t *testing.T) {
 		"time: %s severity: %s caller: %s file: %s line: %d message: %s %s: %s %s: %d %s: %t",
 		time.RFC1123Z,
 		true,
-		false)
+		false,
+		[]string{})
 
 	expectedResults := map[int]string{
 		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: DEBUG message: Testmessage",
@@ -412,6 +534,30 @@ func TestTemplateFormatSequenceOrderCaller(t *testing.T) {
 	}
 }
 
+func TestTemplateFormatCallerEnvValues(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
+		setCallerValues(&logValuesToFormat)
+		expectedMessage := fmt.Sprintf("[%s] %s someFunction(someFile.42): Testmessage [test1]: abc [TEST2]: 1 [Test3]: 2.1 [test4]: true", templateFormatTestTimeText, severityTextMap[i])
+		testutil.AssertEquals(expectedMessage, templateFormatterDefaultEnvValues.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestTemplateFormatCallerEnvValuesOrder(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
+		setCallerValues(&logValuesToFormat)
+		expectedMessage := fmt.Sprintf("time: %s severity: %s caller: someFunction file: someFile line: 42 test1: abc TEST2: 1 Test3: 2.10 test4: true message: Testmessage", templateFormatTestTimeText, severityTextMap[i])
+		testutil.AssertEquals(expectedMessage, templateFormatterEnvValuesOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
 func TestTemplateFormatCorrelationCaller(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
 	correlation := "someCorrelationId"
@@ -476,6 +622,32 @@ func TestTemplateFormatSequenceCorrelationOrderCaller(t *testing.T) {
 	}
 }
 
+func TestTemplateFormatCallerCorrelationEnvValues(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+	correlation := "someCorrelationId"
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(i, &correlation, "Testmessage")
+		setCallerValues(&logValuesToFormat)
+		expectedMessage := fmt.Sprintf("[%s] %s %s someFunction(someFile.42): Testmessage [test1]: abc [TEST2]: 1 [Test3]: 2.1 [test4]: true", templateFormatTestTimeText, severityTextMap[i], correlation)
+		testutil.AssertEquals(expectedMessage, templateFormatterDefaultEnvValues.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestTemplateFormatCallerCorrelationEnvValuesOrder(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+	correlation := "someCorrelationId"
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValuesWithCorrelation(i, &correlation, "Testmessage")
+		setCallerValues(&logValuesToFormat)
+		expectedMessage := fmt.Sprintf("time: %s severity: %s correlation: %s caller: someFunction file: someFile line: 42 test1: abc TEST2: 1 Test3: 2.10 test4: true message: Testmessage", templateFormatTestTimeText, severityTextMap[i], correlation)
+		testutil.AssertEquals(expectedMessage, templateFormatterEnvValuesOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
 func TestTemplateFormatCustomCallerDefaultFormat(t *testing.T) {
 	common.SetLogValuesMockTime(&templateFormatTestTime)
 
@@ -488,7 +660,8 @@ func TestTemplateFormatCustomCallerDefaultFormat(t *testing.T) {
 		config.DEFAULT_CALLER_CUSTOM_TEMPLATE,
 		time.RFC1123Z,
 		false,
-		false)
+		false,
+		[]string{})
 
 	customProperties := map[string]any{
 		"first":  "abc",
@@ -524,7 +697,8 @@ func TestTemplateFormatSequenceCustomCallerDefaultFormat(t *testing.T) {
 		config.DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE,
 		time.RFC1123Z,
 		false,
-		true)
+		true,
+		[]string{})
 
 	customProperties := map[string]any{
 		"first":  "abc",
@@ -621,6 +795,40 @@ func TestTemplateFormatSequenceCustomOrderCaller(t *testing.T) {
 		setCallerValues(&logValuesToFormat)
 		expectedMessage := fmt.Sprintf("caller: someFunction file: someFile line: 42 severity: %s message: Testmessage first: abc second: 1 third: true time: %s sequence: %d", severityTextMap[i], templateFormatTestTimeText, i)
 		testutil.AssertEquals(expectedMessage, templateSequenceFormatterOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestTemplateFormatCallerCustomEnvValues(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+	customProperties := map[string]any{
+		"first":  "abc",
+		"third":  true,
+		"second": 1,
+	}
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValuesCustom(i, "Testmessage", &customProperties)
+		setCallerValues(&logValuesToFormat)
+		expectedMessage := fmt.Sprintf("[%s] %s someFunction(someFile.42): Testmessage [test1]: abc [TEST2]: 1 [Test3]: 2.1 [test4]: true [first]: abc [second]: 1 [third]: true", templateFormatTestTimeText, severityTextMap[i])
+		testutil.AssertEquals(expectedMessage, templateFormatterDefaultEnvValues.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestTemplateFormatCallerCustomEnvValuesOrder(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+	common.InitSequenceCounter()
+	customProperties := map[string]any{
+		"first":  "abc",
+		"third":  true,
+		"second": 1,
+	}
+
+	for i := 1; i <= 5; i++ {
+		logValuesToFormat := common.CreateLogValuesCustom(i, "Testmessage", &customProperties)
+		setCallerValues(&logValuesToFormat)
+		expectedMessage := fmt.Sprintf("time: %s severity: %s caller: someFunction file: someFile line: 42 test1: abc TEST2: 1 Test3: 2.10 test4: true first: abc second: 1 third: true message: Testmessage", templateFormatTestTimeText, severityTextMap[i])
+		testutil.AssertEquals(expectedMessage, templateFormatterEnvValuesOrder.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
 	}
 }
 

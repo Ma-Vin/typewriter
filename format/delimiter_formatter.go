@@ -12,6 +12,7 @@ import (
 
 // Formatter which append given parameter with a delimiter. Since name the of the parameter will not be contained, the keys of customValues at FormatCustom neither.
 type DelimiterFormatter struct {
+	commonProperties *CommonFormatterProperties
 	delimiter        string
 	timeLayout       string
 	isSequenceActive bool
@@ -24,7 +25,13 @@ func CreateDelimiterFormatterFromConfig(formatterConfig *config.FormatterConfig)
 		return nil, fmt.Errorf("failed to convert interface to DelimiterFormatterConfig for formatter %s", (*formatterConfig).FormatterType())
 	}
 
-	var result Formatter = DelimiterFormatter{delimiter: delimiterFormatterConfig.Delimiter, timeLayout: delimiterFormatterConfig.TimeLayout(), isSequenceActive: delimiterFormatterConfig.Common.IsSequenceActive}
+	var result Formatter = DelimiterFormatter{
+		commonProperties: CreateCommonFormatterProperties(delimiterFormatterConfig.Common),
+		delimiter:        delimiterFormatterConfig.Delimiter,
+		timeLayout:       delimiterFormatterConfig.TimeLayout(),
+		isSequenceActive: delimiterFormatterConfig.Common.IsSequenceActive,
+	}
+
 	return &result, nil
 }
 
@@ -48,6 +55,11 @@ func (d DelimiterFormatter) Format(logValues *common.LogValues) string {
 	if logValues.IsCallerSet {
 		sb.WriteString(d.delimiter)
 		sb.WriteString(fmt.Sprintf("%s at %s (Line %d)", logValues.CallerFunction, logValues.CallerFile, logValues.CallerFileLine))
+	}
+
+	for _, s := range d.commonProperties.envValuesToLog {
+		sb.WriteString(d.delimiter)
+		sb.WriteString(fmt.Sprint(s))
 	}
 
 	sb.WriteString(d.delimiter)
