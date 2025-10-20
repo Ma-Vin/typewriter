@@ -458,7 +458,7 @@ func createJsonConfigForTest(relevantKeyValues *map[string]string, commonFormatt
 		CorrelationKey:           config.DEFAULT_CORRELATION_KEY,
 		MessageKey:               config.DEFAULT_MESSAGE_KEY,
 		CustomValuesKey:          config.DEFAULT_CUSTOM_VALUES_KEY,
-		CustomValuesAsSubElement: config.DEFAULT_CUSTOM_AS_SUB_ELEMENT == "true",
+		CustomValuesAsSubElement: config.DEFAULT_CUSTOM_AS_SUB_ELEMENT,
 		CallerFunctionKey:        config.DEFAULT_CALLER_FUNCTION_KEY,
 		CallerFileKey:            config.DEFAULT_CALLER_FILE_KEY,
 		CallerFileLineKey:        config.DEFAULT_CALLER_FILE_LINE_KEY,

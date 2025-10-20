@@ -98,15 +98,15 @@ const (
 	DEFAULT_SEQUENCE_CALLER_TEMPLATE             = "[%s] %d %s %s(%s.%d): %s"
 	DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE = "[%s] %d %s %s %s(%s.%d): %s"
 	DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE      = DEFAULT_SEQUENCE_CALLER_TEMPLATE
-	DEFAULT_TRIM_SEVERITY_TEXT                   = "false"
-	DEFAULT_SEQUENCE_ACTIVE_TEXT                 = "true"
+	DEFAULT_TRIM_SEVERITY                        = false
+	DEFAULT_SEQUENCE_ACTIVE                      = true
 	DEFAULT_TIME_KEY                             = "time"
 	DEFAULT_SEQUENCE_KEY                         = "sequence"
 	DEFAULT_SEVERITY_KEY                         = "severity"
 	DEFAULT_MESSAGE_KEY                          = "message"
 	DEFAULT_CORRELATION_KEY                      = "correlation"
 	DEFAULT_CUSTOM_VALUES_KEY                    = "custom"
-	DEFAULT_CUSTOM_AS_SUB_ELEMENT                = "false"
+	DEFAULT_CUSTOM_AS_SUB_ELEMENT                = false
 	DEFAULT_CALLER_FUNCTION_KEY                  = "caller"
 	DEFAULT_CALLER_FILE_KEY                      = "file"
 	DEFAULT_CALLER_FILE_LINE_KEY                 = "line"
@@ -548,7 +548,7 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 		IsDefault:        len(packageParameter) == 0,
 		PackageParameter: packageParameter,
 		TimeLayout:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT),
-		IsSequenceActive: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_SEQUENCE_ACTIVE_TEXT)) == "true",
+		IsSequenceActive: getBoolValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_SEQUENCE_ACTIVE),
 		EnvNamesToLog:    determineStaticEnvNames(relevantKeyValues, formatterParameterKey+STATIC_ENV_NAMES),
 	}
 
@@ -611,7 +611,7 @@ func createTemplateFormatterConfig(relevantKeyValues *map[string]string, commonF
 		IsDefaultCorrelationIdTemplate:       !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER),
 		CustomTemplate:                       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CUSTOM_TEMPLATE),
 		IsDefaultCustomTemplate:              !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER),
-		TrimSeverityText:                     strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY_TEXT)) == "true",
+		TrimSeverityText:                     getBoolValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY),
 		CallerTemplate:                       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE, DEFAULT_SEQUENCE_CALLER_TEMPLATE),
 		IsDefaultCallerTemplate:              !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER),
 		CallerCorrelationIdTemplate:          getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE),
@@ -646,7 +646,7 @@ func createJsonFormatterConfig(relevantKeyValues *map[string]string, commonForma
 		CorrelationKey:           getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CORRELATION_KEY_PARAMETER, DEFAULT_CORRELATION_KEY),
 		MessageKey:               getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_MESSAGE_KEY_PARAMETER, DEFAULT_MESSAGE_KEY),
 		CustomValuesKey:          getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_KEY_PARAMETER, DEFAULT_CUSTOM_VALUES_KEY),
-		CustomValuesAsSubElement: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT)) == "true",
+		CustomValuesAsSubElement: getBoolValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT),
 		CallerFunctionKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FUNCTION_KEY_PARAMETER, DEFAULT_CALLER_FUNCTION_KEY),
 		CallerFileKey:            getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FILE_KEY_PARAMETER, DEFAULT_CALLER_FILE_KEY),
 		CallerFileLineKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_LINE_KEY_PARAMETER, DEFAULT_CALLER_FILE_LINE_KEY),
@@ -782,6 +782,15 @@ func getValueFromMapOrDefault(source *map[string]string, key string, defaultValu
 	value, found := (*source)[key]
 	if found {
 		return value
+	}
+	return defaultValue
+}
+
+// Returns the boolean value from a map for a given key. If there is none, the default will be returned
+func getBoolValueFromMapOrDefault(source *map[string]string, key string, defaultValue bool) bool {
+	value, found := (*source)[key]
+	if found {
+		return strings.TrimSpace(strings.ToLower(value)) == "true"
 	}
 	return defaultValue
 }
