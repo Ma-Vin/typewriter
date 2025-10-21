@@ -123,6 +123,11 @@ If “TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>” is not defined but an other
   - “TYPEWRITER_LOG_FORMATTER_PARAMETER” -> “TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER”
   - “TYPEWRITER_LOG_FORMATTER_PARAMETER_DELIMITER” -> “TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER_DELIMITER”
 
+# 2.9 Inheriting configuration parameters
+
+By setting the property “TYPEWRITER_INHERIT_CONFIG“ with a boolean value it is possible to activate inheriting general parameters at package specific appenders and formatters. By default this functionality is activated.
+The package-specific appender must still define a target file and is not inherited.
+
 # 3. Custom appender and formatter
 
 It is possible to register or deregister custom appender and formatter together with their configuration provider.

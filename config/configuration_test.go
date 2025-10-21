@@ -659,6 +659,108 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 	}
 }
 
+func TestGetConfigPackageDelimiterInherit(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+DELIMITER_PARAMETER, ":")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+
+		for j := range 2 {
+			testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[j].FormatterType(), t, "result.formatter[j].formatterType")
+			testutil.AssertEquals(":", result.Formatter[j].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[j].delimiter")
+			testutil.AssertEquals(time.RFC1123Z, result.Formatter[j].TimeLayout(), t, "result.formatter[j].delimiter")
+			testutil.AssertEquals(2, len(result.Formatter[j].GetCommon().EnvNamesToLog), t, "len(result.Formatter[j].GetCommon().EnvNamesToLog)")
+			testutil.AssertEquals("param1", result.Formatter[j].GetCommon().EnvNamesToLog[0], t, "result.Formatter[j].GetCommon().EnvNamesToLog[0]")
+			testutil.AssertEquals("param2", result.Formatter[j].GetCommon().EnvNamesToLog[1], t, "result.Formatter[j].GetCommon().EnvNamesToLog[1]")
+		}
+	}
+}
+
+func TestGetConfigPackageDelimiterInheritOtherDefaultType(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_JSON)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[0].FormatterType(), t, "result.formatter[0].formatterType")
+
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertEquals(DEFAULT_TIME_LAYOUT, result.Formatter[1].TimeLayout(), t, "result.formatter[1].delimiter")
+		testutil.AssertEquals(2, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
+		testutil.AssertEquals("param1", result.Formatter[1].GetCommon().EnvNamesToLog[0], t, "result.Formatter[1].GetCommon().EnvNamesToLog[0]")
+		testutil.AssertEquals("param2", result.Formatter[1].GetCommon().EnvNamesToLog[1], t, "result.Formatter[1].GetCommon().EnvNamesToLog[1]")
+	}
+}
+
+func TestGetConfigPackageDelimiterNoInheriting(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, LOG_CONFIG_INHERIT_CONFIG_ENV_NAME, "false")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+DELIMITER_PARAMETER, ":")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].formatterType")
+
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
+		testutil.AssertEquals(DEFAULT_TIME_LAYOUT, result.Formatter[1].TimeLayout(), t, "result.formatter[1].delimiter")
+		testutil.AssertEquals(0, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
+	}
+}
+
 func TestGetConfigPackageDelimiterFullQualifiedPackageName(t *testing.T) {
 	packageParameterName := "testPackage"
 	fullQualifiedPackageName := "github.com/ma-vin/typewriter/testPackage"
@@ -783,6 +885,158 @@ func TestGetConfigPackageTemplate(t *testing.T) {
 	}
 }
 
+func TestGetConfigPackageTemplateInherit(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_TEMPLATE)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_PARAMETER, "time: %s severity: %s message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CORRELATION_PARAMETER, "time: %s severity: %s correlation: %s message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CUSTOM_PARAMETER, "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CALLER_PARAMETER, "time: %s severity: %s caller:%s file:%s line:%d message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CALLER_CORRELATION_PARAMETER, "time: %s severity: %s correlation: %s caller:%s file:%s line:%d message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CALLER_CUSTOM_PARAMETER, "time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_TEMPLATE)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].IsDefault()")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter()")
+
+		for j := range 2 {
+			testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[j].FormatterType(), t, "result.formatter[j].FormatterType()")
+			testutil.AssertEquals("time: %s severity: %s message: %s", result.Formatter[j].(TemplateFormatterConfig).Template, t, "result.formatter[j].template")
+			testutil.AssertFalse(result.Formatter[j].(TemplateFormatterConfig).IsDefaultTemplate, t, "result.formatter[j].IsDefaultTemplate")
+			testutil.AssertEquals("time: %s severity: %s correlation: %s message: %s", result.Formatter[j].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[j].correlationIdTemplate")
+			testutil.AssertFalse(result.Formatter[j].(TemplateFormatterConfig).IsDefaultCorrelationIdTemplate, t, "result.formatter[j].IsDefaultCorrelationIdTemplate")
+			testutil.AssertEquals("time: %s severity: %s message: %s %s: %s %s: %d %s: %t", result.Formatter[j].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[j].customTemplate")
+			testutil.AssertFalse(result.Formatter[j].(TemplateFormatterConfig).IsDefaultCustomTemplate, t, "result.formatter[j].IsDefaultCustomTemplate")
+			testutil.AssertEquals(time.RFC1123Z, result.Formatter[j].TimeLayout(), t, "result.formatter[j].TimeLayout()")
+			testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s", result.Formatter[j].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[j].CallerTemplate")
+			testutil.AssertFalse(result.Formatter[j].(TemplateFormatterConfig).IsDefaultCallerTemplate, t, "result.formatter[j].IsDefaultCallerTemplate")
+			testutil.AssertEquals("time: %s severity: %s correlation: %s caller:%s file:%s line:%d message: %s", result.Formatter[j].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[j].CallerCorrelationIdTemplate")
+			testutil.AssertFalse(result.Formatter[j].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[j].IsDefaultCallerCorrelationIdTemplate")
+			testutil.AssertEquals("time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t", result.Formatter[j].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[j].CallerCustomTemplate")
+			testutil.AssertFalse(result.Formatter[j].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[j].IsDefaultCallerCustomTemplate")
+			testutil.AssertEquals(2, len(result.Formatter[j].GetCommon().EnvNamesToLog), t, "len(result.Formatter[j].GetCommon().EnvNamesToLog)")
+			testutil.AssertEquals("param1", result.Formatter[j].GetCommon().EnvNamesToLog[0], t, "result.Formatter[j].GetCommon().EnvNamesToLog[0]")
+			testutil.AssertEquals("param2", result.Formatter[j].GetCommon().EnvNamesToLog[1], t, "result.Formatter[j].GetCommon().EnvNamesToLog[1]")
+		}
+	}
+}
+
+func TestGetConfigPackageTemplateInheritOtherDefaultType(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_DELIMITER)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_TEMPLATE)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].IsDefault()")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[1].FormatterType(), t, "result.formatter[1].FormatterType()")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).Template, t, "result.formatter[1].template")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultTemplate, t, "result.formatter[1].IsDefaultTemplate")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CORRELATION_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[1].correlationIdTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCorrelationIdTemplate, t, "result.formatter[1].IsDefaultCorrelationIdTemplate")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CUSTOM_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[1].customTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCustomTemplate, t, "result.formatter[1].IsDefaultCustomTemplate")
+		testutil.AssertEquals(DEFAULT_TIME_LAYOUT, result.Formatter[1].TimeLayout(), t, "result.formatter[1].TimeLayout()")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CALLER_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[1].CallerTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerTemplate, t, "result.formatter[1].IsDefaultCallerTemplate")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[1].CallerCorrelationIdTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[1].IsDefaultCallerCorrelationIdTemplate")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[1].CallerCustomTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[1].IsDefaultCallerCustomTemplate")
+		testutil.AssertEquals(2, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
+		testutil.AssertEquals("param1", result.Formatter[1].GetCommon().EnvNamesToLog[0], t, "result.Formatter[1].GetCommon().EnvNamesToLog[0]")
+		testutil.AssertEquals("param2", result.Formatter[1].GetCommon().EnvNamesToLog[1], t, "result.Formatter[1].GetCommon().EnvNamesToLog[1]")
+	}
+}
+
+func TestGetConfigPackageTemplateNoInheriting(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, LOG_CONFIG_INHERIT_CONFIG_ENV_NAME, "false")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_TEMPLATE)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_PARAMETER, "time: %s severity: %s message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CORRELATION_PARAMETER, "time: %s severity: %s correlation: %s message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CUSTOM_PARAMETER, "time: %s severity: %s message: %s %s: %s %s: %d %s: %t")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CALLER_PARAMETER, "time: %s severity: %s caller:%s file:%s line:%d message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CALLER_CORRELATION_PARAMETER, "time: %s severity: %s correlation: %s caller:%s file:%s line:%d message: %s")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TEMPLATE_CALLER_CUSTOM_PARAMETER, "time: %s severity: %s caller:%s file:%s line:%d message: %s %s: %s %s: %d %s: %t")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_TEMPLATE)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertFalse(result.UseFullQualifiedPackageName, t, "result.UseFullQualifiedPackageName")
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].IsDefault()")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_TEMPLATE, result.Formatter[1].FormatterType(), t, "result.formatter[1].FormatterType()")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).Template, t, "result.formatter[1].template")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultTemplate, t, "result.formatter[1].IsDefaultTemplate")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CORRELATION_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CorrelationIdTemplate, t, "result.formatter[1].correlationIdTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCorrelationIdTemplate, t, "result.formatter[1].IsDefaultCorrelationIdTemplate")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CUSTOM_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CustomTemplate, t, "result.formatter[1].customTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCustomTemplate, t, "result.formatter[1].IsDefaultCustomTemplate")
+		testutil.AssertEquals(DEFAULT_TIME_LAYOUT, result.Formatter[1].TimeLayout(), t, "result.formatter[1].TimeLayout()")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CALLER_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CallerTemplate, t, "result.formatter[1].CallerTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerTemplate, t, "result.formatter[1].IsDefaultCallerTemplate")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CallerCorrelationIdTemplate, t, "result.formatter[1].CallerCorrelationIdTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerCorrelationIdTemplate, t, "result.formatter[1].IsDefaultCallerCorrelationIdTemplate")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE, result.Formatter[1].(TemplateFormatterConfig).CallerCustomTemplate, t, "result.formatter[1].CallerCustomTemplate")
+		testutil.AssertTrue(result.Formatter[1].(TemplateFormatterConfig).IsDefaultCallerCustomTemplate, t, "result.formatter[1].IsDefaultCallerCustomTemplate")
+		testutil.AssertEquals(0, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
+	}
+}
+
 func TestGetConfigPackageJson(t *testing.T) {
 	packageName := "testPackage"
 	packageParameter := strings.ToUpper(packageName)
@@ -848,6 +1102,152 @@ func TestGetConfigPackageJson(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
 		testutil.AssertEquals("param1", result.Formatter[1].GetCommon().EnvNamesToLog[0], t, "result.Formatter[1].GetCommon().EnvNamesToLog[0]")
 		testutil.AssertEquals("param2", result.Formatter[1].GetCommon().EnvNamesToLog[1], t, "result.Formatter[1].GetCommon().EnvNamesToLog[1]")
+	}
+}
+
+func TestGetConfigPackageJsonInherit(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_JSON)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_TIME_KEY_PARAMETER, "timing")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_SEVERITY_KEY_PARAMETER, "level")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CORRELATION_KEY_PARAMETER, "cor")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_MESSAGE_KEY_PARAMETER, "msg")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CUSTOM_VALUES_KEY_PARAMETER, "customValues")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CUSTOM_VALUES_SUB_PARAMETER, "true")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_FUNCTION_KEY_PARAMETER, "callerFunction")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_FILE_KEY_PARAMETER, "callerFile")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_LINE_KEY_PARAMETER, "callerFileLine")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_JSON)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+
+		for j := range 2 {
+			testutil.AssertEquals(FORMATTER_JSON, result.Formatter[j].FormatterType(), t, "result.formatter[j].formatterType")
+			testutil.AssertEquals("timing", result.Formatter[j].(JsonFormatterConfig).TimeKey, t, "result.formatter[j].timeKey")
+			testutil.AssertEquals("level", result.Formatter[j].(JsonFormatterConfig).SeverityKey, t, "result.formatter[j].severityKey")
+			testutil.AssertEquals("cor", result.Formatter[j].(JsonFormatterConfig).CorrelationKey, t, "result.formatter[j].correlationKey")
+			testutil.AssertEquals("msg", result.Formatter[j].(JsonFormatterConfig).MessageKey, t, "result.formatter[j].messageKey")
+			testutil.AssertEquals("customValues", result.Formatter[j].(JsonFormatterConfig).CustomValuesKey, t, "result.formatter[j].customValuesKey")
+			testutil.AssertTrue(result.Formatter[j].(JsonFormatterConfig).CustomValuesAsSubElement, t, "result.formatter[j].customValuesAsSubElement")
+			testutil.AssertEquals("callerFunction", result.Formatter[j].(JsonFormatterConfig).CallerFunctionKey, t, "result.formatter[j].CallerFunctionKey")
+			testutil.AssertEquals("callerFile", result.Formatter[j].(JsonFormatterConfig).CallerFileKey, t, "result.formatter[j].CallerFileKey")
+			testutil.AssertEquals("callerFileLine", result.Formatter[j].(JsonFormatterConfig).CallerFileLineKey, t, "result.formatter[j].CallerFileLineKey")
+			testutil.AssertEquals(time.RFC1123Z, result.Formatter[j].TimeLayout(), t, "result.formatter[j].TimeLayout()")
+			testutil.AssertEquals(2, len(result.Formatter[j].GetCommon().EnvNamesToLog), t, "len(result.Formatter[j].GetCommon().EnvNamesToLog)")
+			testutil.AssertEquals("param1", result.Formatter[j].GetCommon().EnvNamesToLog[0], t, "result.Formatter[j].GetCommon().EnvNamesToLog[0]")
+			testutil.AssertEquals("param2", result.Formatter[j].GetCommon().EnvNamesToLog[1], t, "result.Formatter[j].GetCommon().EnvNamesToLog[1]")
+		}
+	}
+}
+
+func TestGetConfigPackageJsonInheritOtherDefaultType(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_DELIMITER)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_JSON)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].formatterType")
+
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_TIME_KEY, result.Formatter[1].(JsonFormatterConfig).TimeKey, t, "result.formatter[1].timeKey")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_KEY, result.Formatter[1].(JsonFormatterConfig).SequenceKey, t, "result.formatter[1].SequenceKey")
+		testutil.AssertEquals(DEFAULT_SEVERITY_KEY, result.Formatter[1].(JsonFormatterConfig).SeverityKey, t, "result.formatter[1].severityKey")
+		testutil.AssertEquals(DEFAULT_CORRELATION_KEY, result.Formatter[1].(JsonFormatterConfig).CorrelationKey, t, "result.formatter[1].correlationKey")
+		testutil.AssertEquals(DEFAULT_MESSAGE_KEY, result.Formatter[1].(JsonFormatterConfig).MessageKey, t, "result.formatter[1].messageKey")
+		testutil.AssertEquals(DEFAULT_CUSTOM_VALUES_KEY, result.Formatter[1].(JsonFormatterConfig).CustomValuesKey, t, "result.formatter[1].customValuesKey")
+		testutil.AssertFalse(result.Formatter[1].(JsonFormatterConfig).CustomValuesAsSubElement, t, "result.formatter[1].customValuesAsSubElement")
+		testutil.AssertEquals(DEFAULT_CALLER_FUNCTION_KEY, result.Formatter[1].(JsonFormatterConfig).CallerFunctionKey, t, "result.formatter[1].CallerFunctionKey")
+		testutil.AssertEquals(DEFAULT_CALLER_FILE_KEY, result.Formatter[1].(JsonFormatterConfig).CallerFileKey, t, "result.formatter[1].CallerFileKey")
+		testutil.AssertEquals(DEFAULT_CALLER_FILE_LINE_KEY, result.Formatter[1].(JsonFormatterConfig).CallerFileLineKey, t, "result.formatter[1].CallerFileLineKey")
+		testutil.AssertEquals(DEFAULT_TIME_LAYOUT, result.Formatter[1].TimeLayout(), t, "result.formatter[1].TimeLayout()")
+		testutil.AssertEquals(2, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
+		testutil.AssertEquals("param1", result.Formatter[1].GetCommon().EnvNamesToLog[0], t, "result.Formatter[1].GetCommon().EnvNamesToLog[0]")
+		testutil.AssertEquals("param2", result.Formatter[1].GetCommon().EnvNamesToLog[1], t, "result.Formatter[1].GetCommon().EnvNamesToLog[1]")
+	}
+}
+
+func TestGetConfigPackageJsonNoInheriting(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, LOG_CONFIG_INHERIT_CONFIG_ENV_NAME, "false")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_JSON)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_TIME_KEY_PARAMETER, "timing")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_SEVERITY_KEY_PARAMETER, "level")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CORRELATION_KEY_PARAMETER, "cor")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_MESSAGE_KEY_PARAMETER, "msg")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CUSTOM_VALUES_KEY_PARAMETER, "customValues")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CUSTOM_VALUES_SUB_PARAMETER, "true")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_FUNCTION_KEY_PARAMETER, "callerFunction")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_FILE_KEY_PARAMETER, "callerFile")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+JSON_CALLER_LINE_KEY_PARAMETER, "callerFileLine")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_JSON)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Formatter), t, "len(result.formatter)")
+
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[0].FormatterType(), t, "result.formatter[0].formatterType")
+
+		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
+		testutil.AssertEquals(FORMATTER_JSON, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
+		testutil.AssertEquals(DEFAULT_TIME_KEY, result.Formatter[1].(JsonFormatterConfig).TimeKey, t, "result.formatter[1].timeKey")
+		testutil.AssertEquals(DEFAULT_SEQUENCE_KEY, result.Formatter[1].(JsonFormatterConfig).SequenceKey, t, "result.formatter[1].SequenceKey")
+		testutil.AssertEquals(DEFAULT_SEVERITY_KEY, result.Formatter[1].(JsonFormatterConfig).SeverityKey, t, "result.formatter[1].severityKey")
+		testutil.AssertEquals(DEFAULT_CORRELATION_KEY, result.Formatter[1].(JsonFormatterConfig).CorrelationKey, t, "result.formatter[1].correlationKey")
+		testutil.AssertEquals(DEFAULT_MESSAGE_KEY, result.Formatter[1].(JsonFormatterConfig).MessageKey, t, "result.formatter[1].messageKey")
+		testutil.AssertEquals(DEFAULT_CUSTOM_VALUES_KEY, result.Formatter[1].(JsonFormatterConfig).CustomValuesKey, t, "result.formatter[1].customValuesKey")
+		testutil.AssertFalse(result.Formatter[1].(JsonFormatterConfig).CustomValuesAsSubElement, t, "result.formatter[1].customValuesAsSubElement")
+		testutil.AssertEquals(DEFAULT_CALLER_FUNCTION_KEY, result.Formatter[1].(JsonFormatterConfig).CallerFunctionKey, t, "result.formatter[1].CallerFunctionKey")
+		testutil.AssertEquals(DEFAULT_CALLER_FILE_KEY, result.Formatter[1].(JsonFormatterConfig).CallerFileKey, t, "result.formatter[1].CallerFileKey")
+		testutil.AssertEquals(DEFAULT_CALLER_FILE_LINE_KEY, result.Formatter[1].(JsonFormatterConfig).CallerFileLineKey, t, "result.formatter[1].CallerFileLineKey")
+		testutil.AssertEquals(DEFAULT_TIME_LAYOUT, result.Formatter[1].TimeLayout(), t, "result.formatter[1].TimeLayout()")
+		testutil.AssertEquals(0, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
 	}
 }
 
@@ -1193,6 +1593,147 @@ func TestGetConfigPackageCronAndSizeRenamerFileAppender(t *testing.T) {
 		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[1].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[1].delimiter")
+	}
+}
+
+func TestGetConfigPackageFileAppenderInherit(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+	logFilePath := "pathToLogFile"
+	cronExpression := "* * * * *"
+	limitByteSize := "64"
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME, cronExpression)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME, limitByteSize)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
+
+		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "result.appender[0].PackageParameter")
+
+		testutil.AssertFalse(result.Appender[1].IsDefault(), t, "result.appender[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter(), t, "result.appender[1].PackageParameter")
+
+		for j := range 2 {
+			testutil.AssertEquals(APPENDER_FILE, result.Appender[j].AppenderType(), t, "result.appender[j].appenderType")
+			testutil.AssertEquals(logFilePath, result.Appender[j].(FileAppenderConfig).PathToLogFile, t, "result.appender[j].pathToLogFile")
+			testutil.AssertEquals(cronExpression, result.Appender[j].(FileAppenderConfig).CronExpression, t, "result.appender[j].CronExpression")
+			testutil.AssertEquals(limitByteSize, result.Appender[j].(FileAppenderConfig).LimitByteSize, t, "result.appender[j].LimitByteSize")
+		}
+	}
+}
+
+func TestGetConfigPackageFileAppenderInheritMissingPath(t *testing.T) {
+	packageName := "testPackage"
+	logFilePath := "pathToLogFile"
+	cronExpression := "* * * * *"
+	limitByteSize := "64"
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME, cronExpression)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME, limitByteSize)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
+
+		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "result.appender[0].PackageParameter")
+
+		testutil.AssertEquals(APPENDER_FILE, result.Appender[0].AppenderType(), t, "result.appender[0].appenderType")
+		testutil.AssertEquals(logFilePath, result.Appender[0].(FileAppenderConfig).PathToLogFile, t, "result.appender[0].pathToLogFile")
+		testutil.AssertEquals(cronExpression, result.Appender[0].(FileAppenderConfig).CronExpression, t, "result.appender[0].CronExpression")
+		testutil.AssertEquals(limitByteSize, result.Appender[0].(FileAppenderConfig).LimitByteSize, t, "result.appender[0].LimitByteSize")
+	}
+}
+
+func TestGetConfigPackageFileAppenderInheritOtherDefaultType(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+	logFilePath := "pathToLogFile"
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
+
+		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "result.appender[0].PackageParameter")
+		testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType(), t, "result.appender[1].appenderType")
+
+		testutil.AssertFalse(result.Appender[1].IsDefault(), t, "result.appender[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter(), t, "result.appender[1].PackageParameter")
+		testutil.AssertEquals(APPENDER_FILE, result.Appender[1].AppenderType(), t, "result.appender[1].appenderType")
+		testutil.AssertEquals(logFilePath, result.Appender[1].(FileAppenderConfig).PathToLogFile, t, "result.appender[1].pathToLogFile")
+		testutil.AssertEquals("", result.Appender[1].(FileAppenderConfig).CronExpression, t, "result.appender[1].CronExpression")
+		testutil.AssertEquals("", result.Appender[1].(FileAppenderConfig).LimitByteSize, t, "result.appender[1].LimitByteSize")
+	}
+}
+
+func TestGetConfigPackageFileAppenderNoInheriting(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+	logFilePath := "pathToLogFile"
+	cronExpression := "* * * * *"
+	limitByteSize := "64"
+
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, LOG_CONFIG_INHERIT_CONFIG_ENV_NAME, "false")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_FILE)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME, logFilePath)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME, cronExpression)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME, limitByteSize)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_PROPERTY_NAME+packageName, APPENDER_FILE)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME+packageName, logFilePath)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Appender), t, "len(result.appender)")
+
+		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
+		testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "result.appender[0].PackageParameter")
+		testutil.AssertEquals(APPENDER_FILE, result.Appender[0].AppenderType(), t, "result.appender[1].appenderType")
+
+		testutil.AssertFalse(result.Appender[1].IsDefault(), t, "result.appender[1].isDefault")
+		testutil.AssertEquals(packageParameter, result.Appender[1].PackageParameter(), t, "result.appender[1].PackageParameter")
+		testutil.AssertEquals(APPENDER_FILE, result.Appender[1].AppenderType(), t, "result.appender[1].appenderType")
+		testutil.AssertEquals(logFilePath, result.Appender[1].(FileAppenderConfig).PathToLogFile, t, "result.appender[1].pathToLogFile")
+		testutil.AssertEquals("", result.Appender[1].(FileAppenderConfig).CronExpression, t, "result.appender[1].CronExpression")
+		testutil.AssertEquals("", result.Appender[1].(FileAppenderConfig).LimitByteSize, t, "result.appender[1].LimitByteSize")
 	}
 }
 

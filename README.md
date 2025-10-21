@@ -147,6 +147,11 @@ The table shows the corresponding variable names for the example package *logger
 
 If `TYPEWRITER_PACKAGE_LOG_PACKAGE_<identifier>` is not defined but an other package specific element. The `identifier` in lower case will be used as package name instead.
 
+#### Inheriting configuration parameters
+
+By setting the property `TYPEWRITER_INHERIT_CONFIG` with a boolean value it is possible to activate inheriting general parameters at package specific appenders and formatters. By default this functionality is activated.
+The package-specific appender must still define a target file and is not inherited.
+
 ### Custom appender and formatter
 
 It is possible to register or deregister custom appender and formatter together with their configuration provider.

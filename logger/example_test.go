@@ -366,3 +366,90 @@ func ExampleLog_callerWithIndexedTemplate() {
 	// time:2024-11-25T08:30:00Z, severity:ERROR, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:362 sequence:1 msg:Error will be printed
 	// time:2024-11-25T08:30:00Z, severity:FATAL, caller:github.com/ma-vin/typewriter/logger.ExampleLog_callerWithIndexedTemplate line:363 sequence:2 msg:Fatal will be printed
 }
+
+func ExampleLog_inheritFormatterParameter() {
+	// Clear test environment
+	os.Clearenv()
+	Reset()
+	// use fixed time for output compare
+	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
+	common.SetLogValuesMockTime(&mockTime)
+
+	// Example begin
+	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "JSON")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_TIME_KEY", "the_time")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_SEQUENCE_KEY", "seq")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_SEVERITY_KEY", "log_level")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CORRELATION_KEY", "correlation_id")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_MESSAGE_KEY", "msg")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CUSTOM_VALUES_KEY", "my_values")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CUSTOM_VALUES_SUB", "true")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TIME_LAYOUT", time.RFC822)
+
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_PACKAGE_LOGGER", "logger")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_LOGGER", "JSON")
+	// Override two parameters
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER_TIME_LAYOUT", time.RFC850)
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER_JSON_CUSTOM_VALUES_SUB", "false")
+
+	customValueMap := make(map[string]any, 3)
+	customValueMap["b"] = true
+	customValueMap["c"] = 1.2
+	customValueMap["a"] = "firstEntry"
+
+	Log().Debug("Debug will not be printed")
+	Log().Information("Information will not be printed")
+	Log().Warning("Warning will be printed")
+	Log().ErrorWithCorrelation("CorrelationId123", "Error will be printed")
+	Log().FatalCustom(customValueMap, "Fatal will be printed")
+
+	// Output:
+	// {"log_level":"WARN","msg":"Warning will be printed","seq":1,"the_time":"Monday, 25-Nov-24 08:30:00 DE"}
+	// {"correlation_id":"CorrelationId123","log_level":"ERROR","msg":"Error will be printed","seq":2,"the_time":"Monday, 25-Nov-24 08:30:00 DE"}
+	// {"a":"firstEntry","b":true,"c":1.2,"log_level":"FATAL","msg":"Fatal will be printed","seq":3,"the_time":"Monday, 25-Nov-24 08:30:00 DE"}
+}
+
+func ExampleLog_notInheritFormatterParameter() {
+	// Clear test environment
+	os.Clearenv()
+	Reset()
+	// use fixed time for output compare
+	mockTime := time.Date(2024, 11, 25, 8, 30, 0, 0, time.FixedZone("DE", 0))
+	common.SetLogValuesMockTime(&mockTime)
+
+	// Example begin
+	os.Setenv("TYPEWRITER_INHERIT_CONFIG", "false")
+	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "JSON")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_TIME_KEY", "the_time")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_SEQUENCE_KEY", "seq")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_SEVERITY_KEY", "log_level")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CORRELATION_KEY", "correlation_id")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_MESSAGE_KEY", "msg")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CUSTOM_VALUES_KEY", "my_values")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_JSON_CUSTOM_VALUES_SUB", "true")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TIME_LAYOUT", time.RFC822)
+
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_PACKAGE_LOGGER", "logger")
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_LOGGER", "JSON")
+	// Override two parameters. The others are set with default values and not the general parameters above
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER_TIME_LAYOUT", time.RFC850)
+	os.Setenv("TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_LOGGER_JSON_CUSTOM_VALUES_SUB", "false")
+
+	customValueMap := make(map[string]any, 3)
+	customValueMap["b"] = true
+	customValueMap["c"] = 1.2
+	customValueMap["a"] = "firstEntry"
+
+	Log().Debug("Debug will not be printed")
+	Log().Information("Information will not be printed")
+	Log().Warning("Warning will be printed")
+	Log().ErrorWithCorrelation("CorrelationId123", "Error will be printed")
+	Log().FatalCustom(customValueMap, "Fatal will be printed")
+
+	// Output:
+	// {"message":"Warning will be printed","sequence":1,"severity":"WARN","time":"Monday, 25-Nov-24 08:30:00 DE"}
+	// {"correlation":"CorrelationId123","message":"Error will be printed","sequence":2,"severity":"ERROR","time":"Monday, 25-Nov-24 08:30:00 DE"}
+	// {"a":"firstEntry","b":true,"c":1.2,"message":"Fatal will be printed","sequence":3,"severity":"FATAL","time":"Monday, 25-Nov-24 08:30:00 DE"}
+}

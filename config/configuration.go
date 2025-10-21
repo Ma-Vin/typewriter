@@ -66,6 +66,7 @@ const (
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME           = "TYPEWRITER_LOG_CALLER"
 	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME     = "TYPEWRITER_PACKAGE_FULL_QUALIFIED"
 	LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME = "TYPEWRITER_CONTEXT_CORRELATION_ID_KEY"
+	LOG_CONFIG_INHERIT_CONFIG_ENV_NAME             = "TYPEWRITER_INHERIT_CONFIG"
 
 	LOG_LEVEL_DEBUG       = "DEBUG"
 	LOG_LEVEL_INFO        = "INFO"
@@ -115,6 +116,7 @@ const (
 )
 
 var configInitialized = false
+var inheritConfig = true
 var config Config
 var configCreationMu = sync.Mutex{}
 
@@ -141,6 +143,7 @@ var relevantKeyPrefixes = []string{
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
 	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
 	LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME,
+	LOG_CONFIG_INHERIT_CONFIG_ENV_NAME,
 }
 
 // map containing creator functions of configurations of formatter
@@ -176,6 +179,7 @@ func GetConfig() *Config {
 		relevantKeyValues = map[string]string{}
 	}
 	if len(relevantKeyValues) > 0 {
+		inheritConfig = getBoolValueFromMapOrDefault(&relevantKeyValues, LOG_CONFIG_INHERIT_CONFIG_ENV_NAME, true)
 		createFormatterConfig(&relevantKeyValues)
 		createAppenderConfig(&relevantKeyValues)
 		createLoggerConfig(&relevantKeyValues)
@@ -209,6 +213,7 @@ func ResetRegisteredAppenderAndFormatterConfigs() {
 		LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
 		LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
 		LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME,
+		LOG_CONFIG_INHERIT_CONFIG_ENV_NAME,
 	}
 
 	initializeRegisteredAppenderConfigs()
@@ -403,8 +408,8 @@ func createFileAppenderConfig(relevantKeyValues *map[string]string, commonAppend
 		var result AppenderConfig = FileAppenderConfig{
 			Common:         commonAppenderConfig,
 			PathToLogFile:  fileValue,
-			CronExpression: getValueFromMapOrDefault(relevantKeyValues, cronParameterKey, ""),
-			LimitByteSize:  getValueFromMapOrDefault(relevantKeyValues, sizeParameterKey, ""),
+			CronExpression: getValueFromMapInheritOrDefault(relevantKeyValues, cronParameterKey, DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME, ""),
+			LimitByteSize:  getValueFromMapInheritOrDefault(relevantKeyValues, sizeParameterKey, DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME, ""),
 		}
 		return &result, nil
 	}
@@ -547,9 +552,9 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 		FormatterType:    getValueFromMapOrDefault(relevantKeyValues, formatterKey, FORMATTER_DELIMITER),
 		IsDefault:        len(packageParameter) == 0,
 		PackageParameter: packageParameter,
-		TimeLayout:       getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT),
-		IsSequenceActive: getBoolValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_SEQUENCE_ACTIVE),
-		EnvNamesToLog:    determineStaticEnvNames(relevantKeyValues, formatterParameterKey+STATIC_ENV_NAMES),
+		TimeLayout:       getValueFromMapInheritOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT),
+		IsSequenceActive: getBoolValueFromMapInheritOrDefault(relevantKeyValues, formatterParameterKey+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_SEQUENCE_ACTIVE),
+		EnvNamesToLog:    determineStaticEnvNames(relevantKeyValues, formatterParameterKey+STATIC_ENV_NAMES, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES),
 	}
 
 	if creator, exist := registeredFormatterConfigs[commonFormatterConfig.FormatterType]; exist {
@@ -565,11 +570,18 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 	return nil
 }
 
-func determineStaticEnvNames(relevantKeyValues *map[string]string, envName string) []string {
+func determineStaticEnvNames(relevantKeyValues *map[string]string, envName string, alternativeEnvName string) []string {
 	staticEnvNames, found := (*relevantKeyValues)[envName]
-	if !found || staticEnvNames == "" {
+	notFoundOrEmpty := !found || staticEnvNames == ""
+	if notFoundOrEmpty && !inheritConfig {
 		return make([]string, 0)
+	} else if notFoundOrEmpty && inheritConfig {
+		staticEnvNames, found = (*relevantKeyValues)[alternativeEnvName]
+		if !found || staticEnvNames == "" {
+			return make([]string, 0)
+		}
 	}
+
 	result := strings.Split(staticEnvNames, ",")
 	for i, s := range result {
 		result[i] = strings.TrimSpace(s)
@@ -588,7 +600,7 @@ func createDelimiterFormatterConfig(relevantKeyValues *map[string]string, common
 
 	var result FormatterConfig = DelimiterFormatterConfig{
 		Common:    commonFormatterConfig,
-		Delimiter: getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+DELIMITER_PARAMETER, DEFAULT_DELIMITER),
+		Delimiter: getValueFromMapInheritOrDefault(relevantKeyValues, formatterParameterKey+DELIMITER_PARAMETER, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+DELIMITER_PARAMETER, DEFAULT_DELIMITER),
 	}
 
 	return &result, nil
@@ -596,60 +608,65 @@ func createDelimiterFormatterConfig(relevantKeyValues *map[string]string, common
 
 // Creates a template formatter configuration
 func createTemplateFormatterConfig(relevantKeyValues *map[string]string, commonFormatterConfig *CommonFormatterConfig) (*FormatterConfig, error) {
-	var formatterParameterKey string
+	var keyPrefix string
+	defaultKeyPrefix := DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
 	if len(commonFormatterConfig.PackageParameter) > 0 {
-		formatterParameterKey = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + commonFormatterConfig.PackageParameter
+		keyPrefix = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + commonFormatterConfig.PackageParameter
 	} else {
-		formatterParameterKey = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
+		keyPrefix = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
 	}
 
 	var result FormatterConfig = TemplateFormatterConfig{
 		Common:                               commonFormatterConfig,
-		Template:                             getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE, DEFAULT_SEQUENCE_TEMPLATE),
-		IsDefaultTemplate:                    !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_PARAMETER),
-		CorrelationIdTemplate:                getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CORRELATION_TEMPLATE),
-		IsDefaultCorrelationIdTemplate:       !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CORRELATION_PARAMETER),
-		CustomTemplate:                       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CUSTOM_TEMPLATE),
-		IsDefaultCustomTemplate:              !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CUSTOM_PARAMETER),
-		TrimSeverityText:                     getBoolValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY),
-		CallerTemplate:                       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE, DEFAULT_SEQUENCE_CALLER_TEMPLATE),
-		IsDefaultCallerTemplate:              !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_PARAMETER),
-		CallerCorrelationIdTemplate:          getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE),
-		IsDefaultCallerCorrelationIdTemplate: !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CORRELATION_PARAMETER),
-		CallerCustomTemplate:                 getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE),
-		IsDefaultCallerCustomTemplate:        !existsKeyAtMap(relevantKeyValues, formatterParameterKey+TEMPLATE_CALLER_CUSTOM_PARAMETER),
+		Template:                             getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, keyPrefix+TEMPLATE_PARAMETER, defaultKeyPrefix+TEMPLATE_PARAMETER, DEFAULT_TEMPLATE, DEFAULT_SEQUENCE_TEMPLATE),
+		IsDefaultTemplate:                    !existsKeyAtMap(relevantKeyValues, keyPrefix+TEMPLATE_PARAMETER, defaultKeyPrefix+TEMPLATE_PARAMETER),
+		CorrelationIdTemplate:                getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, keyPrefix+TEMPLATE_CORRELATION_PARAMETER, defaultKeyPrefix+TEMPLATE_CORRELATION_PARAMETER, DEFAULT_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CORRELATION_TEMPLATE),
+		IsDefaultCorrelationIdTemplate:       !existsKeyAtMap(relevantKeyValues, keyPrefix+TEMPLATE_CORRELATION_PARAMETER, defaultKeyPrefix+TEMPLATE_CORRELATION_PARAMETER),
+		CustomTemplate:                       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, keyPrefix+TEMPLATE_CUSTOM_PARAMETER, defaultKeyPrefix+TEMPLATE_CUSTOM_PARAMETER, DEFAULT_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CUSTOM_TEMPLATE),
+		IsDefaultCustomTemplate:              !existsKeyAtMap(relevantKeyValues, keyPrefix+TEMPLATE_CUSTOM_PARAMETER, defaultKeyPrefix+TEMPLATE_CUSTOM_PARAMETER),
+		TrimSeverityText:                     getBoolValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+TEMPLATE_TRIM_SEVERITY_PARAMETER, defaultKeyPrefix+TEMPLATE_TRIM_SEVERITY_PARAMETER, DEFAULT_TRIM_SEVERITY),
+		CallerTemplate:                       getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, keyPrefix+TEMPLATE_CALLER_PARAMETER, defaultKeyPrefix+TEMPLATE_CALLER_PARAMETER, DEFAULT_CALLER_TEMPLATE, DEFAULT_SEQUENCE_CALLER_TEMPLATE),
+		IsDefaultCallerTemplate:              !existsKeyAtMap(relevantKeyValues, keyPrefix+TEMPLATE_CALLER_PARAMETER, defaultKeyPrefix+TEMPLATE_CALLER_PARAMETER),
+		CallerCorrelationIdTemplate:          getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, keyPrefix+TEMPLATE_CALLER_CORRELATION_PARAMETER, defaultKeyPrefix+TEMPLATE_CALLER_CORRELATION_PARAMETER, DEFAULT_CALLER_CORRELATION_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE),
+		IsDefaultCallerCorrelationIdTemplate: !existsKeyAtMap(relevantKeyValues, keyPrefix+TEMPLATE_CALLER_CORRELATION_PARAMETER, defaultKeyPrefix+TEMPLATE_CALLER_CORRELATION_PARAMETER),
+		CallerCustomTemplate:                 getValueFromMapOrDefaultForTemplate(commonFormatterConfig.IsSequenceActive, relevantKeyValues, keyPrefix+TEMPLATE_CALLER_CUSTOM_PARAMETER, defaultKeyPrefix+TEMPLATE_CALLER_CUSTOM_PARAMETER, DEFAULT_CALLER_CUSTOM_TEMPLATE, DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE),
+		IsDefaultCallerCustomTemplate:        !existsKeyAtMap(relevantKeyValues, keyPrefix+TEMPLATE_CALLER_CUSTOM_PARAMETER, defaultKeyPrefix+TEMPLATE_CALLER_CUSTOM_PARAMETER),
 	}
 
 	return &result, nil
 }
 
-// Checks existence of a key at a given map
-func existsKeyAtMap(source *map[string]string, key string) bool {
+// Checks existence of a key at a given map. If there is none and inheriting is active, the alternative key is check.
+func existsKeyAtMap(source *map[string]string, key string, alternativeKey string) bool {
 	_, found := (*source)[key]
+	if inheritConfig && !found {
+		_, found = (*source)[alternativeKey]
+	}
 	return found
 }
 
 // Creates a json formatter configuration
 func createJsonFormatterConfig(relevantKeyValues *map[string]string, commonFormatterConfig *CommonFormatterConfig) (*FormatterConfig, error) {
-	var formatterParameterKey string
+	var keyPrefix string
+	defaultKeyPrefix := DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
 	if len(commonFormatterConfig.PackageParameter) > 0 {
-		formatterParameterKey = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + commonFormatterConfig.PackageParameter
+		keyPrefix = PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME + commonFormatterConfig.PackageParameter
 	} else {
-		formatterParameterKey = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
+		keyPrefix = DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME
 	}
 
 	var result FormatterConfig = JsonFormatterConfig{
 		Common:                   commonFormatterConfig,
-		TimeKey:                  getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_TIME_KEY_PARAMETER, DEFAULT_TIME_KEY),
-		SequenceKey:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_SEQUENCE_KEY_PARAMETER, DEFAULT_SEQUENCE_KEY),
-		SeverityKey:              getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_SEVERITY_KEY_PARAMETER, DEFAULT_SEVERITY_KEY),
-		CorrelationKey:           getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CORRELATION_KEY_PARAMETER, DEFAULT_CORRELATION_KEY),
-		MessageKey:               getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_MESSAGE_KEY_PARAMETER, DEFAULT_MESSAGE_KEY),
-		CustomValuesKey:          getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_KEY_PARAMETER, DEFAULT_CUSTOM_VALUES_KEY),
-		CustomValuesAsSubElement: getBoolValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT),
-		CallerFunctionKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FUNCTION_KEY_PARAMETER, DEFAULT_CALLER_FUNCTION_KEY),
-		CallerFileKey:            getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_FILE_KEY_PARAMETER, DEFAULT_CALLER_FILE_KEY),
-		CallerFileLineKey:        getValueFromMapOrDefault(relevantKeyValues, formatterParameterKey+JSON_CALLER_LINE_KEY_PARAMETER, DEFAULT_CALLER_FILE_LINE_KEY),
+		TimeKey:                  getValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_TIME_KEY_PARAMETER, defaultKeyPrefix+JSON_TIME_KEY_PARAMETER, DEFAULT_TIME_KEY),
+		SequenceKey:              getValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_SEQUENCE_KEY_PARAMETER, defaultKeyPrefix+JSON_SEQUENCE_KEY_PARAMETER, DEFAULT_SEQUENCE_KEY),
+		SeverityKey:              getValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_SEVERITY_KEY_PARAMETER, defaultKeyPrefix+JSON_SEVERITY_KEY_PARAMETER, DEFAULT_SEVERITY_KEY),
+		CorrelationKey:           getValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_CORRELATION_KEY_PARAMETER, defaultKeyPrefix+JSON_CORRELATION_KEY_PARAMETER, DEFAULT_CORRELATION_KEY),
+		MessageKey:               getValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_MESSAGE_KEY_PARAMETER, defaultKeyPrefix+JSON_MESSAGE_KEY_PARAMETER, DEFAULT_MESSAGE_KEY),
+		CustomValuesKey:          getValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_CUSTOM_VALUES_KEY_PARAMETER, defaultKeyPrefix+JSON_CUSTOM_VALUES_KEY_PARAMETER, DEFAULT_CUSTOM_VALUES_KEY),
+		CustomValuesAsSubElement: getBoolValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_CUSTOM_VALUES_SUB_PARAMETER, defaultKeyPrefix+JSON_CUSTOM_VALUES_SUB_PARAMETER, DEFAULT_CUSTOM_AS_SUB_ELEMENT),
+		CallerFunctionKey:        getValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_CALLER_FUNCTION_KEY_PARAMETER, defaultKeyPrefix+JSON_CALLER_FUNCTION_KEY_PARAMETER, DEFAULT_CALLER_FUNCTION_KEY),
+		CallerFileKey:            getValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_CALLER_FILE_KEY_PARAMETER, defaultKeyPrefix+JSON_CALLER_FILE_KEY_PARAMETER, DEFAULT_CALLER_FILE_KEY),
+		CallerFileLineKey:        getValueFromMapInheritOrDefault(relevantKeyValues, keyPrefix+JSON_CALLER_LINE_KEY_PARAMETER, defaultKeyPrefix+JSON_CALLER_LINE_KEY_PARAMETER, DEFAULT_CALLER_FILE_LINE_KEY),
 	}
 
 	return &result, nil
@@ -786,6 +803,14 @@ func getValueFromMapOrDefault(source *map[string]string, key string, defaultValu
 	return defaultValue
 }
 
+// Returns the value from a map for a given key. If there is none and inheriting is active, the alternative key is check. At least the default will be returned
+func getValueFromMapInheritOrDefault(source *map[string]string, key string, alternativeKey string, defaultValue string) string {
+	if inheritConfig {
+		return getValueFromMapOrDefault(source, key, getValueFromMapOrDefault(source, alternativeKey, defaultValue))
+	}
+	return getValueFromMapOrDefault(source, key, defaultValue)
+}
+
 // Returns the boolean value from a map for a given key. If there is none, the default will be returned
 func getBoolValueFromMapOrDefault(source *map[string]string, key string, defaultValue bool) bool {
 	value, found := (*source)[key]
@@ -795,12 +820,20 @@ func getBoolValueFromMapOrDefault(source *map[string]string, key string, default
 	return defaultValue
 }
 
-// the same like getValueFromMapOrDefault but with different default values for active sequence indicator
-func getValueFromMapOrDefaultForTemplate(isSequenceActive bool, source *map[string]string, key string, defaultValue string, defaultSequenceValue string) string {
+// Returns the boolean value from a map for a given key. If there is none and inheriting is active, the alternative key is check. At least the default will be returned
+func getBoolValueFromMapInheritOrDefault(source *map[string]string, key string, alternativeKey string, defaultValue bool) bool {
+	if inheritConfig {
+		return getBoolValueFromMapOrDefault(source, key, getBoolValueFromMapOrDefault(source, alternativeKey, defaultValue))
+	}
+	return getBoolValueFromMapOrDefault(source, key, defaultValue)
+}
+
+// the same like getValueFromMapInheritOrDefault but with different default values for active sequence indicator
+func getValueFromMapOrDefaultForTemplate(isSequenceActive bool, source *map[string]string, key string, alternativeKey string, defaultValue string, defaultSequenceValue string) string {
 	if isSequenceActive {
-		return getValueFromMapOrDefault(source, key, defaultSequenceValue)
+		return getValueFromMapInheritOrDefault(source, key, alternativeKey, defaultSequenceValue)
 	} else {
-		return getValueFromMapOrDefault(source, key, defaultValue)
+		return getValueFromMapInheritOrDefault(source, key, alternativeKey, defaultValue)
 	}
 }
 
