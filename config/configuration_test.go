@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -151,6 +152,58 @@ func TestGetConfigNonExistingFile(t *testing.T) {
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
 	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
+}
+
+func TestGetConfigDefaultFile(t *testing.T) {
+	os.Clearenv()
+
+	executable, err := os.Executable()
+	testutil.AssertNil(err, t, "err of os.Executable()")
+
+	dir, _ := filepath.Split(executable)
+	testutil.AssertTrue(len(dir) > 0, t, "len(dir)")
+
+	pathToPropertiesFile := filepath.Join(dir, LOG_CONFIG_FILE_DEFAULT_NAME)
+	propertiesFile, err := os.Create(pathToPropertiesFile)
+	testutil.AssertNil(err, t, "os.Create")
+
+	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_LEVEL_PROPERTY_NAME, LOG_LEVEL_INFO)
+	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_APPENDER_PROPERTY_NAME, APPENDER_STDOUT)
+	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, FORMATTER_DELIMITER)
+	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+DELIMITER_PARAMETER, ":")
+	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
+	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+	propertiesFile.Close()
+
+	configInitialized = false
+
+	result := GetConfig()
+
+	testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
+	testutil.AssertTrue(result.Logger[0].IsDefault(), t, "result.logger[0].isDefault")
+	testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
+	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
+	testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
+	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
+
+	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
+	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
+	testutil.AssertEquals("", result.Appender[0].PackageParameter(), t, "result.appender[0].PackageParameter")
+	testutil.AssertEquals(APPENDER_STDOUT, result.Appender[0].AppenderType(), t, "result.appender[0].appenderType")
+
+	testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
+	testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
+	testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
+	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
+	testutil.AssertEquals(":", result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+	testutil.AssertEquals(time.RFC1123Z, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
+	testutil.AssertEquals(2, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
+	testutil.AssertEquals("param1", result.Formatter[0].GetCommon().EnvNamesToLog[0], t, "result.Formatter[0].GetCommon().EnvNamesToLog[0]")
+	testutil.AssertEquals("param2", result.Formatter[0].GetCommon().EnvNamesToLog[1], t, "result.Formatter[0].GetCommon().EnvNamesToLog[1]")
+
+	if _, err := os.Stat(pathToPropertiesFile); err == nil {
+		testutil.AssertNil(os.Remove(pathToPropertiesFile), t, "os.Remove(pathToPropertiesFile)")
+	}
 }
 
 func TestGetConfigCaller(t *testing.T) {

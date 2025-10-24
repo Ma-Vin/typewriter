@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
@@ -113,6 +114,8 @@ const (
 	DEFAULT_CALLER_FILE_LINE_KEY                 = "line"
 	DEFAULT_TIME_LAYOUT                          = time.RFC3339
 	DEFAULT_CONTEXT_CORRELATION_ID_KEY           = "correlationId"
+
+	LOG_CONFIG_FILE_DEFAULT_NAME = "typewriter.properties"
 )
 
 var configInitialized = false
@@ -175,6 +178,8 @@ func GetConfig() *Config {
 		relevantKeyValues = determineRelevantPropertyFileKeyValues()
 	} else if deriveConfigFromEnv() {
 		relevantKeyValues = determineRelevantEnvKeyValues()
+	} else if deriveFromFileAtExecutableDir() {
+		relevantKeyValues = determineRelevantPropertyFileKeyValues()
 	} else {
 		relevantKeyValues = map[string]string{}
 	}
@@ -237,6 +242,30 @@ func deriveConfigFromFile() bool {
 func deriveConfigFromEnv() bool {
 	return existsAnyAtEnv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME) ||
 		existsAnyPrefixAtEnv(PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
+}
+
+// Check if there exists a file with the default configuration name at the executables folder.
+// If the result is true, the absolute path is set in the environment variable which contains a path to the configuration file
+func deriveFromFileAtExecutableDir() bool {
+	executable, err := os.Executable()
+	if err != nil {
+		return false
+	}
+	dir, _ := filepath.Split(executable)
+	dirEntries, err := os.ReadDir(dir)
+	if err != nil {
+		return false
+	}
+	for _, entry := range dirEntries {
+		if entry.IsDir() {
+			continue
+		}
+		if strings.ToLower(entry.Name()) == LOG_CONFIG_FILE_DEFAULT_NAME {
+			os.Setenv(LOG_CONFIG_FILE_ENV_NAME, filepath.Join(dir, entry.Name()))
+			return true
+		}
+	}
+	return false
 }
 
 // Checks if least one entry environment variables matches at least one entry of a given list of environment variables names

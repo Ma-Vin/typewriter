@@ -51,6 +51,10 @@ To use a configuration file by setting an environment variable `TYPEWRITER_CONFI
 If this environment variable is set, all others will be ignored. Nevertheless, the same property names are used by both.
 It is possible to use single line comments `#`,`//` or `--` and multiline comments with begin at `/*` and end at `*/`.
 
+If the configuration is not loaded by environment variables or `TYPEWRITER_CONFIG_FILE`.
+The directory of the executable (Determined by `os.Executable()` with all its limitations) is checked for existence of a file with name `typewriter.properties`.
+If there exists one, its absolute path is set in the environment variable `TYPEWRITER_CONFIG_FILE` and the config will be load via `Configuration by file`.
+
 #### Log levels
 
 The log level can be set via `TYPEWRITER_LOG_LEVEL` with one of the following values:
