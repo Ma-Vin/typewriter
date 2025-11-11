@@ -318,9 +318,9 @@ func ExampleLog_templateFormatCustomTemplates() {
 	// Example begin
 	os.Setenv("TYPEWRITER_LOG_LEVEL", "WARN")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "TEMPLATE")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE", "time=[%s], severity=[%s], msg=[%s]")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CORRELATION", "time=[%[1]s], severity=[%[2]s], msg=[%[4]s] correlation[%[3]s]")
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CUSTOM", "time=[%s], severity=[%s], msg=[%s], %s=[%s], %s=[%t], %s=[%g]")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE", "time=[$time], severity=[$sev], msg=[$msg]")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CORRELATION", "time=[$time], severity=[$sev], msg=[$msg] correlation[$corr]")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CUSTOM", "time=[$time], severity=[$sev], msg=[$msg], $cust_k0=[$cust_v0[s]], $cust_k1=[$cust_v1[t]], $cust_k2=[$cust_v2[g]]")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TIME_LAYOUT", time.RFC822)
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_SEQUENCE_ACTIVE", "false")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_TRIM_SEVERITY", "true")
@@ -354,7 +354,7 @@ func ExampleLog_callerWithIndexedTemplate() {
 	os.Setenv("TYPEWRITER_LOG_CALLER", "true")
 	os.Setenv("TYPEWRITER_LOG_FORMATTER_TYPE", "TEMPLATE")
 	// Ignore file, because the system depended path can not compared
-	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CALLER", "time:%[1]s, severity:%[3]s, caller:%[4]s line:%[6]d sequence:%[2]d msg:%[7]s")
+	os.Setenv("TYPEWRITER_LOG_FORMATTER_PARAMETER_TEMPLATE_CALLER", "time:$time, severity:$sev, caller:$func line:$line sequence:$seq msg:$msg")
 
 	Log().Debug("Debug will not be printed")
 	Log().Information("Information will not be printed")

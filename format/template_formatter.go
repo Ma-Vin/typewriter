@@ -3,10 +3,38 @@ package format
 import (
 	"fmt"
 	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/ma-vin/typewriter/common"
 	"github.com/ma-vin/typewriter/config"
 )
+
+// template formatter placeholder
+const (
+	PLACEHOLDER_CALLER_FUNCTION  = "$func"
+	PLACEHOLDER_CALLER_FILE      = "$file"
+	PLACEHOLDER_CALLER_FILE_LINE = "$line"
+	PLACEHOLDER_CORRELATION      = "$corr"
+	PLACEHOLDER_CUSTOM_VALUES    = "$cust"
+	PLACEHOLDER_ENV_VALUES       = "$env"
+	PLACEHOLDER_MSG              = "$msg"
+	PLACEHOLDER_SEQUENCE         = "$seq"
+	PLACEHOLDER_SEVERITY         = "$sev"
+	PLACEHOLDER_TIME             = "$time"
+)
+
+// map with replacement verbs for template formatter placeholders
+var replacements map[string]string = map[string]string{
+	PLACEHOLDER_CALLER_FUNCTION:  "s",
+	PLACEHOLDER_CALLER_FILE:      "s",
+	PLACEHOLDER_CALLER_FILE_LINE: "d",
+	PLACEHOLDER_CORRELATION:      "s",
+	PLACEHOLDER_MSG:              "s",
+	PLACEHOLDER_SEQUENCE:         "d",
+	PLACEHOLDER_SEVERITY:         "s",
+	PLACEHOLDER_TIME:             "s",
+}
 
 // Formatter which uses given different templates for Format, FormatWithCorrelation and FormatCustom
 // The templates will be used in combination with [fmt.Sprintf]
@@ -78,6 +106,8 @@ func CreateTemplateFormatterFromConfig(formatterConfig *config.FormatterConfig) 
 	appendEnvNameValue(&result.customTemplate, &result.commonProperties.envNamesToLog, result.isDefaultCustomTemplate)
 	appendEnvNameValue(&result.callerCustomTemplate, &result.commonProperties.envNamesToLog, result.isDefaultCallerCustomTemplate)
 
+	adjustTemplates(&result)
+
 	var resultFormatter Formatter = result
 	return &resultFormatter, nil
 }
@@ -87,7 +117,172 @@ func appendEnvNameValue(template *string, envNamesToLog *[]string, isDefault boo
 		return
 	}
 	for i := 0; i < len(*envNamesToLog); i++ {
-		*template += " [%s]: %v"
+		*template += fmt.Sprintf(" ["+PLACEHOLDER_ENV_VALUES+"_k%[1]d]: "+PLACEHOLDER_ENV_VALUES+"_v%[1]d", i)
+	}
+}
+
+// Adjust all templates at formatter by replacing template formatter placeholders with go known verbs
+func adjustTemplates(formatter *TemplateFormatter) {
+	if formatter.isSequenceActive {
+		adjustTemplate(formatter, &formatter.template, PLACEHOLDER_TIME, PLACEHOLDER_SEQUENCE, PLACEHOLDER_SEVERITY, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.callerTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEQUENCE, PLACEHOLDER_SEVERITY, PLACEHOLDER_CALLER_FUNCTION, PLACEHOLDER_CALLER_FILE, PLACEHOLDER_CALLER_FILE_LINE, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.correlationIdTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEQUENCE, PLACEHOLDER_SEVERITY, PLACEHOLDER_CORRELATION, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.callerCorrelationIdTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEQUENCE, PLACEHOLDER_SEVERITY, PLACEHOLDER_CORRELATION, PLACEHOLDER_CALLER_FUNCTION, PLACEHOLDER_CALLER_FILE, PLACEHOLDER_CALLER_FILE_LINE, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.customTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEQUENCE, PLACEHOLDER_SEVERITY, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.callerCustomTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEQUENCE, PLACEHOLDER_SEVERITY, PLACEHOLDER_CALLER_FUNCTION, PLACEHOLDER_CALLER_FILE, PLACEHOLDER_CALLER_FILE_LINE, PLACEHOLDER_MSG)
+	} else {
+		adjustTemplate(formatter, &formatter.template, PLACEHOLDER_TIME, PLACEHOLDER_SEVERITY, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.callerTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEVERITY, PLACEHOLDER_CALLER_FUNCTION, PLACEHOLDER_CALLER_FILE, PLACEHOLDER_CALLER_FILE_LINE, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.correlationIdTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEVERITY, PLACEHOLDER_CORRELATION, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.callerCorrelationIdTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEVERITY, PLACEHOLDER_CORRELATION, PLACEHOLDER_CALLER_FUNCTION, PLACEHOLDER_CALLER_FILE, PLACEHOLDER_CALLER_FILE_LINE, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.customTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEVERITY, PLACEHOLDER_MSG)
+		adjustTemplate(formatter, &formatter.callerCustomTemplate, PLACEHOLDER_TIME, PLACEHOLDER_SEVERITY, PLACEHOLDER_CALLER_FUNCTION, PLACEHOLDER_CALLER_FILE, PLACEHOLDER_CALLER_FILE_LINE, PLACEHOLDER_MSG)
+	}
+}
+
+// Adjust a template by replacing template formatter placeholders with go known verbs
+func adjustTemplate(formatter *TemplateFormatter, template *string, placeholders ...string) {
+	previousCurrentIndex := -1
+	previousLastIndex := -1
+
+	envPairCount, envIsSorted := determineLengthAndSortedPlaceholder(template, PLACEHOLDER_ENV_VALUES)
+	customPairCount, customIsSorted := determineLengthAndSortedPlaceholder(template, PLACEHOLDER_CUSTOM_VALUES)
+
+	isSorted := envIsSorted && customIsSorted && envPairCount == len(formatter.commonProperties.envNamesToLog)
+
+	if isSorted {
+		extendedPlaceholders := append(placeholders, PLACEHOLDER_ENV_VALUES, PLACEHOLDER_CUSTOM_VALUES)
+		for _, s := range extendedPlaceholders {
+			currentIndex := strings.Index(*template, s)
+			lastIndex := strings.LastIndex(*template, s)
+			if (currentIndex != -1 && currentIndex < previousCurrentIndex) || (lastIndex != -1 && lastIndex < previousLastIndex) {
+				isSorted = false
+				break
+			}
+			previousCurrentIndex = currentIndex
+			previousLastIndex = lastIndex
+		}
+	}
+
+	for i, s := range placeholders {
+		*template = strings.Replace(*template, s, determineReplacement(isSorted, s, i), 1)
+	}
+
+	// To avoid replacement of a higher decimal potence by a lower one (e.g. $env_k10 vs. $env_k1): iterate reverse
+	envIndex := len(placeholders) + 2*len(formatter.commonProperties.envNamesToLog) - 1
+	for i := len(formatter.commonProperties.envNamesToLog) - 1; i >= 0; i-- {
+		*template = replacePlaceholder(PLACEHOLDER_ENV_VALUES, template, isSorted, true, i, envIndex-1)
+		*template = replacePlaceholder(PLACEHOLDER_ENV_VALUES, template, isSorted, false, i, envIndex)
+		envIndex -= 2
+	}
+	customIndex := len(placeholders) + 2*len(formatter.commonProperties.envNamesToLog) + 2*customPairCount - 1
+	for i := customPairCount - 1; i >= 0; i-- {
+		*template = replacePlaceholder(PLACEHOLDER_CUSTOM_VALUES, template, isSorted, true, i, customIndex-1)
+		*template = replacePlaceholder(PLACEHOLDER_CUSTOM_VALUES, template, isSorted, false, i, customIndex)
+		customIndex -= 2
+	}
+}
+
+// Determines the the replacement token for a given placeholder. If its sorted, an index is provided.
+func determineReplacement(isSorted bool, placeholder string, index int) string {
+	if isSorted {
+		return "%" + replacements[placeholder]
+	} else {
+		return "%[" + strconv.Itoa(index+1) + "]" + replacements[placeholder]
+	}
+}
+
+// Replace a token for an environment key name or value. If its sorted, an index is provided.
+func replacePlaceholder(placeholder string, template *string, isSorted bool, isKey bool, pairIndex int, index int) string {
+	var variableName string
+	var typeFormat = "v"
+	if isKey {
+		variableName = placeholder + "_k" + strconv.Itoa(pairIndex)
+		typeFormat = "s"
+	} else {
+		variableName = placeholder + "_v" + strconv.Itoa(pairIndex)
+		variableIndex := strings.Index(*template, variableName)
+		formatIndexStart := variableIndex + len(variableName)
+		if variableIndex > -1 && len(*template) > formatIndexStart {
+			formatIndices := []int{strings.Index((*template)[formatIndexStart:], "["), strings.Index((*template)[formatIndexStart:], "]")}
+			if formatIndices[0] == 0 && formatIndices[1] > -1 {
+				typeFormat = (*template)[formatIndexStart+1+formatIndices[0] : formatIndexStart+formatIndices[1]]
+				variableName = variableName + "[" + typeFormat + "]"
+			}
+		}
+	}
+
+	if isSorted {
+		return strings.Replace(*template, variableName, "%"+typeFormat, 1)
+	} else {
+		formatSpec := ""
+		if len(typeFormat) > 1 {
+			formatSpec = typeFormat[:len(typeFormat)-1]
+			typeFormat = typeFormat[len(typeFormat)-1:]
+		}
+		return strings.Replace(*template, variableName, "%"+formatSpec+"["+strconv.Itoa(index+1)+"]"+typeFormat, 1)
+	}
+}
+
+// Determines the maximum length of keyValue placeholder pairs and if the placeholders are sorted
+func determineLengthAndSortedPlaceholder(template *string, placeholder string) (int, bool) {
+	reachedMaxValue := -1
+	isSorted := true
+	lengthTemplate := len(*template)
+	lengthBasePlaceholder := len(placeholder) + 2 // plus _k or _v
+
+	counter := 0
+
+	index := strings.Index(*template, placeholder)
+	for index > -1 {
+		counter++
+		index += lengthBasePlaceholder
+		isKey := (*template)[index-1:index] == "k"
+		length := 0
+		currentValue := 0
+		potence := 1
+		checkNext := true
+		for checkNext {
+			posValue, err := strconv.Atoi((*template)[index+length : index+length+1])
+			if err != nil {
+				break
+			}
+			currentValue += potence * posValue
+			potence *= 10
+			length++
+			checkNext = index+length+1 < lengthTemplate
+		}
+		if reachedMaxValue < currentValue {
+			reachedMaxValue = currentValue
+		}
+
+		checkPlaceholderSorting(&isSorted, currentValue, reachedMaxValue, isKey, counter)
+		determineNextPlaceholderIndex(&index, template, placeholder)
+	}
+
+	maxKeyValuePair := reachedMaxValue + 1
+	isSorted = isSorted && maxKeyValuePair*2 == counter
+
+	return maxKeyValuePair, isSorted
+}
+
+// checks wether placeholders are sorted or not and sets the sorting property
+func checkPlaceholderSorting(isSorted *bool, currentValue int, reachedMaxValue int, isKeyPlaceholder bool, currentCount int) {
+	if currentValue < reachedMaxValue {
+		*isSorted = false
+	} else if *isSorted {
+		// check key or value position
+		*isSorted = (isKeyPlaceholder && currentCount%2 == 1 && currentCount-1 == currentValue*2) || (!isKeyPlaceholder && currentCount%2 == 0 && currentCount-1 == currentValue*2+1)
+	}
+}
+
+// determines the index of the next placeholder to check
+func determineNextPlaceholderIndex(index *int, template *string, placeholder string) {
+	next := strings.Index((*template)[*index:], placeholder)
+	if next > -1 {
+		*index += next
+	} else {
+		*index = -1
 	}
 }
 

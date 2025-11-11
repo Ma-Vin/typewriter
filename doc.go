@@ -66,18 +66,29 @@ DELIMITER: The record information will be appended and delimited with a given si
  3. “SEQUENCE_ACTIVE” indicator whether to log the sequence number or not. Default “true”
 
 TEMPLATE: The records will be derived from three templates and time layout. They can be set “TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>” where <x>has to be replaced by the following values:
- 1. “TEMPLATE” template for writing time, severity and the message. Default “[%s] %d %s: %s” (or “[%s] %s: %s” if sequence inactive)
- 2. “TEMPLATE_CORRELATION” template for writing time, severity, correlationID and the message. Default “[%s] %d %s %s: %s” (or “[%s] %s %s: %s” if sequence inactive)
- 3. “TEMPLATE_CUSTOM”template for writing time, severity, message and custom value map. Default “[%s] %d %s: %s” (or “[%s] %s: %s” if sequence inactive)
+ 1. “TEMPLATE” template for writing time, severity and the message. Default “[$time] $seq $sev: $msg” (or “[$time] $sev: $msg” if sequence inactive)
+ 2. “TEMPLATE_CORRELATION” template for writing time, severity, correlationID and the message. Default “[$time] $seq $sev $corr: $msg” (or “[$time] $sev $corr: $msg” if sequence inactive)
+ 3. “TEMPLATE_CUSTOM”template for writing time, severity, message and custom value map. Default “[$time] $seq $sev: $msg” (or “[$time] $sev: $msg” if sequence inactive)
  4. “TIME_LAYOUT” time layout. Default value of [time.RFC3339]
  5. “SEQUENCE_ACTIVE” indicator whether to log the sequence number or not. Default “true”
  6. “TEMPLATE_TRIM_SEVERITY” indicator wether to trim severity text or to add space at warn and info to algin following elements. Default “false”
- 7. “TEMPLATE_CALLER” like 1. with caller function, file and line placed in front of message. Default “[%s] %d %s %s(%s.%d): %s” (or “[%s] %s %s(%s.%d): %s” if sequence inactive)
- 8. “TEMPLATE_CALLER_CORRELATION” like 2. with caller function, file and line placed in front of message. Default “[%s] %d %s %s %s(%s.%d): %s” (or “[%s] %s %s %s(%s.%d): %s” if sequence inactive)
- 9. “TEMPLATE_CALLER_CUSTOM” like 3. with caller function, file and line placed in front of message. Default “[%s] %d %s %s(%s.%d): %s” (or “[%s] %s %s(%s.%d): %s” if sequence inactive)
+ 7. “TEMPLATE_CALLER” like 1. with caller function, file and line placed in front of message. Default “[$time] $seq $sev $func($file.$line): $msg” (or “[$time] $sev $func($file.$line): $msg” if sequence inactive)
+ 8. “TEMPLATE_CALLER_CORRELATION” like 2. with caller function, file and line placed in front of message. Default “[$time] $seq $sev $corr $func($file.$line): $msg” (or “[$time] $sev $corr $func($file.$line): $msg” if sequence inactive)
+ 9. “TEMPLATE_CALLER_CUSTOM” like 3. with caller function, file and line placed in front of message. Default “[$time] $seq $sev $func($file.$line): $msg” (or “[$time] $sev $func($file.$line): $msg” if sequence inactive)
 
-It is possible to reorder parameter by argument indices. The custom value map at 3 will be appended as key-value-pairs sorted by key
-(e.g. a custom map with three entries of string, number and boolean format at indices from 5 to 10: “severity: %[3]s message: %[4]s %[5]s: %[6]s %[7]s: %[8]d %[9]s: %[10]t time: %[1]s sequence: %[2]d”)
+The following placeholders can be used:
+  - “$time” the timestamp
+  - “$seq” the sequence
+  - “$sev” the severity
+  - “$corr” the correlation id
+  - “$msg” the message
+  - “$func” the caller function
+  - “$file” the caller file
+  - “$line” the line at caller file
+  - To use a specific position for custom values “$cust_k0” to place the key of the first env key and “$cust_v0” or “$cust_v0[s]” for a generic or string type value (the other formation verbs can be used also. Without “%” prefix. E.g. “$cust_v0[.2f]” for a float with precision of 2)
+  - See section “Log environment values”
+
+It is still possible to the verb notation like at fmt package: See release documentation until version v1.2.x
 
 JSON: The records will be logged as JSON. It is possible to define key names, the time layout and if the custom value map should be a sub element or not.
 The keys of the custom value map will be used 1:1. The properties can be set via “TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>” where <x> has to be replaced by the following values:
@@ -106,6 +117,7 @@ To log pairs of environment names and their values, the configuration property �
 
   - At delimiter-formatter the values will be passed in front of message
   - These key value pairs will be passed to the template-formatter placed between message and the optional custom values. Default templates will be extended by “ [%s]: %v” for each pair.
+    To use a specific position use “$env_k0” to place the key of the first env key and “$env_v0” or “$env_v0[s]” for a generic or string type value (the other formation verbs can be used also. Without “%” prefix. E.g. “$env_v0[.2f]” for a float with precision of 2)
   - At json-formatter the key-values will be added 1:1
 
 # 2.7 Context
