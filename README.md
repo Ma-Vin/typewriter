@@ -129,9 +129,11 @@ There are three types of formatter which provides the texts to log for the appen
 
 The default formatter is the delimiter one.
 
-#### Caller
+#### Caller and Callstack in error case
 
-The logging of the caller function, file and line can be activated by setting `true` at `TYPEWRITER_LOG_CALLER`. The default is `false`.
+* The logging of the caller function, file and line can be activated by setting `true` at `TYPEWRITER_LOG_CALLER`. The default is `false`.
+* A callstack is appended to the message if an argument of type `error` is passed to the `Error` or `Fatal` log-method variants.
+It is possible to enable or disable this feature via `TYPEWRITER_LOG_WITH_ERROR_CALLSTACK` or the package variant `TYPEWRITER_PACKAGE_LOG_WITH_ERROR_CALLSTACK_`. The default is `true`.
 
 #### Log environment values
 

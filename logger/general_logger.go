@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -20,6 +21,7 @@ type GeneralLogger struct {
 	errorEnabled       bool
 	fatalEnabled       bool
 	isCallerToSet      bool
+	withErrorCallStack bool
 	appender           *appender.Appender
 	correlationIdKey   string
 }
@@ -31,9 +33,10 @@ var exitMockActivated = false
 // Creates a general logger which delegates messages to the given appender if the log level is enabled by given severity
 func CreateGeneralLoggerFromConfig(generalLoggerConfig config.GeneralLoggerConfig, appender *appender.Appender) GeneralLogger {
 	result := GeneralLogger{
-		appender:         appender,
-		isCallerToSet:    generalLoggerConfig.IsCallerToSet,
-		correlationIdKey: generalLoggerConfig.Common.CorrelationIdKey,
+		appender:           appender,
+		isCallerToSet:      generalLoggerConfig.IsCallerToSet,
+		withErrorCallStack: generalLoggerConfig.WithErrorCallStack,
+		correlationIdKey:   generalLoggerConfig.Common.CorrelationIdKey,
 	}
 	determineSeverityByLevel(&result, generalLoggerConfig.Severity)
 	return result
@@ -300,7 +303,7 @@ func (l GeneralLogger) WarningCtxWithPanicf(context context.Context, format stri
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) Error(args ...any) {
 	if l.errorEnabled {
-		l.write(common.ERROR_SEVERITY, fmt.Sprint(args...))
+		l.write(common.ERROR_SEVERITY, l.determineMessageWithCallstack(args...))
 	}
 }
 
@@ -308,7 +311,7 @@ func (l GeneralLogger) Error(args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) ErrorWithCorrelation(correlationId string, args ...any) {
 	if l.errorEnabled {
-		l.writeWithCorrelation(common.ERROR_SEVERITY, correlationId, fmt.Sprint(args...))
+		l.writeWithCorrelation(common.ERROR_SEVERITY, correlationId, l.determineMessageWithCallstack(args...))
 	}
 }
 
@@ -316,7 +319,7 @@ func (l GeneralLogger) ErrorWithCorrelation(correlationId string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) ErrorCustom(customValues map[string]any, args ...any) {
 	if l.errorEnabled {
-		l.writeCustom(common.ERROR_SEVERITY, fmt.Sprint(args...), customValues)
+		l.writeCustom(common.ERROR_SEVERITY, l.determineMessageWithCallstack(args...), customValues)
 	}
 }
 
@@ -324,7 +327,7 @@ func (l GeneralLogger) ErrorCustom(customValues map[string]any, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) ErrorCtx(context context.Context, args ...any) {
 	if l.errorEnabled {
-		l.writeWithCtx(common.ERROR_SEVERITY, context, fmt.Sprint(args...))
+		l.writeWithCtx(common.ERROR_SEVERITY, context, l.determineMessageWithCallstack(args...))
 	}
 }
 
@@ -332,7 +335,7 @@ func (l GeneralLogger) ErrorCtx(context context.Context, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) Errorf(format string, args ...any) {
 	if l.errorEnabled {
-		l.write(common.ERROR_SEVERITY, fmt.Sprintf(format, args...))
+		l.write(common.ERROR_SEVERITY, l.determineFormattedMessageWithCallstack(format, args...))
 	}
 }
 
@@ -340,7 +343,7 @@ func (l GeneralLogger) Errorf(format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) ErrorWithCorrelationf(correlationId string, format string, args ...any) {
 	if l.errorEnabled {
-		l.writeWithCorrelation(common.ERROR_SEVERITY, correlationId, fmt.Sprintf(format, args...))
+		l.writeWithCorrelation(common.ERROR_SEVERITY, correlationId, l.determineFormattedMessageWithCallstack(format, args...))
 	}
 }
 
@@ -348,7 +351,7 @@ func (l GeneralLogger) ErrorWithCorrelationf(correlationId string, format string
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) ErrorCustomf(customValues map[string]any, format string, args ...any) {
 	if l.errorEnabled {
-		l.writeCustom(common.ERROR_SEVERITY, fmt.Sprintf(format, args...), customValues)
+		l.writeCustom(common.ERROR_SEVERITY, l.determineFormattedMessageWithCallstack(format, args...), customValues)
 	}
 }
 
@@ -356,7 +359,7 @@ func (l GeneralLogger) ErrorCustomf(customValues map[string]any, format string, 
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) ErrorCtxf(context context.Context, format string, args ...any) {
 	if l.errorEnabled {
-		l.writeWithCtx(common.ERROR_SEVERITY, context, fmt.Sprintf(format, args...))
+		l.writeWithCtx(common.ERROR_SEVERITY, context, l.determineFormattedMessageWithCallstack(format, args...))
 	}
 }
 
@@ -420,7 +423,7 @@ func (l GeneralLogger) ErrorCtxWithPanicf(context context.Context, format string
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) Fatal(args ...any) {
 	if l.fatalEnabled {
-		l.write(common.FATAL_SEVERITY, fmt.Sprint(args...))
+		l.write(common.FATAL_SEVERITY, l.determineMessageWithCallstack(args...))
 	}
 }
 
@@ -428,7 +431,7 @@ func (l GeneralLogger) Fatal(args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) FatalWithCorrelation(correlationId string, args ...any) {
 	if l.fatalEnabled {
-		l.writeWithCorrelation(common.FATAL_SEVERITY, correlationId, fmt.Sprint(args...))
+		l.writeWithCorrelation(common.FATAL_SEVERITY, correlationId, l.determineMessageWithCallstack(args...))
 	}
 }
 
@@ -436,7 +439,7 @@ func (l GeneralLogger) FatalWithCorrelation(correlationId string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) FatalCustom(customValues map[string]any, args ...any) {
 	if l.fatalEnabled {
-		l.writeCustom(common.FATAL_SEVERITY, fmt.Sprint(args...), customValues)
+		l.writeCustom(common.FATAL_SEVERITY, l.determineMessageWithCallstack(args...), customValues)
 	}
 }
 
@@ -444,7 +447,7 @@ func (l GeneralLogger) FatalCustom(customValues map[string]any, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprint].
 func (l GeneralLogger) FatalCtx(context context.Context, args ...any) {
 	if l.fatalEnabled {
-		l.writeWithCtx(common.FATAL_SEVERITY, context, fmt.Sprint(args...))
+		l.writeWithCtx(common.FATAL_SEVERITY, context, l.determineMessageWithCallstack(args...))
 	}
 }
 
@@ -452,7 +455,7 @@ func (l GeneralLogger) FatalCtx(context context.Context, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) Fatalf(format string, args ...any) {
 	if l.fatalEnabled {
-		l.write(common.FATAL_SEVERITY, fmt.Sprintf(format, args...))
+		l.write(common.FATAL_SEVERITY, l.determineFormattedMessageWithCallstack(format, args...))
 	}
 }
 
@@ -460,7 +463,7 @@ func (l GeneralLogger) Fatalf(format string, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) FatalWithCorrelationf(correlationId string, format string, args ...any) {
 	if l.fatalEnabled {
-		l.writeWithCorrelation(common.FATAL_SEVERITY, correlationId, fmt.Sprintf(format, args...))
+		l.writeWithCorrelation(common.FATAL_SEVERITY, correlationId, l.determineFormattedMessageWithCallstack(format, args...))
 	}
 }
 
@@ -468,7 +471,7 @@ func (l GeneralLogger) FatalWithCorrelationf(correlationId string, format string
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) FatalCustomf(customValues map[string]any, format string, args ...any) {
 	if l.fatalEnabled {
-		l.writeCustom(common.FATAL_SEVERITY, fmt.Sprintf(format, args...), customValues)
+		l.writeCustom(common.FATAL_SEVERITY, l.determineFormattedMessageWithCallstack(format, args...), customValues)
 	}
 }
 
@@ -476,7 +479,7 @@ func (l GeneralLogger) FatalCustomf(customValues map[string]any, format string, 
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) FatalCtxf(context context.Context, format string, args ...any) {
 	if l.fatalEnabled {
-		l.writeWithCtx(common.FATAL_SEVERITY, context, fmt.Sprintf(format, args...))
+		l.writeWithCtx(common.FATAL_SEVERITY, context, l.determineFormattedMessageWithCallstack(format, args...))
 	}
 }
 
@@ -592,6 +595,71 @@ func (l GeneralLogger) FatalCtxWithExitf(context context.Context, format string,
 	l.exitOrMock(1)
 }
 
+// Determines the massage from arguments. Appends a callstack if activated and an error exists at arguments
+func (l *GeneralLogger) determineMessageWithCallstack(args ...any) string {
+	message := fmt.Sprint(args...)
+	if l.withErrorCallStack && argsWithError(args...) {
+		appendCallstackAtMessage(&message)
+	}
+	return message
+}
+
+// Determines the massage from format and its arguments. Appends a callstack if activated and an error exists at arguments
+func (l *GeneralLogger) determineFormattedMessageWithCallstack(format string, args ...any) string {
+	message := fmt.Sprintf(format, args...)
+	if l.withErrorCallStack && argsWithError(args...) {
+		appendCallstackAtMessage(&message)
+	}
+	return message
+}
+
+// checks if any of the arguments is of type error
+func argsWithError(args ...any) bool {
+	for _, a := range args {
+		if _, ok := a.(error); ok {
+			return true
+		}
+	}
+	return false
+}
+
+// appends a callstack to a given message
+func appendCallstackAtMessage(currentMessage *string) {
+	rpc := make([]uintptr, 12)
+	callersCount := runtime.Callers(4, rpc)
+	if callersCount < 1 {
+		return
+	}
+	frames := runtime.CallersFrames(rpc)
+	more := true
+	var frame runtime.Frame
+	relevantFrames := make([]runtime.Frame, 0, callersCount)
+	for more {
+		frame, more = frames.Next()
+		if isRelevantCaller(&frame) {
+			relevantFrames = append(relevantFrames, frame)
+		}
+	}
+
+	buf := new(bytes.Buffer)
+	fmt.Fprintln(buf, *currentMessage)
+	fmt.Fprint(buf, "error parameter detected")
+
+	maxIndexRelevantFrames := len(relevantFrames) - 1
+	for i, f := range relevantFrames {
+		switch i {
+		case 0:
+			fmt.Fprintln(buf, " at function", f.Function, "file", f.File, "line", f.Line)
+		case maxIndexRelevantFrames:
+			fmt.Fprint(buf, "\tat function ", f.Function, " file ", f.File, " line ", f.Line)
+		default:
+			fmt.Fprintln(buf, "\tat function", f.Function, "file", f.File, "line", f.Line)
+		}
+	}
+
+	*currentMessage = buf.String()
+}
+
 // Indicator whether debug level is enabled or not
 func (l GeneralLogger) IsDebugEnabled() bool {
 	return l.debugEnabled
@@ -701,7 +769,7 @@ func setCallerFromFrame(frame *runtime.Frame, logValuesToWrite *common.LogValues
 }
 
 func isRelevantCaller(frame *runtime.Frame) bool {
-	return frame.PC != 0 && (!strings.HasPrefix(frame.Func.Name(), "github.com/ma-vin/typewriter/logger") || !strings.HasSuffix(frame.File, "logger.go"))
+	return frame.PC != 0 && (!strings.HasPrefix(frame.Func.Name(), "github.com/ma-vin/typewriter/logger") || !strings.HasSuffix(frame.File, "logger.go")) && strings.HasSuffix(frame.File, ".go")
 }
 
 func adoptFrameValues(source *runtime.Frame, target *common.LogValues) {

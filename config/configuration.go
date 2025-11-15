@@ -31,6 +31,7 @@ const (
 	DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME = "TYPEWRITER_LOG_APPENDER_SIZE_RENAMING"
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME              = "TYPEWRITER_LOG_FORMATTER_TYPE"
 	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_LOG_FORMATTER_PARAMETER"
+	DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME   = "TYPEWRITER_LOG_WITH_ERROR_CALLSTACK"
 
 	PACKAGE_LOG_PACKAGE_PROPERTY_NAME                = "TYPEWRITER_PACKAGE_LOG_PACKAGE_"
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME                  = "TYPEWRITER_PACKAGE_LOG_LEVEL_"
@@ -40,6 +41,7 @@ const (
 	PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_APPENDER_SIZE_RENAMING_"
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME              = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
+	PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME   = "TYPEWRITER_PACKAGE_LOG_WITH_ERROR_CALLSTACK_"
 
 	TIME_LAYOUT_PARAMETER                 = "_TIME_LAYOUT"
 	SEQUENCE_ACTIVE_PARAMETER             = "_SEQUENCE_ACTIVE"
@@ -114,6 +116,8 @@ const (
 	DEFAULT_CALLER_FILE_LINE_KEY                 = "line"
 	DEFAULT_TIME_LAYOUT                          = time.RFC3339
 	DEFAULT_CONTEXT_CORRELATION_ID_KEY           = "correlationId"
+	DEFAULT_IS_CALLER_TO_SET                     = false
+	DEFAULT_WITH_ERROR_CALLSTACK                 = true
 
 	LOG_CONFIG_FILE_DEFAULT_NAME = "typewriter.properties"
 )
@@ -139,10 +143,12 @@ var relevantKeyPrefixes = []string{
 	DEFAULT_LOG_LEVEL_PROPERTY_NAME,
 	DEFAULT_LOG_APPENDER_PROPERTY_NAME,
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
+	DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME,
 	PACKAGE_LOG_PACKAGE_PROPERTY_NAME,
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME,
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME,
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
+	PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME,
 	LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
 	LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
 	LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME,
@@ -211,10 +217,12 @@ func ResetRegisteredAppenderAndFormatterConfigs() {
 		DEFAULT_LOG_LEVEL_PROPERTY_NAME,
 		DEFAULT_LOG_APPENDER_PROPERTY_NAME,
 		DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
+		DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME,
 		PACKAGE_LOG_PACKAGE_PROPERTY_NAME,
 		PACKAGE_LOG_LEVEL_PROPERTY_NAME,
 		PACKAGE_LOG_APPENDER_PROPERTY_NAME,
 		PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
+		PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME,
 		LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
 		LOG_CONFIG_FULL_QUALIFIED_PACKAGE_ENV_NAME,
 		LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME,
@@ -240,8 +248,16 @@ func deriveConfigFromFile() bool {
 
 // Checks whether any environment variable of a severity log level is set
 func deriveConfigFromEnv() bool {
-	return existsAnyAtEnv(DEFAULT_LOG_LEVEL_PROPERTY_NAME, DEFAULT_LOG_APPENDER_PROPERTY_NAME, DEFAULT_LOG_FORMATTER_PROPERTY_NAME, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME) ||
-		existsAnyPrefixAtEnv(PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_APPENDER_PROPERTY_NAME, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
+	return existsAnyAtEnv(DEFAULT_LOG_LEVEL_PROPERTY_NAME,
+		DEFAULT_LOG_APPENDER_PROPERTY_NAME,
+		DEFAULT_LOG_FORMATTER_PROPERTY_NAME,
+		DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME,
+		LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME,
+		LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME) ||
+		existsAnyPrefixAtEnv(PACKAGE_LOG_LEVEL_PROPERTY_NAME,
+			PACKAGE_LOG_APPENDER_PROPERTY_NAME,
+			PACKAGE_LOG_FORMATTER_PROPERTY_NAME,
+			PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME)
 }
 
 // Check if there exists a file with the default configuration name at the executables folder.
@@ -794,12 +810,15 @@ func createAndAppendLoggerConfig(relevantKeyValues *map[string]string, packageOf
 // configures a given logger config element from properties concerning a given package name
 func createLoggerConfigEntry(relevantKeyValues *map[string]string, packageParameter string) *LoggerConfig {
 	var logLevelKey string
+	var withErrorCallstackKey string
 	var packageName string
 	if len(packageParameter) > 0 {
 		logLevelKey = PACKAGE_LOG_LEVEL_PROPERTY_NAME + packageParameter
+		withErrorCallstackKey = PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME + packageParameter
 		packageName = getValueFromMapOrDefault(relevantKeyValues, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageParameter, strings.ToLower(packageParameter))
 	} else {
 		logLevelKey = DEFAULT_LOG_LEVEL_PROPERTY_NAME
+		withErrorCallstackKey = DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME
 		packageName = ""
 	}
 
@@ -816,8 +835,9 @@ func createLoggerConfigEntry(relevantKeyValues *map[string]string, packageParame
 			PackageName:      packageName,
 			CorrelationIdKey: getValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME, DEFAULT_CONTEXT_CORRELATION_ID_KEY),
 		},
-		Severity:      severity,
-		IsCallerToSet: strings.ToLower(getValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, "false")) == "true",
+		Severity:           severity,
+		IsCallerToSet:      getBoolValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_IS_CALLER_TO_SET_ENV_NAME, DEFAULT_IS_CALLER_TO_SET),
+		WithErrorCallStack: getBoolValueFromMapInheritOrDefault(relevantKeyValues, withErrorCallstackKey, DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME, DEFAULT_WITH_ERROR_CALLSTACK),
 	}
 
 	return &result
@@ -927,7 +947,12 @@ func completeDefaults(relevantKeyValues *map[string]string) {
 	}
 	if !found {
 		correlationIdKey := getValueFromMapOrDefault(relevantKeyValues, LOG_CONFIG_CONTEXT_CORRELATION_ID_KEY_ENV_NAME, DEFAULT_CONTEXT_CORRELATION_ID_KEY)
-		config.Logger = append(config.Logger, GeneralLoggerConfig{Common: &CommonLoggerConfig{LoggerType: LOGGER_GENERAL, IsDefault: true, PackageParameter: "", CorrelationIdKey: correlationIdKey}, Severity: common.ERROR_SEVERITY})
+		config.Logger = append(config.Logger, GeneralLoggerConfig{
+			Common:             &CommonLoggerConfig{LoggerType: LOGGER_GENERAL, IsDefault: true, PackageParameter: "", CorrelationIdKey: correlationIdKey},
+			Severity:           common.ERROR_SEVERITY,
+			IsCallerToSet:      DEFAULT_IS_CALLER_TO_SET,
+			WithErrorCallStack: DEFAULT_WITH_ERROR_CALLSTACK,
+		})
 	}
 }
 

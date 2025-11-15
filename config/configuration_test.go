@@ -77,6 +77,7 @@ func TestGetConfigNoEnv(t *testing.T) {
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
 	testutil.AssertFalse(result.Logger[0].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[0].IsCallerToSet")
+	testutil.AssertTrue(result.Logger[0].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[0].WithErrorCallStack")
 	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -111,6 +112,7 @@ func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
 	testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
+	testutil.AssertTrue(result.Logger[0].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[0].WithErrorCallStack")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -140,6 +142,7 @@ func TestGetConfigNonExistingFile(t *testing.T) {
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
 	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
+	testutil.AssertTrue(result.Logger[0].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[0].WithErrorCallStack")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -185,6 +188,7 @@ func TestGetConfigDefaultFile(t *testing.T) {
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.INFORMATION_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
 	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
+	testutil.AssertTrue(result.Logger[0].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[0].WithErrorCallStack")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
 	testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
@@ -222,6 +226,7 @@ func TestGetConfigCaller(t *testing.T) {
 	testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
 	testutil.AssertEquals(common.ERROR_SEVERITY, result.Logger[0].(GeneralLoggerConfig).Severity, t, "result.logger[0].severity")
 	testutil.AssertTrue(result.Logger[0].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[0].IsCallerToSet")
+	testutil.AssertTrue(result.Logger[0].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[0].WithErrorCallStack")
 	testutil.AssertEquals(DEFAULT_CONTEXT_CORRELATION_ID_KEY, result.Logger[0].(GeneralLoggerConfig).Common.CorrelationIdKey, t, "result.logger[0].Common.CorrelationIdKey")
 
 	testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
@@ -649,6 +654,31 @@ func TestGetConfigCronFileAppender(t *testing.T) {
 		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
 		testutil.AssertEquals("", result.Formatter[0].PackageParameter(), t, "result.formatter[0].PackageParameter()")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
+	}
+}
+
+func TestGetConfigDefaultErrorWithCallStack(t *testing.T) {
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME, "false")
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(1, len(result.Logger), t, "len(result.logger)")
+		testutil.AssertTrue(result.Logger[0].IsDefault(), t, "result.logger[0].isDefault")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
+		testutil.AssertFalse(result.Logger[0].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[0].IsCallerToSet")
+		testutil.AssertFalse(result.Logger[0].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[0].WithErrorCallStack")
+
+		testutil.AssertEquals(1, len(result.Appender), t, "len(result.appender)")
+		testutil.AssertTrue(result.Appender[0].IsDefault(), t, "result.appender[0].isDefault")
+
+		testutil.AssertEquals(1, len(result.Formatter), t, "len(result.formatter)")
+		testutil.AssertTrue(result.Formatter[0].IsDefault(), t, "result.formatter[0].IsDefault()")
 	}
 }
 
@@ -1787,6 +1817,93 @@ func TestGetConfigPackageFileAppenderNoInheriting(t *testing.T) {
 		testutil.AssertEquals(logFilePath, result.Appender[1].(FileAppenderConfig).PathToLogFile, t, "result.appender[1].pathToLogFile")
 		testutil.AssertEquals("", result.Appender[1].(FileAppenderConfig).CronExpression, t, "result.appender[1].CronExpression")
 		testutil.AssertEquals("", result.Appender[1].(FileAppenderConfig).LimitByteSize, t, "result.appender[1].LimitByteSize")
+	}
+}
+func TestGetConfigPackageErrorWithCallStack(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME+packageName, "false")
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
+
+		testutil.AssertTrue(result.Logger[0].IsDefault(), t, "result.logger[0].isDefault")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
+		testutil.AssertFalse(result.Logger[0].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[0].IsCallerToSet")
+		testutil.AssertTrue(result.Logger[0].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[0].WithErrorCallStack")
+
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageName, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
+		testutil.AssertFalse(result.Logger[1].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[1].IsCallerToSet")
+		testutil.AssertFalse(result.Logger[1].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[1].WithErrorCallStack")
+	}
+}
+
+func TestGetConfigPackageErrorWithCallStackInherit(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME, "false")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
+
+		testutil.AssertTrue(result.Logger[0].IsDefault(), t, "result.logger[0].isDefault")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
+		testutil.AssertFalse(result.Logger[0].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[0].IsCallerToSet")
+		testutil.AssertFalse(result.Logger[0].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[0].WithErrorCallStack")
+
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageName, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
+		testutil.AssertFalse(result.Logger[1].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[1].IsCallerToSet")
+		testutil.AssertFalse(result.Logger[1].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[1].WithErrorCallStack")
+	}
+}
+
+func TestGetConfigPackageErrorWithCallStackNoInheriting(t *testing.T) {
+	packageName := "testPackage"
+	packageParameter := strings.ToUpper(packageName)
+	for i := range countOfConfigTests {
+		optionalFile := allInitConfigTest[i](t)
+		allAddValueConfigTest[i](optionalFile, LOG_CONFIG_INHERIT_CONFIG_ENV_NAME, "false")
+		allAddValueConfigTest[i](optionalFile, DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME, "false")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
+		allPostInitConfigTest[i](optionalFile)
+
+		configInitialized = false
+
+		result := GetConfig()
+
+		testutil.AssertEquals(2, len(result.Logger), t, "len(result.logger)")
+
+		testutil.AssertTrue(result.Logger[0].IsDefault(), t, "result.logger[0].isDefault")
+		testutil.AssertEquals("", result.Logger[0].PackageParameter(), t, "result.logger[0].PackageParameter")
+		testutil.AssertEquals("", result.Logger[0].PackageName(), t, "result.logger[0].PackageName")
+		testutil.AssertFalse(result.Logger[0].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[0].IsCallerToSet")
+		testutil.AssertFalse(result.Logger[0].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[0].WithErrorCallStack")
+
+		testutil.AssertEquals(packageParameter, result.Logger[1].PackageParameter(), t, "result.logger[1].PackageParameter")
+		testutil.AssertEquals(packageName, result.Logger[1].PackageName(), t, "result.logger[1].PackageName")
+		testutil.AssertFalse(result.Logger[1].(GeneralLoggerConfig).IsCallerToSet, t, "result.logger[1].IsCallerToSet")
+		testutil.AssertTrue(result.Logger[1].(GeneralLoggerConfig).WithErrorCallStack, t, "result.logger[1].WithErrorCallStack")
 	}
 }
 

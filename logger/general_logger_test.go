@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -63,17 +64,18 @@ func (c testContext) Value(key any) any {
 	return nil
 }
 
-func CreateGeneralLoggerForTest(appender *appender.Appender, severity int, isCallerToSet bool) GeneralLogger {
+func CreateGeneralLoggerForTest(appender *appender.Appender, severity int, isCallerToSet bool, withErrorCallStack bool) GeneralLogger {
 	commonConfig := config.CommonLoggerConfig{CorrelationIdKey: "correlationId"}
 	return CreateGeneralLoggerFromConfig(config.GeneralLoggerConfig{
-		Common:        &commonConfig,
-		Severity:      severity,
-		IsCallerToSet: isCallerToSet,
+		Common:             &commonConfig,
+		Severity:           severity,
+		IsCallerToSet:      isCallerToSet,
+		WithErrorCallStack: withErrorCallStack,
 	}, appender)
 }
 
 var testGeneralLoggerAppender appender.Appender = TestAppender{content: &[]string{}}
-var testGeneralLogger = CreateGeneralLoggerForTest(&testGeneralLoggerAppender, common.OFF_SEVERITY, false)
+var testGeneralLogger = CreateGeneralLoggerForTest(&testGeneralLoggerAppender, common.OFF_SEVERITY, false, false)
 var testGeneralLoggerCounterAppenderClosed = 0
 var testGeneralLoggerCounterAppenderClosedExpected = 1
 var testDummyContext context.Context = testContext{correlationId: "1234"}
@@ -1059,6 +1061,75 @@ func TestErrorCtxWithPanicfInactiveGeneralLogger(t *testing.T) {
 	assertPanicMockActivated(t)
 }
 
+func TestErrorGeneralLoggerActiveCallstack(t *testing.T) {
+	initTestGeneralLogger("ERROR")
+
+	testGeneralLogger.withErrorCallStack = true
+	testGeneralLogger.Error("Test", errors.New("Message"))
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Error: len(content)")
+	expectedMessage := fmt.Sprintln("2TestMessage") + "error parameter detected at function github.com/ma-vin/typewriter/logger.TestErrorGeneralLoggerActiveCallstack file"
+	testutil.AssertHasPrefix(expectedMessage, (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Error: prefix content[0]")
+	testutil.AssertContains("typewriter/logger/general_logger_test.go line 1068", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Error: contains content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+
+func TestErrorGeneralLoggerInactiveCallstack(t *testing.T) {
+	initTestGeneralLogger("ERROR")
+
+	testGeneralLogger.withErrorCallStack = false
+	testGeneralLogger.Error("Test", errors.New("Message"))
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Error: len(content)")
+	testutil.AssertEquals("2TestMessage", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Error: content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+
+func TestErrorGeneralLoggerActiveCallstackButNoError(t *testing.T) {
+	initTestGeneralLogger("ERROR")
+
+	testGeneralLogger.withErrorCallStack = true
+	testGeneralLogger.Error("Test", "Message")
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Error: len(content)")
+	testutil.AssertEquals("2TestMessage", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Error: content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+
+func TestErrorfGeneralLoggerActiveCallstack(t *testing.T) {
+	initTestGeneralLogger("ERROR")
+
+	testGeneralLogger.withErrorCallStack = true
+	testGeneralLogger.Errorf("Test %v", errors.New("Message"))
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Errorf: len(content)")
+	expectedMessage := fmt.Sprintln("2Test Message") + "error parameter detected at function github.com/ma-vin/typewriter/logger.TestErrorfGeneralLoggerActiveCallstack file"
+	testutil.AssertHasPrefix(expectedMessage, (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Errorf: prefix content[0]")
+	testutil.AssertContains("typewriter/logger/general_logger_test.go line 1103", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Errorf: contains content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+
+func TestErrorfGeneralLoggerInActiveCallstack(t *testing.T) {
+	initTestGeneralLogger("ERROR")
+
+	testGeneralLogger.withErrorCallStack = false
+	testGeneralLogger.Errorf("Test %v", errors.New("Message"))
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Errorf: len(content)")
+	testutil.AssertEquals("2Test Message", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Errorf: content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+func TestErrorfGeneralLoggerActiveCallstackButNoError(t *testing.T) {
+	initTestGeneralLogger("ERROR")
+
+	testGeneralLogger.withErrorCallStack = true
+	testGeneralLogger.Errorf("Test %v", "Message")
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Errorf: len(content)")
+	testutil.AssertEquals("2Test Message", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Errorf: content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+
 func TestFatalGeneralLogger(t *testing.T) {
 	initTestGeneralLogger("FATAL")
 
@@ -1513,6 +1584,75 @@ func TestFatalCtxWithExitfInactiveGeneralLogger(t *testing.T) {
 
 	testutil.AssertEquals(0, len(*testGeneralLoggerAppender.(TestAppender).content), t, "FatalCtxWithExitf: len(content)")
 	assertExitMockActivated(t)
+}
+
+func TestFatalGeneralLoggerActiveCallstack(t *testing.T) {
+	initTestGeneralLogger("FATAL")
+
+	testGeneralLogger.withErrorCallStack = true
+	testGeneralLogger.Fatal("Test", errors.New("Message"))
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Fatal: len(content)")
+	expectedMessage := fmt.Sprintln("1TestMessage") + "error parameter detected at function github.com/ma-vin/typewriter/logger.TestFatalGeneralLoggerActiveCallstack file"
+	testutil.AssertHasPrefix(expectedMessage, (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Fatal: prefix content[0]")
+	testutil.AssertContains("typewriter/logger/general_logger_test.go line 1593", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Fatal: contains content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+
+func TestFatalGeneralLoggerInactiveCallstack(t *testing.T) {
+	initTestGeneralLogger("FATAL")
+
+	testGeneralLogger.withErrorCallStack = false
+	testGeneralLogger.Fatal("Test", errors.New("Message"))
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Fatal: len(content)")
+	testutil.AssertEquals("1TestMessage", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Fatal: content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+
+func TestFatalGeneralLoggerActiveCallstackButNoError(t *testing.T) {
+	initTestGeneralLogger("FATAL")
+
+	testGeneralLogger.withErrorCallStack = true
+	testGeneralLogger.Fatal("Test", "Message")
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Fatal: len(content)")
+	testutil.AssertEquals("1TestMessage", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Fatal: content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+
+func TestFatalfGeneralLoggerActiveCallstack(t *testing.T) {
+	initTestGeneralLogger("FATAL")
+
+	testGeneralLogger.withErrorCallStack = true
+	testGeneralLogger.Fatalf("Test %v", errors.New("Message"))
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Fatalf: len(content)")
+	expectedMessage := fmt.Sprintln("1Test Message") + "error parameter detected at function github.com/ma-vin/typewriter/logger.TestFatalfGeneralLoggerActiveCallstack file"
+	testutil.AssertHasPrefix(expectedMessage, (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Fatalf: prefix content[0]")
+	testutil.AssertContains("typewriter/logger/general_logger_test.go line 1628", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Fatalf: contains content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+
+func TestFatalfGeneralLoggerInActiveCallstack(t *testing.T) {
+	initTestGeneralLogger("FATAL")
+
+	testGeneralLogger.withErrorCallStack = false
+	testGeneralLogger.Fatalf("Test %v", errors.New("Message"))
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Fatalf: len(content)")
+	testutil.AssertEquals("1Test Message", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Fatalf: content[0]")
+	assertPanicAndExitMockNotActivated(t)
+}
+func TestFatalfGeneralLoggerActiveCallstackButNoError(t *testing.T) {
+	initTestGeneralLogger("FATAL")
+
+	testGeneralLogger.withErrorCallStack = true
+	testGeneralLogger.Fatalf("Test %v", "Message")
+
+	testutil.AssertEquals(1, len(*testGeneralLoggerAppender.(TestAppender).content), t, "Fatalf: len(content)")
+	testutil.AssertEquals("1Test Message", (*testGeneralLoggerAppender.(TestAppender).content)[0], t, "Fatalf: content[0]")
+	assertPanicAndExitMockNotActivated(t)
 }
 
 func TestNilCorrelationIdPropertyCtxGeneralLogger(t *testing.T) {

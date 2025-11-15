@@ -107,9 +107,10 @@ The keys of the custom value map will be used 1:1. The properties can be set via
 
 The default formatter is the delimiter one.
 
-# 2.5 Caller
+# 2.5 Caller and Callstack in error case
 
-The logging of the caller function, file and line can be activated by setting ”true” at ”TYPEWRITER_LOG_CALLER”. The default is ”false”.
+  - The logging of the caller function, file and line can be activated by setting ”true” at ”TYPEWRITER_LOG_CALLER”. The default is ”false”.
+  - A callstack is appended to the message if an argument of type “error” is passed to the “Error” or “Fatal” log-method variants. It is possible to enable or disable this feature via “TYPEWRITER_LOG_WITH_ERROR_CALLSTACK” or the package variant “TYPEWRITER_PACKAGE_LOG_WITH_ERROR_CALLSTACK_”. The default is “true”.
 
 # 2.6 Log environment values
 

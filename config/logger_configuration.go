@@ -40,9 +40,10 @@ type LoggerConfig interface {
 
 // common properties of general logger configurations
 type GeneralLoggerConfig struct {
-	Common        *CommonLoggerConfig
-	Severity      int
-	IsCallerToSet bool
+	Common             *CommonLoggerConfig
+	Severity           int
+	IsCallerToSet      bool
+	WithErrorCallStack bool
 }
 
 func (c GeneralLoggerConfig) Id() string {
@@ -67,7 +68,9 @@ func (c GeneralLoggerConfig) GetCommon() *CommonLoggerConfig {
 
 func (c GeneralLoggerConfig) Equals(other *LoggerConfig) bool {
 	return c.Common.Equals((*other).GetCommon()) &&
-		c.Severity == (*other).(GeneralLoggerConfig).Severity && c.IsCallerToSet == (*other).(GeneralLoggerConfig).IsCallerToSet
+		c.Severity == (*other).(GeneralLoggerConfig).Severity &&
+		c.IsCallerToSet == (*other).(GeneralLoggerConfig).IsCallerToSet &&
+		c.WithErrorCallStack == (*other).(GeneralLoggerConfig).WithErrorCallStack
 }
 
 func (c GeneralLoggerConfig) CreateFullCopy() LoggerConfig {
