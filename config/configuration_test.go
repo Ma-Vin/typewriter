@@ -1819,12 +1819,12 @@ func TestGetConfigPackageFileAppenderNoInheriting(t *testing.T) {
 		testutil.AssertEquals("", result.Appender[1].(FileAppenderConfig).LimitByteSize, t, "result.appender[1].LimitByteSize")
 	}
 }
+
 func TestGetConfigPackageErrorWithCallStack(t *testing.T) {
 	packageName := "testPackage"
 	packageParameter := strings.ToUpper(packageName)
 	for i := range countOfConfigTests {
 		optionalFile := allInitConfigTest[i](t)
-		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_LEVEL_PROPERTY_NAME+packageName, LOG_LEVEL_DEBUG)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_PACKAGE_PROPERTY_NAME+packageName, packageName)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME+packageName, "false")
 		allPostInitConfigTest[i](optionalFile)

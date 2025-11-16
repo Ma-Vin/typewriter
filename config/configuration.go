@@ -25,23 +25,23 @@ type Config struct {
 
 const (
 	DEFAULT_LOG_LEVEL_PROPERTY_NAME                  = "TYPEWRITER_LOG_LEVEL"
+	DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME   = "TYPEWRITER_LOG_WITH_ERROR_CALLSTACK"
 	DEFAULT_LOG_APPENDER_PROPERTY_NAME               = "TYPEWRITER_LOG_APPENDER_TYPE"
 	DEFAULT_LOG_APPENDER_FILE_PROPERTY_NAME          = "TYPEWRITER_LOG_APPENDER_FILE"
 	DEFAULT_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME = "TYPEWRITER_LOG_APPENDER_CRON_RENAMING"
 	DEFAULT_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME = "TYPEWRITER_LOG_APPENDER_SIZE_RENAMING"
 	DEFAULT_LOG_FORMATTER_PROPERTY_NAME              = "TYPEWRITER_LOG_FORMATTER_TYPE"
 	DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_LOG_FORMATTER_PARAMETER"
-	DEFAULT_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME   = "TYPEWRITER_LOG_WITH_ERROR_CALLSTACK"
 
 	PACKAGE_LOG_PACKAGE_PROPERTY_NAME                = "TYPEWRITER_PACKAGE_LOG_PACKAGE_"
 	PACKAGE_LOG_LEVEL_PROPERTY_NAME                  = "TYPEWRITER_PACKAGE_LOG_LEVEL_"
+	PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME   = "TYPEWRITER_PACKAGE_LOG_WITH_ERROR_CALLSTACK_"
 	PACKAGE_LOG_APPENDER_PROPERTY_NAME               = "TYPEWRITER_PACKAGE_LOG_APPENDER_TYPE_"
 	PACKAGE_LOG_APPENDER_FILE_PROPERTY_NAME          = "TYPEWRITER_PACKAGE_LOG_APPENDER_FILE_"
 	PACKAGE_LOG_APPENDER_CRON_RENAMING_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_APPENDER_CRON_RENAMING_"
 	PACKAGE_LOG_APPENDER_SIZE_RENAMING_PROPERTY_NAME = "TYPEWRITER_PACKAGE_LOG_APPENDER_SIZE_RENAMING_"
 	PACKAGE_LOG_FORMATTER_PROPERTY_NAME              = "TYPEWRITER_PACKAGE_LOG_FORMATTER_TYPE_"
 	PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME    = "TYPEWRITER_PACKAGE_LOG_FORMATTER_PARAMETER_"
-	PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME   = "TYPEWRITER_PACKAGE_LOG_WITH_ERROR_CALLSTACK_"
 
 	TIME_LAYOUT_PARAMETER                 = "_TIME_LAYOUT"
 	SEQUENCE_ACTIVE_PARAMETER             = "_SEQUENCE_ACTIVE"
@@ -370,7 +370,7 @@ func createMapFromSliceWithKeyValues(sliceToConvert []string) map[string]string 
 func createAppenderConfig(relevantKeyValues *map[string]string) {
 	createAndAppendAppenderConfig(relevantKeyValues, "")
 	for key := range *relevantKeyValues {
-		packageOfAppender, found := strings.CutPrefix(key, PACKAGE_LOG_APPENDER_PROPERTY_NAME)
+		packageOfAppender, found := determinePackageFromKey(key, PACKAGE_LOG_APPENDER_PROPERTY_NAME)
 		if found {
 			createAndAppendAppenderConfig(relevantKeyValues, packageOfAppender)
 		}
@@ -567,7 +567,7 @@ func createFormatterConfig(relevantKeyValues *map[string]string) {
 	createAndAppendFormatterConfig(relevantKeyValues, "")
 
 	for key := range *relevantKeyValues {
-		packageOfFormatter, found := strings.CutPrefix(key, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
+		packageOfFormatter, found := determinePackageFromKey(key, PACKAGE_LOG_FORMATTER_PROPERTY_NAME)
 		if found {
 			createAndAppendFormatterConfig(relevantKeyValues, packageOfFormatter)
 		}
@@ -788,9 +788,11 @@ func DeregisterFormatterConfig(formatterType string) error {
 func createLoggerConfig(relevantKeyValues *map[string]string) {
 	createAndAppendLoggerConfig(relevantKeyValues, "")
 
+	var createdPackages []string = make([]string, 0, len(*relevantKeyValues))
 	for key := range *relevantKeyValues {
-		packageParameter, found := strings.CutPrefix(key, PACKAGE_LOG_LEVEL_PROPERTY_NAME)
-		if found {
+		packageParameter, found := determinePackageFromKey(key, PACKAGE_LOG_LEVEL_PROPERTY_NAME, PACKAGE_LOG_WITH_ERROR_CALLSTACK_PROPERTY_NAME)
+		if found && !slices.Contains(createdPackages, packageParameter) {
+			createdPackages = append(createdPackages, packageParameter)
 			createAndAppendLoggerConfig(relevantKeyValues, packageParameter)
 		}
 	}
@@ -841,6 +843,16 @@ func createLoggerConfigEntry(relevantKeyValues *map[string]string, packageParame
 	}
 
 	return &result
+}
+
+// Determines the package parameter from given key by checking all given prefixes
+func determinePackageFromKey(key string, prefixes ...string) (string, bool) {
+	for _, s := range prefixes {
+		if packageParameter, found := strings.CutPrefix(key, s); found {
+			return packageParameter, true
+		}
+	}
+	return "", false
 }
 
 // Returns the value from a map for a given key. If there is none, the default will be returned
