@@ -27,7 +27,7 @@ type GeneralLogger struct {
 }
 
 var mockPanicAndExitAtGeneralLogger = false
-var panicMockActivated = false
+var panicMockActivated *string = nil
 var exitMockActivated = false
 
 // Creates a general logger which delegates messages to the given appender if the log level is enabled by given severity
@@ -275,28 +275,28 @@ func (l GeneralLogger) WarningCtxWithPanic(context context.Context, args ...any)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) WarningWithPanicf(format string, args ...any) {
 	l.Warningf(format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message derived from format together with a correlation id if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) WarningWithCorrelationAndPanicf(correlationId string, format string, args ...any) {
 	l.WarningWithCorrelationf(correlationId, format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message derived from format together with custom values if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) WarningCustomWithPanicf(customValues map[string]any, format string, args ...any) {
 	l.WarningCustomf(customValues, format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message derived from format together with a correlation id from context if warning level is enabled and calls built-in function panic to stop current goroutine (independent if warning level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) WarningCtxWithPanicf(context context.Context, format string, args ...any) {
 	l.WarningCtxf(context, format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message if error level is enabled
@@ -395,28 +395,28 @@ func (l GeneralLogger) ErrorCtxWithPanic(context context.Context, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) ErrorWithPanicf(format string, args ...any) {
 	l.Errorf(format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message derived from format together with a correlation id if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) ErrorWithCorrelationAndPanicf(correlationId string, format string, args ...any) {
 	l.ErrorWithCorrelationf(correlationId, format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message derived from format together with custom values if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) ErrorCustomWithPanicf(customValues map[string]any, format string, args ...any) {
 	l.ErrorCustomf(customValues, format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message derived from format together with a correlation id from context if error level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) ErrorCtxWithPanicf(context context.Context, format string, args ...any) {
 	l.ErrorCtxf(context, format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message if fatal level is enabled
@@ -515,28 +515,28 @@ func (l GeneralLogger) FatalCtxWithPanic(context context.Context, args ...any) {
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) FatalWithPanicf(format string, args ...any) {
 	l.Fatalf(format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message derived from format together with a correlation id if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) FatalWithCorrelationAndPanicf(correlationId string, format string, args ...any) {
 	l.FatalWithCorrelationf(correlationId, format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message derived from format together with custom values if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) FatalCustomWithPanicf(customValues map[string]any, format string, args ...any) {
 	l.FatalCustomf(customValues, format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message derived from format together with a correlation id from context if fatal level is enabled and calls built-in function panic to stop current goroutine (independent if error level is enabled)
 // Arguments are handled in the manner of [fmt.Sprintf].
 func (l GeneralLogger) FatalCtxWithPanicf(context context.Context, format string, args ...any) {
 	l.FatalCtxf(context, format, args...)
-	panicOrMock(fmt.Sprint(args...))
+	panicOrMock(fmt.Sprintf(format, args...))
 }
 
 // Logs a message if fatal level is enabled and calls [os.Exit](1) (independent if fatal level is enabled)
@@ -691,7 +691,7 @@ func (l *GeneralLogger) closeAppender() {
 
 func panicOrMock(message string) {
 	if mockPanicAndExitAtGeneralLogger {
-		panicMockActivated = true
+		panicMockActivated = &message
 		return
 	}
 	panic(message)

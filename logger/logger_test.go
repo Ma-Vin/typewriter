@@ -1407,7 +1407,7 @@ func TestLoggerWarningWithPanic(t *testing.T) {
 
 	WarningWithPanic("warn test message")
 
-	assertMessageWithPanic(t, "WarningWithPanic", "3warn test message")
+	assertMessageWithPanic(t, "WarningWithPanic", "3warn test message", "warn test message")
 }
 
 func TestLoggerInactiveWarningWithPanic(t *testing.T) {
@@ -1415,7 +1415,7 @@ func TestLoggerInactiveWarningWithPanic(t *testing.T) {
 
 	WarningWithPanic("warn test message")
 
-	assertNoMessageWithPanic(t, "WarningWithPanic")
+	assertNoMessageWithPanic(t, "WarningWithPanic", "warn test message")
 }
 
 func TestLoggerWarningWithCorrelationAndPanic(t *testing.T) {
@@ -1423,7 +1423,7 @@ func TestLoggerWarningWithCorrelationAndPanic(t *testing.T) {
 
 	WarningWithCorrelationAndPanic("1234", "warn test message")
 
-	assertMessageWithPanic(t, "WarningWithCorrelationAndPanic", "31234warn test message")
+	assertMessageWithPanic(t, "WarningWithCorrelationAndPanic", "31234warn test message", "warn test message")
 }
 
 func TestLoggerInactiveWarningWithCorrelationAndPanic(t *testing.T) {
@@ -1431,7 +1431,7 @@ func TestLoggerInactiveWarningWithCorrelationAndPanic(t *testing.T) {
 
 	WarningWithCorrelationAndPanic("1234", "warn test message")
 
-	assertNoMessageWithPanic(t, "WarningWithCorrelationAndPanic")
+	assertNoMessageWithPanic(t, "WarningWithCorrelationAndPanic", "warn test message")
 }
 
 func TestLoggerWarningCustomWithPanic(t *testing.T) {
@@ -1439,7 +1439,7 @@ func TestLoggerWarningCustomWithPanic(t *testing.T) {
 
 	WarningCustomWithPanic(map[string]any{"test": 123}, "warn test message")
 
-	assertMessageWithPanic(t, "WarningCustomWithPanic", "3 map[test:123]warn test message")
+	assertMessageWithPanic(t, "WarningCustomWithPanic", "3 map[test:123]warn test message", "warn test message")
 }
 
 func TestLoggerInactiveWarningCustomWithPanic(t *testing.T) {
@@ -1447,7 +1447,7 @@ func TestLoggerInactiveWarningCustomWithPanic(t *testing.T) {
 
 	WarningCustomWithPanic(map[string]any{"test": 123}, "warn test message")
 
-	assertNoMessageWithPanic(t, "WarningCustomWithPanic")
+	assertNoMessageWithPanic(t, "WarningCustomWithPanic", "warn test message")
 }
 
 func TestLoggerWarningCtxWithPanic(t *testing.T) {
@@ -1455,7 +1455,7 @@ func TestLoggerWarningCtxWithPanic(t *testing.T) {
 
 	WarningCtxWithPanic(testDummyContext, "warn test message")
 
-	assertMessageWithPanic(t, "WarningCtxWithPanic", "31234warn test message")
+	assertMessageWithPanic(t, "WarningCtxWithPanic", "31234warn test message", "warn test message")
 }
 
 func TestLoggerInactiveWarningCtxWithPanic(t *testing.T) {
@@ -1463,7 +1463,7 @@ func TestLoggerInactiveWarningCtxWithPanic(t *testing.T) {
 
 	WarningCtxWithPanic(testDummyContext, "warn test message")
 
-	assertNoMessageWithPanic(t, "WarningCtxWithPanic")
+	assertNoMessageWithPanic(t, "WarningCtxWithPanic", "warn test message")
 }
 
 func TestLoggerWarningWithPanicf(t *testing.T) {
@@ -1471,7 +1471,7 @@ func TestLoggerWarningWithPanicf(t *testing.T) {
 
 	WarningWithPanicf("warn test %s", "message")
 
-	assertMessageWithPanic(t, "WarningWithPanicf", "3warn test message")
+	assertMessageWithPanic(t, "WarningWithPanicf", "3warn test message", "warn test message")
 }
 
 func TestLoggerInactiveWarningWithPanicf(t *testing.T) {
@@ -1479,7 +1479,7 @@ func TestLoggerInactiveWarningWithPanicf(t *testing.T) {
 
 	WarningWithPanicf("warn test %s", "message")
 
-	assertNoMessageWithPanic(t, "WarningWithPanicf")
+	assertNoMessageWithPanic(t, "WarningWithPanicf", "warn test message")
 }
 
 func TestLoggerWarningWithCorrelationAndPanicf(t *testing.T) {
@@ -1487,7 +1487,7 @@ func TestLoggerWarningWithCorrelationAndPanicf(t *testing.T) {
 
 	WarningWithCorrelationAndPanicf("1234", "warn test %s", "message")
 
-	assertMessageWithPanic(t, "WarningWithCorrelationAndPanicf", "31234warn test message")
+	assertMessageWithPanic(t, "WarningWithCorrelationAndPanicf", "31234warn test message", "warn test message")
 }
 
 func TestLoggerInactiveWarningWithCorrelationAndPanicf(t *testing.T) {
@@ -1495,7 +1495,7 @@ func TestLoggerInactiveWarningWithCorrelationAndPanicf(t *testing.T) {
 
 	WarningWithCorrelationAndPanicf("1234", "warn test %s", "message")
 
-	assertNoMessageWithPanic(t, "WarningWithCorrelationAndPanicf")
+	assertNoMessageWithPanic(t, "WarningWithCorrelationAndPanicf", "warn test message")
 }
 
 func TestLoggerWarningCustomWithPanicf(t *testing.T) {
@@ -1503,7 +1503,7 @@ func TestLoggerWarningCustomWithPanicf(t *testing.T) {
 
 	WarningCustomWithPanicf(map[string]any{"test": 123}, "warn test %s", "message")
 
-	assertMessageWithPanic(t, "WarningCustomWithPanicf", "3 map[test:123]warn test message")
+	assertMessageWithPanic(t, "WarningCustomWithPanicf", "3 map[test:123]warn test message", "warn test message")
 }
 
 func TestLoggerInactiveWarningCustomWithPanicf(t *testing.T) {
@@ -1511,7 +1511,7 @@ func TestLoggerInactiveWarningCustomWithPanicf(t *testing.T) {
 
 	WarningCustomWithPanicf(map[string]any{"test": 123}, "warn test %s", "message")
 
-	assertNoMessageWithPanic(t, "WarningCustomWithPanicf")
+	assertNoMessageWithPanic(t, "WarningCustomWithPanicf", "warn test message")
 }
 
 func TestLoggerWarningCtxWithPanicf(t *testing.T) {
@@ -1519,7 +1519,7 @@ func TestLoggerWarningCtxWithPanicf(t *testing.T) {
 
 	WarningCtxWithPanicf(testDummyContext, "warn test %s", "message")
 
-	assertMessageWithPanic(t, "WarningCtxWithPanicf", "31234warn test message")
+	assertMessageWithPanic(t, "WarningCtxWithPanicf", "31234warn test message", "warn test message")
 }
 
 func TestLoggerInactiveWarningCtxWithPanicf(t *testing.T) {
@@ -1527,7 +1527,7 @@ func TestLoggerInactiveWarningCtxWithPanicf(t *testing.T) {
 
 	WarningCtxWithPanicf(testDummyContext, "warn test %s", "message")
 
-	assertNoMessageWithPanic(t, "WarningCtxWithPanicf")
+	assertNoMessageWithPanic(t, "WarningCtxWithPanicf", "warn test message")
 }
 
 // -------------------
@@ -1942,7 +1942,7 @@ func TestLoggerErrorWithPanic(t *testing.T) {
 
 	ErrorWithPanic("error test message")
 
-	assertMessageWithPanic(t, "ErrorWithPanic", "2error test message")
+	assertMessageWithPanic(t, "ErrorWithPanic", "2error test message", "error test message")
 }
 
 func TestLoggerInactiveErrorWithPanic(t *testing.T) {
@@ -1950,7 +1950,7 @@ func TestLoggerInactiveErrorWithPanic(t *testing.T) {
 
 	ErrorWithPanic("error test message")
 
-	assertNoMessageWithPanic(t, "ErrorWithPanic")
+	assertNoMessageWithPanic(t, "ErrorWithPanic", "error test message")
 }
 
 func TestLoggerErrorWithCorrelationAndPanic(t *testing.T) {
@@ -1958,7 +1958,7 @@ func TestLoggerErrorWithCorrelationAndPanic(t *testing.T) {
 
 	ErrorWithCorrelationAndPanic("1234", "error test message")
 
-	assertMessageWithPanic(t, "ErrorWithCorrelationAndPanic", "21234error test message")
+	assertMessageWithPanic(t, "ErrorWithCorrelationAndPanic", "21234error test message", "error test message")
 }
 
 func TestLoggerInactiveErrorWithCorrelationAndPanic(t *testing.T) {
@@ -1966,7 +1966,7 @@ func TestLoggerInactiveErrorWithCorrelationAndPanic(t *testing.T) {
 
 	ErrorWithCorrelationAndPanic("1234", "error test message")
 
-	assertNoMessageWithPanic(t, "ErrorWithCorrelationAndPanic")
+	assertNoMessageWithPanic(t, "ErrorWithCorrelationAndPanic", "error test message")
 }
 
 func TestLoggerErrorCustomWithPanic(t *testing.T) {
@@ -1974,7 +1974,7 @@ func TestLoggerErrorCustomWithPanic(t *testing.T) {
 
 	ErrorCustomWithPanic(map[string]any{"test": 123}, "error test message")
 
-	assertMessageWithPanic(t, "ErrorCustomWithPanic", "2 map[test:123]error test message")
+	assertMessageWithPanic(t, "ErrorCustomWithPanic", "2 map[test:123]error test message", "error test message")
 }
 
 func TestLoggerInactiveErrorCustomWithPanic(t *testing.T) {
@@ -1982,7 +1982,7 @@ func TestLoggerInactiveErrorCustomWithPanic(t *testing.T) {
 
 	ErrorCustomWithPanic(map[string]any{"test": 123}, "error test message")
 
-	assertNoMessageWithPanic(t, "ErrorCustomWithPanic")
+	assertNoMessageWithPanic(t, "ErrorCustomWithPanic", "error test message")
 }
 
 func TestLoggerErrorCtxWithPanic(t *testing.T) {
@@ -1990,7 +1990,7 @@ func TestLoggerErrorCtxWithPanic(t *testing.T) {
 
 	ErrorCtxWithPanic(testDummyContext, "error test message")
 
-	assertMessageWithPanic(t, "ErrorCtxWithPanic", "21234error test message")
+	assertMessageWithPanic(t, "ErrorCtxWithPanic", "21234error test message", "error test message")
 }
 
 func TestLoggerInactivErrorCtxWithPanic(t *testing.T) {
@@ -1998,7 +1998,7 @@ func TestLoggerInactivErrorCtxWithPanic(t *testing.T) {
 
 	ErrorCtxWithPanic(testDummyContext, "error test message")
 
-	assertNoMessageWithPanic(t, "ErrorCtxWithPanic")
+	assertNoMessageWithPanic(t, "ErrorCtxWithPanic", "error test message")
 }
 
 func TestLoggerErrorWithPanicf(t *testing.T) {
@@ -2006,7 +2006,7 @@ func TestLoggerErrorWithPanicf(t *testing.T) {
 
 	ErrorWithPanicf("error test %s", "message")
 
-	assertMessageWithPanic(t, "ErrorWithPanicf", "2error test message")
+	assertMessageWithPanic(t, "ErrorWithPanicf", "2error test message", "error test message")
 }
 
 func TestLoggerInactiveErrorWithPanicf(t *testing.T) {
@@ -2014,7 +2014,7 @@ func TestLoggerInactiveErrorWithPanicf(t *testing.T) {
 
 	ErrorWithPanicf("error test %s", "message")
 
-	assertNoMessageWithPanic(t, "ErrorWithPanicf")
+	assertNoMessageWithPanic(t, "ErrorWithPanicf", "error test message")
 }
 
 func TestLoggerErrorWithCorrelationAndPanicf(t *testing.T) {
@@ -2022,7 +2022,7 @@ func TestLoggerErrorWithCorrelationAndPanicf(t *testing.T) {
 
 	ErrorWithCorrelationAndPanicf("1234", "error test %s", "message")
 
-	assertMessageWithPanic(t, "ErrorWithCorrelationAndPanicf", "21234error test message")
+	assertMessageWithPanic(t, "ErrorWithCorrelationAndPanicf", "21234error test message", "error test message")
 }
 
 func TestLoggerInactiveErrorWithCorrelationAndPanicf(t *testing.T) {
@@ -2030,7 +2030,7 @@ func TestLoggerInactiveErrorWithCorrelationAndPanicf(t *testing.T) {
 
 	ErrorWithCorrelationAndPanicf("1234", "error test %s", "message")
 
-	assertNoMessageWithPanic(t, "ErrorWithCorrelationAndPanicf")
+	assertNoMessageWithPanic(t, "ErrorWithCorrelationAndPanicf", "error test message")
 }
 
 func TestLoggerErrorCustomWithPanicf(t *testing.T) {
@@ -2038,7 +2038,7 @@ func TestLoggerErrorCustomWithPanicf(t *testing.T) {
 
 	ErrorCustomWithPanicf(map[string]any{"test": 123}, "error test %s", "message")
 
-	assertMessageWithPanic(t, "ErrorCustomWithPanicf", "2 map[test:123]error test message")
+	assertMessageWithPanic(t, "ErrorCustomWithPanicf", "2 map[test:123]error test message", "error test message")
 }
 
 func TestLoggerInactiveErrorCustomWithPanicf(t *testing.T) {
@@ -2046,7 +2046,7 @@ func TestLoggerInactiveErrorCustomWithPanicf(t *testing.T) {
 
 	ErrorCustomWithPanicf(map[string]any{"test": 123}, "error test %s", "message")
 
-	assertNoMessageWithPanic(t, "ErrorCustomWithPanicf")
+	assertNoMessageWithPanic(t, "ErrorCustomWithPanicf", "error test message")
 }
 
 func TestLoggerErrorCtxWithPanicf(t *testing.T) {
@@ -2054,7 +2054,7 @@ func TestLoggerErrorCtxWithPanicf(t *testing.T) {
 
 	ErrorCtxWithPanicf(testDummyContext, "error test %s", "message")
 
-	assertMessageWithPanic(t, "ErrorCtxWithPanicf", "21234error test message")
+	assertMessageWithPanic(t, "ErrorCtxWithPanicf", "21234error test message", "error test message")
 }
 
 func TestLoggerInactiveErrorCtxWithPanicf(t *testing.T) {
@@ -2062,7 +2062,7 @@ func TestLoggerInactiveErrorCtxWithPanicf(t *testing.T) {
 
 	ErrorCtxWithPanicf(testDummyContext, "error test %s", "message")
 
-	assertNoMessageWithPanic(t, "ErrorCtxWithPanicf")
+	assertNoMessageWithPanic(t, "ErrorCtxWithPanicf", "error test message")
 }
 
 // -------------------
@@ -2478,7 +2478,7 @@ func TestLoggerFatalWithPanic(t *testing.T) {
 
 	FatalWithPanic("fatal test message")
 
-	assertMessageWithPanic(t, "FatalWithPanic", "1fatal test message")
+	assertMessageWithPanic(t, "FatalWithPanic", "1fatal test message", "fatal test message")
 }
 
 func TestLoggerInactiveFatalWithPanic(t *testing.T) {
@@ -2486,7 +2486,7 @@ func TestLoggerInactiveFatalWithPanic(t *testing.T) {
 
 	FatalWithPanic("fatal test message")
 
-	assertNoMessageWithPanic(t, "FatalWithPanic")
+	assertNoMessageWithPanic(t, "FatalWithPanic", "fatal test message")
 }
 
 func TestLoggerFatalWithCorrelationAndPanic(t *testing.T) {
@@ -2494,7 +2494,7 @@ func TestLoggerFatalWithCorrelationAndPanic(t *testing.T) {
 
 	FatalWithCorrelationAndPanic("1234", "fatal test message")
 
-	assertMessageWithPanic(t, "FatalWithCorrelationAndPanic", "11234fatal test message")
+	assertMessageWithPanic(t, "FatalWithCorrelationAndPanic", "11234fatal test message", "fatal test message")
 }
 
 func TestLoggerInactiveFatalWithCorrelationAndPanic(t *testing.T) {
@@ -2502,7 +2502,7 @@ func TestLoggerInactiveFatalWithCorrelationAndPanic(t *testing.T) {
 
 	FatalWithCorrelationAndPanic("1234", "fatal test message")
 
-	assertNoMessageWithPanic(t, "FatalWithCorrelationAndPanic")
+	assertNoMessageWithPanic(t, "FatalWithCorrelationAndPanic", "fatal test message")
 }
 
 func TestLoggerFatalCustomWithPanic(t *testing.T) {
@@ -2510,7 +2510,7 @@ func TestLoggerFatalCustomWithPanic(t *testing.T) {
 
 	FatalCustomWithPanic(map[string]any{"test": 123}, "fatal test message")
 
-	assertMessageWithPanic(t, "FatalCustomWithPanic", "1 map[test:123]fatal test message")
+	assertMessageWithPanic(t, "FatalCustomWithPanic", "1 map[test:123]fatal test message", "fatal test message")
 }
 
 func TestLoggerInactiveFatalCustomWithPanic(t *testing.T) {
@@ -2518,7 +2518,7 @@ func TestLoggerInactiveFatalCustomWithPanic(t *testing.T) {
 
 	FatalCustomWithPanic(map[string]any{"test": 123}, "fatal test message")
 
-	assertNoMessageWithPanic(t, "FatalCustomWithPanic")
+	assertNoMessageWithPanic(t, "FatalCustomWithPanic", "fatal test message")
 }
 
 func TestLoggerFatalCtxWithPanic(t *testing.T) {
@@ -2526,7 +2526,7 @@ func TestLoggerFatalCtxWithPanic(t *testing.T) {
 
 	FatalCtxWithPanic(testDummyContext, "fatal test message")
 
-	assertMessageWithPanic(t, "FatalCtxWithPanic", "11234fatal test message")
+	assertMessageWithPanic(t, "FatalCtxWithPanic", "11234fatal test message", "fatal test message")
 }
 
 func TestLoggerInactiveFatalCtxWithPanic(t *testing.T) {
@@ -2534,7 +2534,7 @@ func TestLoggerInactiveFatalCtxWithPanic(t *testing.T) {
 
 	FatalCtxWithPanic(testDummyContext, "fatal test message")
 
-	assertNoMessageWithPanic(t, "FatalCtxWithPanic")
+	assertNoMessageWithPanic(t, "FatalCtxWithPanic", "fatal test message")
 }
 
 func TestLoggerFatalWithPanicf(t *testing.T) {
@@ -2542,7 +2542,7 @@ func TestLoggerFatalWithPanicf(t *testing.T) {
 
 	FatalWithPanicf("fatal test %s", "message")
 
-	assertMessageWithPanic(t, "FatalWithPanicf", "1fatal test message")
+	assertMessageWithPanic(t, "FatalWithPanicf", "1fatal test message", "fatal test message")
 }
 
 func TestLoggerInactiveFatalWithPanicf(t *testing.T) {
@@ -2550,7 +2550,7 @@ func TestLoggerInactiveFatalWithPanicf(t *testing.T) {
 
 	FatalWithPanicf("fatal test %s", "message")
 
-	assertNoMessageWithPanic(t, "FatalWithPanicf")
+	assertNoMessageWithPanic(t, "FatalWithPanicf", "fatal test message")
 }
 
 func TestLoggerFatalWithCorrelationAndPanicf(t *testing.T) {
@@ -2558,7 +2558,7 @@ func TestLoggerFatalWithCorrelationAndPanicf(t *testing.T) {
 
 	FatalWithCorrelationAndPanicf("1234", "fatal test %s", "message")
 
-	assertMessageWithPanic(t, "FatalWithCorrelationAndPanicf", "11234fatal test message")
+	assertMessageWithPanic(t, "FatalWithCorrelationAndPanicf", "11234fatal test message", "fatal test message")
 }
 
 func TestLoggerInactiveFatalWithCorrelationAndPanicf(t *testing.T) {
@@ -2566,7 +2566,7 @@ func TestLoggerInactiveFatalWithCorrelationAndPanicf(t *testing.T) {
 
 	FatalWithCorrelationAndPanicf("1234", "fatal test %s", "message")
 
-	assertNoMessageWithPanic(t, "FatalWithCorrelationAndPanicf")
+	assertNoMessageWithPanic(t, "FatalWithCorrelationAndPanicf", "fatal test message")
 }
 
 func TestLoggerFatalCustomWithPanicf(t *testing.T) {
@@ -2574,7 +2574,7 @@ func TestLoggerFatalCustomWithPanicf(t *testing.T) {
 
 	FatalCustomWithPanicf(map[string]any{"test": 123}, "fatal test %s", "message")
 
-	assertMessageWithPanic(t, "FatalCustomWithPanicf", "1 map[test:123]fatal test message")
+	assertMessageWithPanic(t, "FatalCustomWithPanicf", "1 map[test:123]fatal test message", "fatal test message")
 }
 
 func TestLoggerInactiveFatalCustomWithPanicf(t *testing.T) {
@@ -2582,7 +2582,7 @@ func TestLoggerInactiveFatalCustomWithPanicf(t *testing.T) {
 
 	FatalCustomWithPanicf(map[string]any{"test": 123}, "fatal test %s", "message")
 
-	assertNoMessageWithPanic(t, "FatalCustomWithPanicf")
+	assertNoMessageWithPanic(t, "FatalCustomWithPanicf", "fatal test message")
 }
 
 func TestLoggerFatalCtxWithPanicf(t *testing.T) {
@@ -2590,7 +2590,7 @@ func TestLoggerFatalCtxWithPanicf(t *testing.T) {
 
 	FatalCtxWithPanicf(testDummyContext, "fatal test %s", "message")
 
-	assertMessageWithPanic(t, "FatalCtxWithPanicf", "11234fatal test message")
+	assertMessageWithPanic(t, "FatalCtxWithPanicf", "11234fatal test message", "fatal test message")
 }
 
 func TestLoggerInactiveFatalCtxWithPanicf(t *testing.T) {
@@ -2598,7 +2598,7 @@ func TestLoggerInactiveFatalCtxWithPanicf(t *testing.T) {
 
 	FatalCtxWithPanicf(testDummyContext, "fatal test %s", "message")
 
-	assertNoMessageWithPanic(t, "FatalCtxWithPanicf")
+	assertNoMessageWithPanic(t, "FatalCtxWithPanicf", "fatal test message")
 }
 
 // -------------------
