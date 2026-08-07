@@ -88,16 +88,18 @@ There are three types of formatter which provides the texts to log for the appen
   1. `DELIMITER` the delimiting signs. The default value of the delimiter is ` - `.
   2. `TIME_LAYOUT` time layout. Default value of `time.RFC3339`
   3. `SEQUENCE_ACTIVE` indicator whether to log the sequence number or not. Default `true`
+  4. `SEVERITY_ANSI_COLORED` indicator whether to log the severity with an ansi colored escape (`\033` is used as escape code). Default `false`
 * `TEMPLATE`: The records will be derived from three templates and time layout. They can be set `TYPEWRITER_LOG_FORMATTER_PARAMETER_<x>` where `<x>` has to be replaced by the following values:
   1. `TEMPLATE` template for writing time, severity and the message. Default `[$time] $seq $sev: $msg` (or `[$time] $sev: $msg` if sequence inactive)
   2. `TEMPLATE_CORRELATION` template for writing time, severity, correlationID and the message. Default `[$time] $seq $sev $corr: $msg` (or `[$time] $sev $corr: $msg` if sequence inactive)
   3. `TEMPLATE_CUSTOM` template for writing time, severity, message and custom value map. Default `[$time] $seq $sev: $msg` (or `[$time] $sev: $msg` if sequence inactive)
   4. `TIME_LAYOUT` time layout. Default value of `time.RFC3339`
   5. `SEQUENCE_ACTIVE` indicator whether to log the sequence number or not. Default `true`
-  6. `TEMPLATE_TRIM_SEVERITY` indicator whether to trim severity text or to add space at warn and info to algin following elements. Default `false`
-  7. `TEMPLATE_CALLER` like 1. with caller function, file and line placed in front of message. Default `[$time] $seq $sev $func($file.$line): $msg` (or `[$time] $sev $func($file.$line): $msg` if sequence inactive)
-  8. `TEMPLATE_CALLER_CORRELATION` like 2. with caller function, file and line placed in front of message. Default `[$time] $seq $sev $corr $func($file.$line): $msg` (or `[$time] $sev $corr $func($file.$line): $msg` if sequence inactive)
-  9. `TEMPLATE_CALLER_CUSTOM` like 3. with caller function, file and line placed in front of message. Default `[$time] $seq $sev $func($file.$line): $msg` (or `[$time] $sev $func($file.$line): $msg` if sequence inactive)
+  6. `SEVERITY_ANSI_COLORED` indicator whether to log the severity with an ansi colored escape (`\033` is used as escape code). Default `false`
+  7. `TEMPLATE_TRIM_SEVERITY` indicator whether to trim severity text or to add space at warn and info to algin following elements. Default `false`
+  8. `TEMPLATE_CALLER` like 1. with caller function, file and line placed in front of message. Default `[$time] $seq $sev $func($file.$line): $msg` (or `[$time] $sev $func($file.$line): $msg` if sequence inactive)
+  9. `TEMPLATE_CALLER_CORRELATION` like 2. with caller function, file and line placed in front of message. Default `[$time] $seq $sev $corr $func($file.$line): $msg` (or `[$time] $sev $corr $func($file.$line): $msg` if sequence inactive)
+  10. `TEMPLATE_CALLER_CUSTOM` like 3. with caller function, file and line placed in front of message. Default `[$time] $seq $sev $func($file.$line): $msg` (or `[$time] $sev $func($file.$line): $msg` if sequence inactive)
   
   The following placeholders can be used:
   * `$time` the timestamp
@@ -122,9 +124,10 @@ There are three types of formatter which provides the texts to log for the appen
   7. `JSON_CUSTOM_VALUES_SUB` indicator to add custom value map as sub element: Default: `false`
   8. `TIME_LAYOUT` time layout. Default value of `time.RFC3339`
   9. `SEQUENCE_ACTIVE` indicator whether to log the sequence number or not. Default `true`
-  10. `JSON_CALLER_FUNCTION_KEY` key of the caller function. Default: `caller`
-  11. `JSON_CALLER_FILE_KEY` key of the caller file. Default: `file`
-  12. `JSON_CALLER_LINE_KEY` key of the caller file line. Default: `line`
+  10. `SEVERITY_ANSI_COLORED` indicator whether to log the severity with an ansi colored escape (`\u001b` is used as escape code, `\033` is converted to unicode one by json marshaller). Default `false`
+  11. `JSON_CALLER_FUNCTION_KEY` key of the caller function. Default: `caller`
+  12. `JSON_CALLER_FILE_KEY` key of the caller file. Default: `file`
+  13. `JSON_CALLER_LINE_KEY` key of the caller file line. Default: `line`
 
 The default formatter is the delimiter one.
 

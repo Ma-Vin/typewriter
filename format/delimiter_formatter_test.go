@@ -11,15 +11,15 @@ import (
 	"github.com/ma-vin/typewriter/config"
 )
 
-func createDelimiterFormatterForTest(withSequence bool, envNamesToLog []string) Formatter {
+func createDelimiterFormatterForTest(withSequence bool, withAnsiColor bool, envNamesToLog []string) Formatter {
 	common.InitSequenceCounter()
-	commonConfig := config.CommonFormatterConfig{TimeLayout: time.RFC3339, IsSequenceActive: withSequence, EnvNamesToLog: envNamesToLog}
+	commonConfig := config.CommonFormatterConfig{TimeLayout: time.RFC3339, IsSequenceActive: withSequence, EnvNamesToLog: envNamesToLog, IsSeverityAnsiColored: withAnsiColor}
 	var config config.FormatterConfig = config.DelimiterFormatterConfig{Common: &commonConfig, Delimiter: " - "}
 	result, _ := CreateDelimiterFormatterFromConfig(&config)
 	return *result
 }
 
-var delimiterFormatter Formatter = createDelimiterFormatterForTest(false, []string{})
+var delimiterFormatter Formatter = createDelimiterFormatterForTest(false, false, []string{})
 
 var delimiterFormatTestTime = time.Date(2024, time.October, 1, 13, 20, 0, 0, time.UTC)
 var delimiterFormatTestTimeText = delimiterFormatTestTime.Format(time.RFC3339)
@@ -114,7 +114,7 @@ func TestDelimiterFormatCaller(t *testing.T) {
 func TestDelimiterFormatWithSequence(t *testing.T) {
 	common.SetLogValuesMockTime(&delimiterFormatTestTime)
 
-	delimiterFormatterWithSequence := createDelimiterFormatterForTest(true, []string{})
+	delimiterFormatterWithSequence := createDelimiterFormatterForTest(true, false, []string{})
 
 	for i := 1; i <= 5; i++ {
 		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
@@ -132,11 +132,30 @@ func TestDelimiterFormatWithEnvNames(t *testing.T) {
 	os.Setenv("Test3", "2.1")
 	os.Setenv("test4", "true")
 
-	delimiterFormatterWithSequence := createDelimiterFormatterForTest(true, []string{"test1", "TEST2", "Test3", "test4"})
+	delimiterFormatterWithSequence := createDelimiterFormatterForTest(true, false, []string{"test1", "TEST2", "Test3", "test4"})
 
 	for i := 1; i <= 5; i++ {
 		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
 		expectedMessage := fmt.Sprintf(delimiterFormatTestTimeText+" - %d - %s - abc - 1 - 2.1 - true - Testmessage", i, severityTextMap[i])
 		testutil.AssertEquals(expectedMessage, delimiterFormatterWithSequence.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestDElimiterFormatWithSeverityAnsiColored(t *testing.T) {
+	common.SetLogValuesMockTime(&delimiterFormatTestTime)
+
+	delimiterFormatterWithAnsiColor := createDelimiterFormatterForTest(false, true, []string{})
+
+	expectedResults := map[int]string{
+		common.DEBUG_SEVERITY:       delimiterFormatTestTimeText + " - \033[34mDEBUG\033[0m - Testmessage",
+		common.INFORMATION_SEVERITY: delimiterFormatTestTimeText + " - \033[32mINFO \033[0m - Testmessage",
+		common.WARNING_SEVERITY:     delimiterFormatTestTimeText + " - \033[33mWARN \033[0m - Testmessage",
+		common.ERROR_SEVERITY:       delimiterFormatTestTimeText + " - \033[31mERROR\033[0m - Testmessage",
+		common.FATAL_SEVERITY:       delimiterFormatTestTimeText + " - \033[35mFATAL\033[0m - Testmessage",
+	}
+
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
+		testutil.AssertEquals(expectedMessage, delimiterFormatterWithAnsiColor.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }

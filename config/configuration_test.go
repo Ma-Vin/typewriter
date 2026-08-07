@@ -91,6 +91,7 @@ func TestGetConfigNoEnv(t *testing.T) {
 	testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 	testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
 	testutil.AssertEquals(time.RFC3339, result.Formatter[0].TimeLayout(), t, "result.formatter[0].TimeLayout()")
+	testutil.AssertFalse(result.Formatter[0].GetCommon().IsSeverityAnsiColored, t, "result.formatter[0].GetCommon().IsSeverityAnsiColored")
 }
 
 func TestGetConfigAlreadyExistingFromNoEnv(t *testing.T) {
@@ -176,6 +177,7 @@ func TestGetConfigDefaultFile(t *testing.T) {
 	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+DELIMITER_PARAMETER, ":")
 	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, time.RFC1123Z)
 	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES, "param1,param2")
+	propertiesFileAddValueConfigTest(propertiesFile, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+SEVERITY_ANSI_COLORED, "true")
 	propertiesFile.Close()
 
 	configInitialized = false
@@ -204,6 +206,7 @@ func TestGetConfigDefaultFile(t *testing.T) {
 	testutil.AssertEquals(2, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
 	testutil.AssertEquals("param1", result.Formatter[0].GetCommon().EnvNamesToLog[0], t, "result.Formatter[0].GetCommon().EnvNamesToLog[0]")
 	testutil.AssertEquals("param2", result.Formatter[0].GetCommon().EnvNamesToLog[1], t, "result.Formatter[0].GetCommon().EnvNamesToLog[1]")
+	testutil.AssertTrue(result.Formatter[0].GetCommon().IsSeverityAnsiColored, t, "result.formatter[0].GetCommon().IsSeverityAnsiColored")
 
 	if _, err := os.Stat(pathToPropertiesFile); err == nil {
 		testutil.AssertNil(os.Remove(pathToPropertiesFile), t, "os.Remove(pathToPropertiesFile)")
@@ -698,6 +701,7 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PROPERTY_NAME+packageName, FORMATTER_DELIMITER)
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+DELIMITER_PARAMETER, "_")
 		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+STATIC_ENV_NAMES, "param1,param2")
+		allAddValueConfigTest[i](optionalFile, PACKAGE_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+packageName+SEVERITY_ANSI_COLORED, "true")
 		allPostInitConfigTest[i](optionalFile)
 
 		configInitialized = false
@@ -732,6 +736,7 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[0].FormatterType(), t, "result.formatter[0].FormatterType()")
 		testutil.AssertEquals(DEFAULT_DELIMITER, result.Formatter[0].(DelimiterFormatterConfig).Delimiter, t, "result.formatter[0].delimiter")
 		testutil.AssertEquals(0, len(result.Formatter[0].GetCommon().EnvNamesToLog), t, "len(result.Formatter[0].GetCommon().EnvNamesToLog)")
+		testutil.AssertTrue(result.Formatter[1].GetCommon().IsSeverityAnsiColored, t, "result.formatter[0].GetCommon().IsSeverityAnsiColored")
 		testutil.AssertFalse(result.Formatter[1].IsDefault(), t, "result.formatter[1].isDefault")
 		testutil.AssertEquals(packageParameter, result.Formatter[1].PackageParameter(), t, "result.formatter[1].PackageParameter")
 		testutil.AssertEquals(FORMATTER_DELIMITER, result.Formatter[1].FormatterType(), t, "result.formatter[1].formatterType")
@@ -739,6 +744,7 @@ func TestGetConfigPackageDelimiter(t *testing.T) {
 		testutil.AssertEquals(2, len(result.Formatter[1].GetCommon().EnvNamesToLog), t, "len(result.Formatter[1].GetCommon().EnvNamesToLog)")
 		testutil.AssertEquals("param1", result.Formatter[1].GetCommon().EnvNamesToLog[0], t, "result.Formatter[1].GetCommon().EnvNamesToLog[0]")
 		testutil.AssertEquals("param2", result.Formatter[1].GetCommon().EnvNamesToLog[1], t, "result.Formatter[1].GetCommon().EnvNamesToLog[1]")
+		testutil.AssertTrue(result.Formatter[1].GetCommon().IsSeverityAnsiColored, t, "result.formatter[1].GetCommon().IsSeverityAnsiColored")
 	}
 }
 

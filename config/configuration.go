@@ -46,6 +46,7 @@ const (
 	TIME_LAYOUT_PARAMETER                 = "_TIME_LAYOUT"
 	SEQUENCE_ACTIVE_PARAMETER             = "_SEQUENCE_ACTIVE"
 	STATIC_ENV_NAMES                      = "_ENV_NAMES"
+	SEVERITY_ANSI_COLORED                 = "_SEVERITY_ANSI_COLORED"
 	DELIMITER_PARAMETER                   = "_DELIMITER"
 	JSON_CALLER_FUNCTION_KEY_PARAMETER    = "_JSON_CALLER_FUNCTION_KEY"
 	JSON_CALLER_FILE_KEY_PARAMETER        = "_JSON_CALLER_FILE_KEY"
@@ -104,6 +105,7 @@ const (
 	DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE      = "[$time] $seq $sev $func($file.$line): $msg"
 	DEFAULT_TRIM_SEVERITY                        = false
 	DEFAULT_SEQUENCE_ACTIVE                      = true
+	DEFAULT_SEVERITY_ANSI_COLORED                = false
 	DEFAULT_TIME_KEY                             = "time"
 	DEFAULT_SEQUENCE_KEY                         = "sequence"
 	DEFAULT_SEVERITY_KEY                         = "severity"
@@ -594,12 +596,13 @@ func createFormatterConfigEntry(relevantKeyValues *map[string]string, packagePar
 	}
 
 	commonFormatterConfig := CommonFormatterConfig{
-		FormatterType:    getValueFromMapOrDefault(relevantKeyValues, formatterKey, FORMATTER_DELIMITER),
-		IsDefault:        len(packageParameter) == 0,
-		PackageParameter: packageParameter,
-		TimeLayout:       getValueFromMapInheritOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT),
-		IsSequenceActive: getBoolValueFromMapInheritOrDefault(relevantKeyValues, formatterParameterKey+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_SEQUENCE_ACTIVE),
-		EnvNamesToLog:    determineStaticEnvNames(relevantKeyValues, formatterParameterKey+STATIC_ENV_NAMES, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES),
+		FormatterType:         getValueFromMapOrDefault(relevantKeyValues, formatterKey, FORMATTER_DELIMITER),
+		IsDefault:             len(packageParameter) == 0,
+		PackageParameter:      packageParameter,
+		TimeLayout:            getValueFromMapInheritOrDefault(relevantKeyValues, formatterParameterKey+TIME_LAYOUT_PARAMETER, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+TIME_LAYOUT_PARAMETER, DEFAULT_TIME_LAYOUT),
+		IsSequenceActive:      getBoolValueFromMapInheritOrDefault(relevantKeyValues, formatterParameterKey+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+SEQUENCE_ACTIVE_PARAMETER, DEFAULT_SEQUENCE_ACTIVE),
+		EnvNamesToLog:         determineStaticEnvNames(relevantKeyValues, formatterParameterKey+STATIC_ENV_NAMES, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+STATIC_ENV_NAMES),
+		IsSeverityAnsiColored: getBoolValueFromMapInheritOrDefault(relevantKeyValues, formatterParameterKey+SEVERITY_ANSI_COLORED, DEFAULT_LOG_FORMATTER_PARAMETER_PROPERTY_NAME+SEVERITY_ANSI_COLORED, DEFAULT_SEVERITY_ANSI_COLORED),
 	}
 
 	if creator, exist := registeredFormatterConfigs[commonFormatterConfig.FormatterType]; exist {

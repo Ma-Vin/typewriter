@@ -3023,6 +3023,10 @@ func (c DummyFormatterConfig) CreateFullCopy() config.FormatterConfig {
 	return c
 }
 
+func (c DummyFormatterConfig) IsSeverityAnsiColored() bool {
+	return false
+}
+
 func createDummyFormatterConfig(relevantKeyValues *map[string]string, commonConfig *config.CommonFormatterConfig) (*config.FormatterConfig, error) {
 	var result config.FormatterConfig = DummyFormatterConfig{common: commonConfig}
 	return &result, nil

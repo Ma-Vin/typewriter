@@ -14,9 +14,9 @@ import (
 // Creates a new formatter with given templates and time layout
 func createTemplateFormatterForTest(template string, correlationIdTemplate string, customTemplate string,
 	callerTemplate string, callerCorrelationIdTemplate string, callerCustomTemplate string,
-	timeLayout string, trimSeverityText bool, isSequenceActive bool, envNamesToLog []string) Formatter {
+	timeLayout string, trimSeverityText bool, isSequenceActive bool, withAnsiColor bool, envNamesToLog []string) Formatter {
 
-	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout, IsSequenceActive: isSequenceActive, EnvNamesToLog: envNamesToLog}
+	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout, IsSequenceActive: isSequenceActive, EnvNamesToLog: envNamesToLog, IsSeverityAnsiColored: withAnsiColor}
 	var config config.FormatterConfig = config.TemplateFormatterConfig{
 		Common:                               &commonConfig,
 		Template:                             template,
@@ -48,7 +48,7 @@ func createTemplateFormatterWithEnvValuesForTest(template string, correlationIdT
 	os.Setenv("test4", "true")
 
 	return createTemplateFormatterForTest(template, correlationIdTemplate, customTemplate, callerTemplate, callerCorrelationIdTemplate,
-		callerCustomTemplate, timeLayout, trimSeverityText, isSequenceActive, []string{"test1", "TEST2", "Test3", "test4"})
+		callerCustomTemplate, timeLayout, trimSeverityText, isSequenceActive, false, []string{"test1", "TEST2", "Test3", "test4"})
 }
 
 var templateFormatter func() Formatter = func() Formatter {
@@ -60,6 +60,7 @@ var templateFormatter func() Formatter = func() Formatter {
 		"time: $time severity: $sev correlation: $corr caller: $func file: $file line: $line message: $msg",
 		"time: $time severity: $sev caller: $func file: $file line: $line message: $msg $cust_k0: $cust_v0[s] $cust_k1: $cust_v1[d] $cust_k2: $cust_v2[t]",
 		time.RFC1123Z,
+		false,
 		false,
 		false,
 		[]string{})
@@ -76,6 +77,7 @@ var templateSequenceFormatter func() Formatter = func() Formatter {
 		time.RFC1123Z,
 		false,
 		true,
+		false,
 		[]string{})
 }
 
@@ -88,6 +90,7 @@ var templateFormatterOrder func() Formatter = func() Formatter {
 		"caller: $func file: $file line: $line severity: $sev correlation: $corr message: $msg time: $time",
 		"caller: $func file: $file line: $line severity: $sev message: $msg $cust_k1: $cust_v1[d] $cust_k0: $cust_v0[s] $cust_k2: $cust_v2[t] time: $time",
 		time.RFC1123Z,
+		false,
 		false,
 		false,
 		[]string{})
@@ -104,6 +107,7 @@ var templateSequenceFormatterOrder func() Formatter = func() Formatter {
 		time.RFC1123Z,
 		false,
 		true,
+		false,
 		[]string{})
 }
 
@@ -418,6 +422,7 @@ func TestTemplateFormatCustomDefaultFormat(t *testing.T) {
 		time.RFC1123Z,
 		false,
 		false,
+		false,
 		[]string{})
 
 	customProperties := map[string]any{
@@ -471,6 +476,7 @@ func TestTemplateFormatSequenceCustomDefaultFormat(t *testing.T) {
 		time.RFC1123Z,
 		false,
 		true,
+		false,
 		[]string{})
 
 	customProperties := map[string]any{
@@ -522,6 +528,7 @@ func TestTemplateFormatCustomKeyValueOrder(t *testing.T) {
 		time.RFC1123Z,
 		false,
 		false,
+		false,
 		[]string{})
 
 	customProperties := map[string]any{
@@ -548,6 +555,7 @@ func TestTemplateFormatCustomMissingKeyValue(t *testing.T) {
 		config.DEFAULT_CALLER_CORRELATION_TEMPLATE,
 		config.DEFAULT_CALLER_CUSTOM_TEMPLATE,
 		time.RFC1123Z,
+		false,
 		false,
 		false,
 		[]string{})
@@ -609,6 +617,7 @@ func TestTemplateFormatTrimSeverity(t *testing.T) {
 		"time: %s severity: %s caller: %s file: %s line: %d message: %s %s: %s %s: %d %s: %t",
 		time.RFC1123Z,
 		true,
+		false,
 		false,
 		[]string{})
 
@@ -813,6 +822,7 @@ func TestTemplateFormatCustomCallerDefaultFormat(t *testing.T) {
 		time.RFC1123Z,
 		false,
 		false,
+		false,
 		[]string{})
 
 	customProperties := map[string]any{
@@ -850,6 +860,7 @@ func TestTemplateFormatSequenceCustomCallerDefaultFormat(t *testing.T) {
 		time.RFC1123Z,
 		false,
 		true,
+		false,
 		[]string{})
 
 	customProperties := map[string]any{
@@ -989,4 +1000,64 @@ func setCallerValues(logValuesToFormat *common.LogValues) {
 	logValuesToFormat.CallerFileLine = 42
 	logValuesToFormat.CallerFunction = "someFunction"
 	logValuesToFormat.IsCallerSet = true
+}
+
+func TestTemplateFormatSeverityAnsiColored(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+
+	templateFormatterWithAnsiColor := createTemplateFormatterForTest(
+		"time: $time severity: $sev message: $msg",
+		"time: $time severity: $sev correlation: $corr message: $msg",
+		"time: $time severity: $sev message: $msg $cust_k0: $cust_v0[s] $cust_k1: $cust_v1[d] $cust_k2: $cust_v2[t]",
+		"time: $time severity: $sev caller: $func file: $file line: $line message: $msg",
+		"time: $time severity: $sev correlation: $corr caller: $func file: $file line: $line message: $msg",
+		"time: $time severity: $sev caller: $func file: $file line: $line message: $msg $cust_k0: $cust_v0[s] $cust_k1: $cust_v1[d] $cust_k2: $cust_v2[t]",
+		time.RFC1123Z,
+		false,
+		false,
+		true,
+		[]string{})
+
+	expectedResults := map[int]string{
+		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: \033[34mDEBUG\033[0m message: Testmessage",
+		common.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: \033[32mINFO \033[0m message: Testmessage",
+		common.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: \033[33mWARN \033[0m message: Testmessage",
+		common.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: \033[31mERROR\033[0m message: Testmessage",
+		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: \033[35mFATAL\033[0m message: Testmessage",
+	}
+
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
+		testutil.AssertEquals(expectedMessage, templateFormatterWithAnsiColor.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+	}
+}
+
+func TestTemplateFormatTrimmedSeverityAnsiColored(t *testing.T) {
+	common.SetLogValuesMockTime(&templateFormatTestTime)
+
+	templateFormatterWithAnsiColor := createTemplateFormatterForTest(
+		"time: $time severity: $sev message: $msg",
+		"time: $time severity: $sev correlation: $corr message: $msg",
+		"time: $time severity: $sev message: $msg $cust_k0: $cust_v0[s] $cust_k1: $cust_v1[d] $cust_k2: $cust_v2[t]",
+		"time: $time severity: $sev caller: $func file: $file line: $line message: $msg",
+		"time: $time severity: $sev correlation: $corr caller: $func file: $file line: $line message: $msg",
+		"time: $time severity: $sev caller: $func file: $file line: $line message: $msg $cust_k0: $cust_v0[s] $cust_k1: $cust_v1[d] $cust_k2: $cust_v2[t]",
+		time.RFC1123Z,
+		true,
+		false,
+		true,
+		[]string{})
+
+	expectedResults := map[int]string{
+		common.DEBUG_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: \033[34mDEBUG\033[0m message: Testmessage",
+		common.INFORMATION_SEVERITY: "time: " + templateFormatTestTimeText + " severity: \033[32mINFO\033[0m message: Testmessage",
+		common.WARNING_SEVERITY:     "time: " + templateFormatTestTimeText + " severity: \033[33mWARN\033[0m message: Testmessage",
+		common.ERROR_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: \033[31mERROR\033[0m message: Testmessage",
+		common.FATAL_SEVERITY:       "time: " + templateFormatTestTimeText + " severity: \033[35mFATAL\033[0m message: Testmessage",
+	}
+
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
+		testutil.AssertEquals(expectedMessage, templateFormatterWithAnsiColor.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
+	}
 }

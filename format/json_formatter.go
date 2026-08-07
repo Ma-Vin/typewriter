@@ -60,7 +60,7 @@ func (j JsonFormatter) Format(logValues *common.LogValues) string {
 	if j.isSequenceActive {
 		jsonEntries[j.sequenceKey] = logValues.Sequence
 	}
-	jsonEntries[j.severityKey] = severityTrimTextMap[logValues.Severity]
+	jsonEntries[j.severityKey] = getSeverityTrimText(logValues.Severity, j.commonProperties.isSeverityAnsiColored)
 	jsonEntries[j.messageKey] = logValues.Message
 
 	if logValues.CorrelationId != nil {

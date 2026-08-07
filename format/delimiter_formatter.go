@@ -45,8 +45,7 @@ func (d DelimiterFormatter) Format(logValues *common.LogValues) string {
 		sb.WriteString(strconv.FormatUint(logValues.Sequence, 10))
 	}
 	sb.WriteString(d.delimiter)
-	sb.WriteString(severityTextMap[logValues.Severity])
-
+	sb.WriteString(getSeverityText(logValues.Severity, d.commonProperties.isSeverityAnsiColored))
 	if logValues.CorrelationId != nil {
 		sb.WriteString(d.delimiter)
 		sb.WriteString(*logValues.CorrelationId)

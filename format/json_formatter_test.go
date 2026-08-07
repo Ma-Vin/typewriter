@@ -16,9 +16,9 @@ import (
 func createJsonFormatterForTest(timeKey string, sequenceKey string, severityKey string, messageKey string, correlationKey string,
 	customValuesKey string, timeLayout string,
 	callerFunctionKey string, callerFileKey string, callerFileLineKey string,
-	customValuesAsSubElement bool, isSequenceActive bool, envNamesToLog []string) Formatter {
+	customValuesAsSubElement bool, isSequenceActive bool, withAnsiColor bool, envNamesToLog []string) Formatter {
 
-	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout, IsSequenceActive: isSequenceActive, EnvNamesToLog: envNamesToLog}
+	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout, IsSequenceActive: isSequenceActive, EnvNamesToLog: envNamesToLog, IsSeverityAnsiColored: withAnsiColor}
 	var config config.FormatterConfig = config.JsonFormatterConfig{
 		Common:                   &commonConfig,
 		TimeKey:                  timeKey,
@@ -39,8 +39,8 @@ func createJsonFormatterForTest(timeKey string, sequenceKey string, severityKey 
 var jsonFormatTestTime = time.Date(2024, time.November, 15, 20, 00, 0, 0, time.UTC)
 var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 
-var jsonFormatter Formatter = createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, false, []string{})
-var jsonFormatterSub Formatter = createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", true, false, []string{})
+var jsonFormatter Formatter = createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, false, false, []string{})
+var jsonFormatterSub Formatter = createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", true, false, false, []string{})
 
 func TestJsonFormat(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
@@ -244,7 +244,7 @@ func TestJsonFormatWithSequence(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	common.InitSequenceCounter()
-	jsonFormatterWithSequence := createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, true, []string{})
+	jsonFormatterWithSequence := createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, true, false, []string{})
 
 	for i := 1; i <= 5; i++ {
 		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
@@ -263,11 +263,31 @@ func TestJsonFormatWithEnvNames(t *testing.T) {
 	os.Setenv("Test3", "2.1")
 	os.Setenv("test4", "true")
 
-	jsonFormatterWithEnvNames := createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, true, []string{"test1", "TEST2", "Test3", "test4"})
+	jsonFormatterWithEnvNames := createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, true, false, []string{"test1", "TEST2", "Test3", "test4"})
 
 	for i := 1; i <= 5; i++ {
 		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
 		expectedMessage := fmt.Sprintf("{\"TEST2\":1,\"Test3\":2.1,\"message\":\"Testmessage\",\"seq\":%d,\"severity\":\"%s\",\"test1\":\"abc\",\"test4\":true,\"time\":\""+jsonFormatTestTimeText+"\"}", i, severityTrimTextMap[i])
 		testutil.AssertEquals(expectedMessage, jsonFormatterWithEnvNames.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", i))
+	}
+}
+
+func TestJsonFormatWithSeverityAnsiColored(t *testing.T) {
+	common.SetLogValuesMockTime(&jsonFormatTestTime)
+
+	var jsonFormatterWithAnsiColor Formatter = createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, false, true, []string{})
+
+	// json marshaller converts escape code from octal to unicode
+	expectedResults := map[int]string{
+		common.DEBUG_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"\\u001b[34mDEBUG\\u001b[0m\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.INFORMATION_SEVERITY: "{\"message\":\"Testmessage\",\"severity\":\"\\u001b[32mINFO\\u001b[0m\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.WARNING_SEVERITY:     "{\"message\":\"Testmessage\",\"severity\":\"\\u001b[33mWARN\\u001b[0m\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.ERROR_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"\\u001b[31mERROR\\u001b[0m\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+		common.FATAL_SEVERITY:       "{\"message\":\"Testmessage\",\"severity\":\"\\u001b[35mFATAL\\u001b[0m\",\"time\":\"" + jsonFormatTestTimeText + "\"}",
+	}
+
+	for severity, expectedMessage := range expectedResults {
+		logValuesToFormat := common.CreateLogValues(severity, "Testmessage")
+		testutil.AssertEquals(expectedMessage, jsonFormatterWithAnsiColor.Format(&logValuesToFormat), t, fmt.Sprintf("Format severity %d", severity))
 	}
 }

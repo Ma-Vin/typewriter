@@ -20,6 +20,7 @@ func TestNotEqualsDelimiterFormatterConfig(t *testing.T) {
 	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Common.FormatterType = "other" }, "delimiter FormatterType diff", t)
 	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Common.TimeLayout = "other" }, "delimiter TimeLayout diff", t)
 	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Common.IsSequenceActive = false }, "delimiter IsSequenceActive diff", t)
+	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Common.IsSeverityAnsiColored = false }, "json IsSeverityAnsiColored diff", t)
 	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Common.EnvNamesToLog = []string{"test"} }, "delimiter EnvNamesToLog diff", t)
 	checkNotEqualsDelimiterFormatterConfig(&config, func(otherConfig *DelimiterFormatterConfig) { otherConfig.Delimiter = "Other" }, "delimiter Delimiter diff", t)
 }
@@ -71,6 +72,7 @@ func TestNotEqualsTemplateFormatterConfig(t *testing.T) {
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.FormatterType = "other" }, "template FormatterType diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.TimeLayout = "other" }, "template TimeLayout diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.IsSequenceActive = false }, "template IsSequenceActive diff", t)
+	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.IsSeverityAnsiColored = false }, "json IsSeverityAnsiColored diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Common.EnvNamesToLog = []string{"test"} }, "delimiter EnvNamesToLog diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.Template = "other" }, "template Template diff", t)
 	checkNotEqualsTemplateFormatterConfig(&config, func(otherConfig *TemplateFormatterConfig) { otherConfig.IsDefaultTemplate = false }, "template Template diff", t)
@@ -133,6 +135,7 @@ func TestNotEqualsJsonFormatterConfig(t *testing.T) {
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.Common.TimeLayout = "other" }, "json TimeLayout diff", t)
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.Common.IsSequenceActive = false }, "json IsSequenceActive diff", t)
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.Common.EnvNamesToLog = []string{"test"} }, "delimiter EnvNamesToLog diff", t)
+	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.Common.IsSeverityAnsiColored = false }, "json IsSeverityAnsiColored diff", t)
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.TimeKey = "other" }, "json TimeKey diff", t)
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.SeverityKey = "other" }, "json SeverityKey diff", t)
 	checkNotEqualsJsonFormatterConfig(&config, func(otherConfig *JsonFormatterConfig) { otherConfig.MessageKey = "other" }, "json MessageKey diff", t)
@@ -155,9 +158,10 @@ func checkNotEqualsJsonFormatterConfig(config *JsonFormatterConfig, modifier fun
 
 func createCommonFormatterConfigFormatterTest() CommonFormatterConfig {
 	return CommonFormatterConfig{
-		FormatterType:    "FormatterType",
-		TimeLayout:       "TimeLayout",
-		IsSequenceActive: true,
-		EnvNamesToLog:    []string{},
+		FormatterType:         "FormatterType",
+		TimeLayout:            "TimeLayout",
+		IsSequenceActive:      true,
+		EnvNamesToLog:         []string{},
+		IsSeverityAnsiColored: true,
 	}
 }

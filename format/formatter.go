@@ -18,6 +18,12 @@ const (
 	WARNING_PREFIX          string = WARNING_TRIM_PREFIX + " "
 	ERROR_PREFIX            string = "ERROR"
 	FATAL_PREFIX            string = "FATAL"
+	DEBUG_ANSI_COLOR        string = "\033[34m" // blue
+	INFORMATION_ANSI_COLOR  string = "\033[32m" // green
+	WARNING_ANSI_COLOR      string = "\033[33m" // yellow
+	ERROR_ANSI_COLOR        string = "\033[31m" // red
+	FATAL_ANSI_COLOR        string = "\033[35m" // magenta
+	RESET_ANSI_COLOR        string = "\033[0m"
 )
 
 // Interface to format record values
@@ -28,13 +34,19 @@ type Formatter interface {
 
 // Shared common properties of a formatter
 type CommonFormatterProperties struct {
-	envNamesToLog  []string
-	envValuesToLog []any
+	envNamesToLog         []string
+	envValuesToLog        []any
+	isSeverityAnsiColored bool
 }
 
 // Creates the CommonFormatterProperties from common config
 func CreateCommonFormatterProperties(config *config.CommonFormatterConfig) *CommonFormatterProperties {
-	result := CommonFormatterProperties{envNamesToLog: make([]string, 0, len(config.EnvNamesToLog)), envValuesToLog: make([]any, 0, len(config.EnvNamesToLog))}
+	result := CommonFormatterProperties{
+		envNamesToLog:         make([]string, 0, len(config.EnvNamesToLog)),
+		envValuesToLog:        make([]any, 0, len(config.EnvNamesToLog)),
+		isSeverityAnsiColored: config.IsSeverityAnsiColored,
+	}
+
 	for _, s := range config.EnvNamesToLog {
 		envValue := os.Getenv(s)
 		if envValue == "" {
@@ -61,6 +73,20 @@ func CreateCommonFormatterProperties(config *config.CommonFormatterConfig) *Comm
 	return &result
 }
 
+func getSeverityText(severity int, isSeverityAnsiColored bool) string {
+	if isSeverityAnsiColored {
+		return severityAnsiColorCodes[severity] + severityTextMap[severity] + RESET_ANSI_COLOR
+	}
+	return severityTextMap[severity]
+}
+
+func getSeverityTrimText(severity int, isSeverityAnsiColored bool) string {
+	if isSeverityAnsiColored {
+		return severityAnsiColorCodes[severity] + severityTrimTextMap[severity] + RESET_ANSI_COLOR
+	}
+	return severityTrimTextMap[severity]
+}
+
 var severityTextMap = map[int]string{
 	common.DEBUG_SEVERITY:       DEBUG_PREFIX,
 	common.INFORMATION_SEVERITY: INFORMATION_PREFIX,
@@ -75,4 +101,12 @@ var severityTrimTextMap = map[int]string{
 	common.WARNING_SEVERITY:     WARNING_TRIM_PREFIX,
 	common.ERROR_SEVERITY:       ERROR_PREFIX,
 	common.FATAL_SEVERITY:       FATAL_PREFIX,
+}
+
+var severityAnsiColorCodes = map[int]string{
+	common.DEBUG_SEVERITY:       DEBUG_ANSI_COLOR,
+	common.INFORMATION_SEVERITY: INFORMATION_ANSI_COLOR,
+	common.WARNING_SEVERITY:     WARNING_ANSI_COLOR,
+	common.ERROR_SEVERITY:       ERROR_ANSI_COLOR,
+	common.FATAL_SEVERITY:       FATAL_ANSI_COLOR,
 }

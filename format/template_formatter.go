@@ -380,9 +380,9 @@ func (t *TemplateFormatter) formatTime(logValues *common.LogValues) string {
 
 func (t *TemplateFormatter) getSeverityText(severity int) string {
 	if t.trimSeverityText {
-		return severityTrimTextMap[severity]
+		return getSeverityTrimText(severity, t.commonProperties.isSeverityAnsiColored)
 	}
-	return severityTextMap[severity]
+	return getSeverityText(severity, t.commonProperties.isSeverityAnsiColored)
 }
 
 func formatValues(template string, args ...any) string {
