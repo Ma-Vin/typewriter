@@ -46,19 +46,19 @@ func initMainLoggerTest(envCommonLogLevel string, envPackageLogLevel string, pac
 	}
 }
 
-func initMainLoggerViaPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
+func initMainLoggerViaPackageTest(envCommonLogLevel, envPackageLogLevel string) {
 	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "logger", false)
 }
 
-func initMainLoggerViaFullQualifiedPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
+func initMainLoggerViaFullQualifiedPackageTest(envCommonLogLevel, envPackageLogLevel string) {
 	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "github.com/ma-vin/typewriter/logger", true)
 }
 
-func initMainLoggerViaCommonTest(envCommonLogLevel string, envPackageLogLevel string) {
+func initMainLoggerViaCommonTest(envCommonLogLevel, envPackageLogLevel string) {
 	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "other", false)
 }
 
-func initMainLoggerViaCommonFullQualifiedTest(envCommonLogLevel string, envPackageLogLevel string) {
+func initMainLoggerViaCommonFullQualifiedTest(envCommonLogLevel, envPackageLogLevel string) {
 	initMainLoggerTest(envCommonLogLevel, envPackageLogLevel, "github.com/ma-vin/typewriter/other", true)
 }
 

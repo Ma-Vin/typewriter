@@ -901,7 +901,7 @@ func getValueFromMapOrDefaultForTemplate(isSequenceActive bool, source *map[stri
 	}
 }
 
-func printHint(propertyValue string, propertyName string) {
+func printHint(propertyValue, propertyName string) {
 	fmt.Printf("unknown \"%s\" value at property %s", propertyValue, propertyName)
 	fmt.Println()
 }

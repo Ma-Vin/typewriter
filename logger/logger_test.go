@@ -12,7 +12,7 @@ import (
 	"github.com/ma-vin/typewriter/format"
 )
 
-func initLoggerViaPackageTest(envCommonLogLevel string, envPackageLogLevel string) {
+func initLoggerViaPackageTest(envCommonLogLevel, envPackageLogLevel string) {
 	// dummy config initialization, otherwise loggersInitialized=true will be without effect
 	config.GetConfig()
 	initMainLoggerViaPackageTest(envCommonLogLevel, envPackageLogLevel)
@@ -20,7 +20,7 @@ func initLoggerViaPackageTest(envCommonLogLevel string, envPackageLogLevel strin
 	loggersInitialized = true
 }
 
-func initLoggerViaCommonTest(envCommonLogLevel string, envPackageLogLevel string) {
+func initLoggerViaCommonTest(envCommonLogLevel, envPackageLogLevel string) {
 	// dummy config initialization, otherwise loggersInitialized=true will be without effect
 	config.GetConfig()
 	initMainLoggerViaCommonTest(envCommonLogLevel, envPackageLogLevel)
