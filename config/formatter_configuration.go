@@ -145,6 +145,87 @@ func (c TemplateFormatterConfig) Equals(other *FormatterConfig) bool {
 		c.TrimSeverityText == (*other).(TemplateFormatterConfig).TrimSeverityText
 }
 
+func (c *TemplateFormatterConfig) SetCommon(common *CommonFormatterConfig) *TemplateFormatterConfig {
+	c.Common = common
+	return c
+}
+
+func (c *TemplateFormatterConfig) SetTemplate(template string) *TemplateFormatterConfig {
+	c.Template = template
+	c.IsDefaultTemplate = (!c.Common.IsSequenceActive && template == DEFAULT_TEMPLATE) || (c.Common.IsSequenceActive && template == DEFAULT_SEQUENCE_TEMPLATE)
+	return c
+}
+
+func (c *TemplateFormatterConfig) SetCallerTemplate(callerTemplate string) *TemplateFormatterConfig {
+	c.CallerTemplate = callerTemplate
+	c.IsDefaultCallerTemplate = (!c.Common.IsSequenceActive && callerTemplate == DEFAULT_CALLER_TEMPLATE) || (c.Common.IsSequenceActive && callerTemplate == DEFAULT_SEQUENCE_CALLER_TEMPLATE)
+	return c
+}
+
+// Only valid for testing, because the IsDefaultCorrelationIdTemplate is set by template comparison and by checking if the configuration contains a value for the template
+func (c *TemplateFormatterConfig) SetCorrelationIdTemplateForTest(correlationIdTemplate string) *TemplateFormatterConfig {
+	return c.SetCorrelationIdTemplate(correlationIdTemplate).
+		SetIsDefaultCorrelationIdTemplate((!c.Common.IsSequenceActive && correlationIdTemplate == DEFAULT_CORRELATION_TEMPLATE) || (c.Common.IsSequenceActive && correlationIdTemplate == DEFAULT_SEQUENCE_CORRELATION_TEMPLATE))
+}
+
+func (c *TemplateFormatterConfig) SetCorrelationIdTemplate(correlationIdTemplate string) *TemplateFormatterConfig {
+	c.CorrelationIdTemplate = correlationIdTemplate
+	return c
+}
+
+func (c *TemplateFormatterConfig) SetIsDefaultCorrelationIdTemplate(isDefaultCorrelationIdTemplate bool) *TemplateFormatterConfig {
+	c.IsDefaultCorrelationIdTemplate = isDefaultCorrelationIdTemplate
+	return c
+}
+
+// Only valid for testing, because the IsDefaultCorrelationIdTemplate is set by template comparison and by checking if the configuration contains a value for the template
+func (c *TemplateFormatterConfig) SetCorrelationIdCallerTemplateForTest(callerCorrelationIdTemplate string) *TemplateFormatterConfig {
+	return c.SetCorrelationIdCallerTemplate(callerCorrelationIdTemplate).
+		SetIsDefaultCallerCorrelationIdTemplate((!c.Common.IsSequenceActive && callerCorrelationIdTemplate == DEFAULT_CALLER_CORRELATION_TEMPLATE) || (c.Common.IsSequenceActive && callerCorrelationIdTemplate == DEFAULT_SEQUENCE_CALLER_CORRELATION_TEMPLATE))
+}
+
+func (c *TemplateFormatterConfig) SetCorrelationIdCallerTemplate(callerCorrelationIdTemplate string) *TemplateFormatterConfig {
+	c.CallerCorrelationIdTemplate = callerCorrelationIdTemplate
+	return c
+}
+
+func (c *TemplateFormatterConfig) SetIsDefaultCallerCorrelationIdTemplate(isDefaultCallerCorrelationIdTemplate bool) *TemplateFormatterConfig {
+	c.IsDefaultCallerCorrelationIdTemplate = isDefaultCallerCorrelationIdTemplate
+	return c
+}
+
+func (c *TemplateFormatterConfig) SetCustomTemplate(customTemplate string) *TemplateFormatterConfig {
+	c.CustomTemplate = customTemplate
+	c.IsDefaultCustomTemplate = (!c.Common.IsSequenceActive && customTemplate == DEFAULT_CUSTOM_TEMPLATE) || (c.Common.IsSequenceActive && customTemplate == DEFAULT_SEQUENCE_CUSTOM_TEMPLATE)
+	return c
+}
+
+// Only valid for testing, because the IsDefaultCorrelationIdTemplate is set by template comparison and by checking if the configuration contains a value for the template
+func (c *TemplateFormatterConfig) SetCallerCustomTemplateForTest(callerCustomTemplate string) *TemplateFormatterConfig {
+	return c.SetCallerCustomTemplate(callerCustomTemplate).
+		SetIsDefaultCallerCustomTemplate((!c.Common.IsSequenceActive && callerCustomTemplate == DEFAULT_CALLER_CUSTOM_TEMPLATE) || (c.Common.IsSequenceActive && callerCustomTemplate == DEFAULT_SEQUENCE_CALLER_CUSTOM_TEMPLATE))
+}
+
+func (c *TemplateFormatterConfig) SetCallerCustomTemplate(callerCustomTemplate string) *TemplateFormatterConfig {
+	c.CallerCustomTemplate = callerCustomTemplate
+	return c
+}
+
+func (c *TemplateFormatterConfig) SetIsDefaultCallerCustomTemplate(isDefaultCallerCustomTemplate bool) *TemplateFormatterConfig {
+	c.IsDefaultCallerCustomTemplate = isDefaultCallerCustomTemplate
+	return c
+}
+
+func (c *TemplateFormatterConfig) SetTrimSeverityText(trimSeverityText bool) *TemplateFormatterConfig {
+	c.TrimSeverityText = trimSeverityText
+	return c
+}
+
+func (c *TemplateFormatterConfig) ConvertToFormatterConfig() *FormatterConfig {
+	var config FormatterConfig = *c
+	return &config
+}
+
 func (c TemplateFormatterConfig) CreateFullCopy() FormatterConfig {
 	commonConfig := *c.Common
 	c.Common = &commonConfig
