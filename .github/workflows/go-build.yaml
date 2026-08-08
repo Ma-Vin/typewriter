@@ -49,7 +49,8 @@ jobs:
             ${{ github.workspace }}/**/report.json
           retention-days: 1
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v8
+        # the sha references v8.2.1
+        uses: sonarsource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}      
