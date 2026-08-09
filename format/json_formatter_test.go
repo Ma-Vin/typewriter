@@ -12,35 +12,43 @@ import (
 	"github.com/ma-vin/typewriter/config"
 )
 
-// Creates a new formatter with given key names and time layout
-func createJsonFormatterForTest(timeKey string, sequenceKey string, severityKey string, messageKey string, correlationKey string,
-	customValuesKey string, timeLayout string,
-	callerFunctionKey string, callerFileKey string, callerFileLineKey string,
-	customValuesAsSubElement bool, isSequenceActive bool, withAnsiColor bool, envNamesToLog []string) Formatter {
-
-	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout, IsSequenceActive: isSequenceActive, EnvNamesToLog: envNamesToLog, IsSeverityAnsiColored: withAnsiColor}
-	var config config.FormatterConfig = config.JsonFormatterConfig{
-		Common:                   &commonConfig,
-		TimeKey:                  timeKey,
-		SequenceKey:              sequenceKey,
-		SeverityKey:              severityKey,
-		MessageKey:               messageKey,
-		CorrelationKey:           correlationKey,
-		CustomValuesKey:          customValuesKey,
-		CallerFunctionKey:        callerFunctionKey,
-		CallerFileKey:            callerFileKey,
-		CallerFileLineKey:        callerFileLineKey,
-		CustomValuesAsSubElement: customValuesAsSubElement,
-	}
-	result, _ := CreateJsonFormatterFromConfig(&config)
-	return *result
+func createJsonFormatterFromConfigForTest(formatterConfig *config.FormatterConfig) *Formatter {
+	result, _ := CreateJsonFormatterFromConfig(formatterConfig)
+	return result
 }
 
 var jsonFormatTestTime = time.Date(2024, time.November, 15, 20, 00, 0, 0, time.UTC)
 var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 
-var jsonFormatter Formatter = createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, false, false, []string{})
-var jsonFormatterSub Formatter = createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", true, false, false, []string{})
+var jsonFormatter Formatter = *createJsonFormatterFromConfigForTest(
+	(&config.JsonFormatterConfig{}).SetCommon(
+		createCommonFormatterConfigForTest(
+			time.RFC3339Nano,
+			false,
+			false,
+			[]string{})).
+		SetTimeKey("time").
+		SetSequenceKey("seq").
+		SetSeverityKey("severity").
+		SetMessageKey("message").
+		SetCorrelationKey("correlation").
+		SetCustomValuesKey("custom", false).
+		SetCallerKeys("caller", "file", "line").ConvertToFormatterConfig())
+
+var jsonFormatterSub Formatter = *createJsonFormatterFromConfigForTest(
+	(&config.JsonFormatterConfig{}).SetCommon(
+		createCommonFormatterConfigForTest(
+			time.RFC3339Nano,
+			false,
+			false,
+			[]string{})).
+		SetTimeKey("time").
+		SetSequenceKey("seq").
+		SetSeverityKey("severity").
+		SetMessageKey("message").
+		SetCorrelationKey("correlation").
+		SetCustomValuesKey("custom", true).
+		SetCallerKeys("caller", "file", "line").ConvertToFormatterConfig())
 
 func TestJsonFormat(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
@@ -244,7 +252,20 @@ func TestJsonFormatWithSequence(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
 
 	common.InitSequenceCounter()
-	jsonFormatterWithSequence := createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, true, false, []string{})
+	jsonFormatterWithSequence := *createJsonFormatterFromConfigForTest(
+		(&config.JsonFormatterConfig{}).SetCommon(
+			createCommonFormatterConfigForTest(
+				time.RFC3339Nano,
+				true,
+				false,
+				[]string{})).
+			SetTimeKey("time").
+			SetSequenceKey("seq").
+			SetSeverityKey("severity").
+			SetMessageKey("message").
+			SetCorrelationKey("correlation").
+			SetCustomValuesKey("custom", false).
+			SetCallerKeys("caller", "file", "line").ConvertToFormatterConfig())
 
 	for i := 1; i <= 5; i++ {
 		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
@@ -263,7 +284,20 @@ func TestJsonFormatWithEnvNames(t *testing.T) {
 	os.Setenv("Test3", "2.1")
 	os.Setenv("test4", "true")
 
-	jsonFormatterWithEnvNames := createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, true, false, []string{"test1", "TEST2", "Test3", "test4"})
+	jsonFormatterWithEnvNames := *createJsonFormatterFromConfigForTest(
+		(&config.JsonFormatterConfig{}).SetCommon(
+			createCommonFormatterConfigForTest(
+				time.RFC3339Nano,
+				true,
+				false,
+				[]string{"test1", "TEST2", "Test3", "test4"})).
+			SetTimeKey("time").
+			SetSequenceKey("seq").
+			SetSeverityKey("severity").
+			SetMessageKey("message").
+			SetCorrelationKey("correlation").
+			SetCustomValuesKey("custom", false).
+			SetCallerKeys("caller", "file", "line").ConvertToFormatterConfig())
 
 	for i := 1; i <= 5; i++ {
 		logValuesToFormat := common.CreateLogValues(i, "Testmessage")
@@ -275,7 +309,20 @@ func TestJsonFormatWithEnvNames(t *testing.T) {
 func TestJsonFormatWithSeverityAnsiColored(t *testing.T) {
 	common.SetLogValuesMockTime(&jsonFormatTestTime)
 
-	var jsonFormatterWithAnsiColor Formatter = createJsonFormatterForTest("time", "seq", "severity", "message", "correlation", "custom", time.RFC3339Nano, "caller", "file", "line", false, false, true, []string{})
+	var jsonFormatterWithAnsiColor Formatter = *createJsonFormatterFromConfigForTest(
+		(&config.JsonFormatterConfig{}).SetCommon(
+			createCommonFormatterConfigForTest(
+				time.RFC3339Nano,
+				false,
+				true,
+				[]string{})).
+			SetTimeKey("time").
+			SetSequenceKey("seq").
+			SetSeverityKey("severity").
+			SetMessageKey("message").
+			SetCorrelationKey("correlation").
+			SetCustomValuesKey("custom", false).
+			SetCallerKeys("caller", "file", "line").ConvertToFormatterConfig())
 
 	// json marshaller converts escape code from octal to unicode
 	expectedResults := map[int]string{

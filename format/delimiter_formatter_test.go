@@ -13,8 +13,13 @@ import (
 
 func createDelimiterFormatterForTest(withSequence bool, withAnsiColor bool, envNamesToLog []string) Formatter {
 	common.InitSequenceCounter()
-	commonConfig := config.CommonFormatterConfig{TimeLayout: time.RFC3339, IsSequenceActive: withSequence, EnvNamesToLog: envNamesToLog, IsSeverityAnsiColored: withAnsiColor}
-	var config config.FormatterConfig = config.DelimiterFormatterConfig{Common: &commonConfig, Delimiter: " - "}
+	var config config.FormatterConfig = config.DelimiterFormatterConfig{
+		Common: createCommonFormatterConfigForTest(
+			time.RFC3339,
+			withSequence,
+			withAnsiColor,
+			envNamesToLog),
+		Delimiter: " - "}
 	result, _ := CreateDelimiterFormatterFromConfig(&config)
 	return *result
 }

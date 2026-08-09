@@ -290,3 +290,51 @@ func (c JsonFormatterConfig) CreateFullCopy() FormatterConfig {
 	c.Common = &commonConfig
 	return c
 }
+
+func (c *JsonFormatterConfig) SetCommon(common *CommonFormatterConfig) *JsonFormatterConfig {
+	c.Common = common
+	return c
+}
+
+func (c *JsonFormatterConfig) SetTimeKey(timeKey string) *JsonFormatterConfig {
+	c.TimeKey = timeKey
+	return c
+}
+
+func (c *JsonFormatterConfig) SetSequenceKey(sequenceKey string) *JsonFormatterConfig {
+	c.SequenceKey = sequenceKey
+	return c
+}
+
+func (c *JsonFormatterConfig) SetSeverityKey(severityKey string) *JsonFormatterConfig {
+	c.SeverityKey = severityKey
+	return c
+}
+
+func (c *JsonFormatterConfig) SetMessageKey(messageKey string) *JsonFormatterConfig {
+	c.MessageKey = messageKey
+	return c
+}
+
+func (c *JsonFormatterConfig) SetCorrelationKey(correlationKey string) *JsonFormatterConfig {
+	c.CorrelationKey = correlationKey
+	return c
+}
+
+func (c *JsonFormatterConfig) SetCustomValuesKey(customValuesKey string, customValuesAsSubElement bool) *JsonFormatterConfig {
+	c.CustomValuesKey = customValuesKey
+	c.CustomValuesAsSubElement = customValuesAsSubElement
+	return c
+}
+
+func (c *JsonFormatterConfig) SetCallerKeys(callerFunctionKey, callerFileKey, callerFileLineKey string) *JsonFormatterConfig {
+	c.CallerFunctionKey = callerFunctionKey
+	c.CallerFileKey = callerFileKey
+	c.CallerFileLineKey = callerFileLineKey
+	return c
+}
+
+func (c *JsonFormatterConfig) ConvertToFormatterConfig() *FormatterConfig {
+	var config FormatterConfig = *c
+	return &config
+}
