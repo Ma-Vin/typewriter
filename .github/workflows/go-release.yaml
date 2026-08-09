@@ -59,7 +59,7 @@ jobs:
           VERSION_NAME=$(echo "${GITHUB_REF_NAME}" | grep -oP '(?<=release/).*')
           
           RELEASE_TAG=$(
-            curl -s -S -L \
+            curl -s -S -L --proto "=https" \
             -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.UPLOAD_GITHUB_PAT }}" \
