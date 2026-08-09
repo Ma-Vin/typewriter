@@ -16,29 +16,6 @@ import (
 
 const testCronExpression = "* * * * *"
 
-// Creates a new formatter with given key names and time layout
-func createJsonFormatterForTest(timeKey string, severityKey string, messageKey string, correlationKey string,
-	customValuesKey string, timeLayout string,
-	callerFunctionKey string, callerFileKey string, callerFileLineKey string,
-	customValuesAsSubElement bool) format.Formatter {
-
-	commonConfig := config.CommonFormatterConfig{TimeLayout: timeLayout}
-	var config config.FormatterConfig = config.JsonFormatterConfig{
-		Common:                   &commonConfig,
-		TimeKey:                  timeKey,
-		SeverityKey:              severityKey,
-		MessageKey:               messageKey,
-		CorrelationKey:           correlationKey,
-		CustomValuesKey:          customValuesKey,
-		CallerFunctionKey:        callerFunctionKey,
-		CallerFileKey:            callerFileKey,
-		CallerFileLineKey:        callerFileLineKey,
-		CustomValuesAsSubElement: customValuesAsSubElement,
-	}
-	result, _ := format.CreateJsonFormatterFromConfig(&config)
-	return *result
-}
-
 func CreateFileAppenderForTest(pathToLogFile string, formatter *format.Formatter, cronExpression string, limitByteSize string) Appender {
 	commonConfig := config.CommonAppenderConfig{}
 	var config config.AppenderConfig = config.FileAppenderConfig{
@@ -52,7 +29,29 @@ func CreateFileAppenderForTest(pathToLogFile string, formatter *format.Formatter
 	return *appender
 }
 
-var testJsonFormatter = createJsonFormatterForTest("time", "severity", "message", "correlation", "custom", time.RFC3339, "caller", "file", "line", false)
+func createJsonFormatterFromConfigForTest(formatterConfig *config.FormatterConfig) *format.Formatter {
+	result, _ := format.CreateJsonFormatterFromConfig(formatterConfig)
+	return result
+}
+
+func createCommonFormatterConfigForTest(timeLayout string, isSequenceActive bool, withAnsiColor bool, envNamesToLog []string) *config.CommonFormatterConfig {
+	return &config.CommonFormatterConfig{TimeLayout: timeLayout, IsSequenceActive: isSequenceActive, EnvNamesToLog: envNamesToLog, IsSeverityAnsiColored: withAnsiColor}
+}
+
+var testJsonFormatter = *createJsonFormatterFromConfigForTest(
+	(&config.JsonFormatterConfig{}).SetCommon(
+		createCommonFormatterConfigForTest(
+			time.RFC3339,
+			false,
+			false,
+			[]string{})).
+		SetTimeKey("time").
+		SetSequenceKey("seq").
+		SetSeverityKey("severity").
+		SetMessageKey("message").
+		SetCorrelationKey("correlation").
+		SetCustomValuesKey("custom", false).
+		SetCallerKeys("caller", "file", "line").ConvertToFormatterConfig())
 var jsonFormatTestTime = time.Date(2024, time.November, 18, 16, 00, 0, 0, time.UTC)
 var jsonFormatTestTimeText = jsonFormatTestTime.Format(time.RFC3339Nano)
 
