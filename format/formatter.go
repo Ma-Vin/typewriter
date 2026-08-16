@@ -73,16 +73,18 @@ func CreateCommonFormatterProperties(config *config.CommonFormatterConfig) *Comm
 	return &result
 }
 
+// returns the text corresponding to the given severity integer. if isSeverityAnsiColored is true a color ansi code will be added at front and a reset at the end
 func getSeverityText(severity int, isSeverityAnsiColored bool) string {
 	if isSeverityAnsiColored {
-		return severityAnsiColorCodes[severity] + severityTextMap[severity] + RESET_ANSI_COLOR
+		return severityTextWithAnsiColorCodes[severity]
 	}
 	return severityTextMap[severity]
 }
 
+// returns the trimmed text corresponding to the given severity integer. if isSeverityAnsiColored is true a color ansi code will be added at front and a reset at the end
 func getSeverityTrimText(severity int, isSeverityAnsiColored bool) string {
 	if isSeverityAnsiColored {
-		return severityAnsiColorCodes[severity] + severityTrimTextMap[severity] + RESET_ANSI_COLOR
+		return severityTrimTextWithAnsiColorCodes[severity]
 	}
 	return severityTrimTextMap[severity]
 }
@@ -103,10 +105,18 @@ var severityTrimTextMap = map[int]string{
 	common.FATAL_SEVERITY:       FATAL_PREFIX,
 }
 
-var severityAnsiColorCodes = map[int]string{
-	common.DEBUG_SEVERITY:       DEBUG_ANSI_COLOR,
-	common.INFORMATION_SEVERITY: INFORMATION_ANSI_COLOR,
-	common.WARNING_SEVERITY:     WARNING_ANSI_COLOR,
-	common.ERROR_SEVERITY:       ERROR_ANSI_COLOR,
-	common.FATAL_SEVERITY:       FATAL_ANSI_COLOR,
+var severityTextWithAnsiColorCodes = map[int]string{
+	common.DEBUG_SEVERITY:       DEBUG_ANSI_COLOR + DEBUG_PREFIX + RESET_ANSI_COLOR,
+	common.INFORMATION_SEVERITY: INFORMATION_ANSI_COLOR + INFORMATION_PREFIX + RESET_ANSI_COLOR,
+	common.WARNING_SEVERITY:     WARNING_ANSI_COLOR + WARNING_PREFIX + RESET_ANSI_COLOR,
+	common.ERROR_SEVERITY:       ERROR_ANSI_COLOR + ERROR_PREFIX + RESET_ANSI_COLOR,
+	common.FATAL_SEVERITY:       FATAL_ANSI_COLOR + FATAL_PREFIX + RESET_ANSI_COLOR,
+}
+
+var severityTrimTextWithAnsiColorCodes = map[int]string{
+	common.DEBUG_SEVERITY:       DEBUG_ANSI_COLOR + DEBUG_PREFIX + RESET_ANSI_COLOR,
+	common.INFORMATION_SEVERITY: INFORMATION_ANSI_COLOR + INFORMATION_TRIM_PREFIX + RESET_ANSI_COLOR,
+	common.WARNING_SEVERITY:     WARNING_ANSI_COLOR + WARNING_TRIM_PREFIX + RESET_ANSI_COLOR,
+	common.ERROR_SEVERITY:       ERROR_ANSI_COLOR + ERROR_PREFIX + RESET_ANSI_COLOR,
+	common.FATAL_SEVERITY:       FATAL_ANSI_COLOR + FATAL_PREFIX + RESET_ANSI_COLOR,
 }
